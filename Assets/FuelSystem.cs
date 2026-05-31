@@ -16,6 +16,10 @@ public class FuelSystem : MonoBehaviour
 
     void Start()
     {
+        // Read Fuel Upgrade from Save Data
+        int fuelLevel = PlayerPrefs.GetInt("FuelLevel", 1);
+        maxFuel = 100f + ((fuelLevel - 1) * 20f);
+
         currentFuel = maxFuel;
         carRb = GetComponent<Rigidbody2D>();
         

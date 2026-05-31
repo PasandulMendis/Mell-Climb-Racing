@@ -14,6 +14,42 @@ public class CarController : MonoBehaviour
 
     private float movementInput;
 
+    void Start()
+    {
+        // 1. Read Upgrades from Save Data
+        int engineLevel = PlayerPrefs.GetInt("EngineLevel", 1);
+        int suspensionLevel = PlayerPrefs.GetInt("SuspensionLevel", 1);
+        int tireLevel = PlayerPrefs.GetInt("TireLevel", 1);
+
+        // 2. Apply Engine Upgrade
+        speed = 1500f + ((engineLevel - 1) * 200f);
+
+        // 3. Apply Suspension Upgrade (Stiffens the bouncy springs)
+        float newFrequency = 3f + ((suspensionLevel - 1) * 0.5f);
+        
+        JointSuspension2D backSus = backWheel.suspension;
+        backSus.frequency = newFrequency;
+        backWheel.suspension = backSus;
+
+        JointSuspension2D frontSus = frontWheel.suspension;
+        frontSus.frequency = newFrequency;
+        frontWheel.suspension = frontSus;
+
+        // 4. Apply Tire Upgrade (Creates a copy of the friction material and boosts grip)
+        CircleCollider2D backCol = backWheel.GetComponent<CircleCollider2D>();
+        CircleCollider2D frontCol = frontWheel.GetComponent<CircleCollider2D>();
+        
+        if (backCol != null && backCol.sharedMaterial != null)
+        {
+            PhysicsMaterial2D tireMat = new PhysicsMaterial2D("UpgradedGrip");
+            tireMat.friction = 1.5f + ((tireLevel - 1) * 0.3f);
+            tireMat.bounciness = 0f;
+            
+            backCol.sharedMaterial = tireMat;
+            frontCol.sharedMaterial = tireMat;
+        }
+    }
+
     void Update()
     {
         // Stop input if game is over

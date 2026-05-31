@@ -9,14 +9,15 @@ public class GameManager : MonoBehaviour
     [Header("Game Stats")]
     public int totalCoins = 0;
     public float distanceTraveled = 0f;
-    public int highestDistance = 0; // NEW: Track the high score!
+    public int highestDistance = 0;
     public bool isGameOver = false;
 
     [Header("UI References")]
     public TextMeshProUGUI coinText; 
-    public TextMeshProUGUI distanceText; // Slot for our new distance score
-    public TextMeshProUGUI highScoreText; // NEW: Slot for the highest distance record
-    public GameObject gameOverPanel; // The UI panel that pops up
+    public TextMeshProUGUI distanceText; 
+    public TextMeshProUGUI highScoreText; 
+    public GameObject gameOverPanel; 
+    // Removed mainMenuPanel
 
     [Header("Player Tracking")]
     public Transform playerCar;
@@ -41,25 +42,24 @@ public class GameManager : MonoBehaviour
         totalCoins = PlayerPrefs.GetInt("SavedCoins", 0);
         highestDistance = PlayerPrefs.GetInt("HighestDistance", 0);
         
-        UpdateCoinUI(); // Set text to saved coins when game starts
+        UpdateCoinUI(); 
         
-        // Display the high score immediately
         if (highScoreText != null)
         {
             highScoreText.text = "Best: " + highestDistance.ToString() + "m";
         }
         
-        // Setup distance tracking
         if (playerCar != null)
         {
             startPosition = playerCar.position;
         }
 
-        // Hide the game over panel when the game starts
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(false);
         }
+
+        // Removed the Main Menu and Time.timeScale freeze from here
     }
 
     void Update()
@@ -126,7 +126,10 @@ public class GameManager : MonoBehaviour
     // We will link this to a UI Button later
     public void ReturnToMenu()
     {
-        // For now, let's just reload the current scene to restart!
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+        // Now this will load the Garage scene (Scene index 0) instead of reloading the game!
+        Time.timeScale = 1f; 
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0); 
     }
+
+    // Removed the StartGame() method from here
 }
