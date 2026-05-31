@@ -17,8 +17,8 @@
 **Goal:** Create hills for the car to climb and interact with.
 
 ### Tasks
-- [ ] Introduce Unity's **SpriteShape**.
-- [ ] Configure the ground physics materials so the car tires actually grip the hills.
+- [x] Introduce Unity's **SpriteShape**.
+- [x] Configure the ground physics materials so the car tires actually grip the hills.
 - [x] Set up a camera script that smoothly follows the car.
 
 ---
@@ -40,13 +40,13 @@
 **Goal:** Implement the actual gameplay rules.
 
 ### Tasks
-- [ ] Create the **Fuel depletion** logic.
-- [ ] Create prefabs for **Coins** and **Fuel Cans**.
-- [ ] Write the collection scripts (triggers for picking up items).
-- [ ] Implement **Game Over** conditions:
+- [x] Create the **Fuel depletion** logic.
+- [x] Create prefabs for **Coins** and **Fuel Cans**.
+- [x] Write the collection scripts (triggers for picking up items).
+- [x] Implement **Game Over** conditions:
   - Running out of fuel.
   - Driver's head hitting the ground (crash).
-- [ ] Set up a basic distance tracker.
+- [x] Set up a basic distance tracker.
 
 ---
 
