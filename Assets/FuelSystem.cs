@@ -8,12 +8,16 @@ public class FuelSystem : MonoBehaviour
     public float currentFuel;
     public float fuelDrainRate = 5f; // How much fuel lost per second
 
+    private bool isOutOfFuel = false;
+    private Rigidbody2D carRb;
+
     [Header("UI")]
     public Slider fuelSlider; // We will drag our on-screen fuel bar into this slot
 
     void Start()
     {
         currentFuel = maxFuel;
+        carRb = GetComponent<Rigidbody2D>();
         
         // Setup the slider max value when the game starts
         if (fuelSlider != null)
@@ -25,6 +29,16 @@ public class FuelSystem : MonoBehaviour
 
     void Update()
     {
+        // If out of fuel, wait for the car to stop moving before triggering Game Over
+        if (isOutOfFuel)
+        {
+            if (carRb != null && carRb.linearVelocity.magnitude <= 0.5f)
+            {
+                OutOfFuelDeath();
+            }
+            return; // Stop draining fuel
+        }
+
         // Drain fuel over time
         if (currentFuel > 0)
         {
@@ -68,8 +82,23 @@ public class FuelSystem : MonoBehaviour
 
     void OutOfFuel()
     {
-        Debug.Log("Out of Fuel! Game Over! -> (Mellstroy Angry Meme plays here soon)");
+        Debug.Log("Fuel Empty! Coasting to a stop...");
+        isOutOfFuel = true;
         
-        // Eventually, we will disable the CarController script here so the car stops driving.
+        // Disable driving input so the player can't accelerate anymore
+        CarController controller = GetComponent<CarController>();
+        if (controller != null)
+        {
+            controller.enabled = false;
+            controller.backWheel.useMotor = false;
+            controller.frontWheel.useMotor = false;
+        }
+    }
+
+    void OutOfFuelDeath()
+    {
+        Debug.Log("Car stopped. Game Over! -> (Mellstroy Angry Meme)");
+        GetComponentInChildren<CarHealth>().Die("Out of Gas!");
+        this.enabled = false; // Stop checking
     }
 }
