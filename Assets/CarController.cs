@@ -12,30 +12,41 @@ public class CarController : MonoBehaviour
     public float speed = 1500f;       // Engine power
     public float rotationSpeed = 250f; // How fast you flip in the air
 
+    [Header("Nitro System")]
+    public float nitroBoostForce = 15000f; // The physical ROCKET push force!
+    public float nitroDuration = 2.0f;     // Lasts for 2 seconds
+    public Transform nitroThrusterPoint; // NEW: Move this in Unity to balance the car!
+    private int currentNitro;
+    private bool isNitroActive = false;
+    private float nitroTimer = 0f;
+
     private float movementInput;
 
     void Start()
     {
-        // 1. Read Upgrades from Save Data
-        int engineLevel = PlayerPrefs.GetInt("EngineLevel", 1);
-        int suspensionLevel = PlayerPrefs.GetInt("SuspensionLevel", 1);
-        int tireLevel = PlayerPrefs.GetInt("TireLevel", 1);
+        // 1. Read Upgrades from Save Data (Now checking Equipped levels!)
+        int maxEngine = PlayerPrefs.GetInt("EngineLevel", 1);
+        int engineLevel = PlayerPrefs.GetInt("EquippedEngineLevel", maxEngine);
+
+        int maxSus = PlayerPrefs.GetInt("SuspensionLevel", 1);
+        int suspensionLevel = PlayerPrefs.GetInt("EquippedSuspensionLevel", maxSus);
+
+        int maxTire = PlayerPrefs.GetInt("TireLevel", 1);
+        int tireLevel = PlayerPrefs.GetInt("EquippedTireLevel", maxTire);
 
         // 2. Apply Engine Upgrade
         speed = 1500f + ((engineLevel - 1) * 200f);
 
-        // 3. Apply Suspension Upgrade (Stiffens the bouncy springs)
+        // 3. Apply Suspension Upgrade
         float newFrequency = 3f + ((suspensionLevel - 1) * 0.5f);
-        
         JointSuspension2D backSus = backWheel.suspension;
         backSus.frequency = newFrequency;
         backWheel.suspension = backSus;
-
         JointSuspension2D frontSus = frontWheel.suspension;
         frontSus.frequency = newFrequency;
         frontWheel.suspension = frontSus;
 
-        // 4. Apply Tire Upgrade (Creates a copy of the friction material and boosts grip)
+        // 4. Apply Tire Upgrade
         CircleCollider2D backCol = backWheel.GetComponent<CircleCollider2D>();
         CircleCollider2D frontCol = frontWheel.GetComponent<CircleCollider2D>();
         
@@ -48,6 +59,9 @@ public class CarController : MonoBehaviour
             backCol.sharedMaterial = tireMat;
             frontCol.sharedMaterial = tireMat;
         }
+
+        // 5. Setup Nitro
+        currentNitro = PlayerPrefs.GetInt("NitroAmount", 0);
     }
 
     void Update()
@@ -59,8 +73,7 @@ public class CarController : MonoBehaviour
             return;
         }
 
-        // 1. Get input using the New Input System (Keyboard for testing)
-        // We will change this to on-screen UI buttons later for mobile!
+        // 1. Get input
         movementInput = 0f;
         
         if (Keyboard.current != null)
@@ -73,12 +86,50 @@ public class CarController : MonoBehaviour
             {
                 movementInput = -1f; // Brake / Backflip
             }
+
+            // Nitro Input (Shift Key)
+            if (Keyboard.current.shiftKey.wasPressedThisFrame && currentNitro > 0 && !isNitroActive)
+            {
+                ActivateNitro();
+            }
         }
+
+        // Nitro Timer Logic
+        if (isNitroActive)
+        {
+            nitroTimer -= Time.deltaTime;
+            if (nitroTimer <= 0)
+            {
+                DeactivateNitro();
+            }
+        }
+    }
+
+    void ActivateNitro()
+    {
+        isNitroActive = true;
+        currentNitro--; 
+        
+        PlayerPrefs.SetInt("NitroAmount", currentNitro); 
+        PlayerPrefs.Save();
+
+        nitroTimer = nitroDuration;
+
+        // Update Game UI
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.UpdateNitroUI(currentNitro);
+        }
+    }
+
+    void DeactivateNitro()
+    {
+        isNitroActive = false;
     }
 
     void FixedUpdate()
     {
-        // Stop motors if game is over
+        // Stop physics if game is over
         if (GameManager.instance != null && GameManager.instance.isGameOver)
         {
             backWheel.useMotor = false;
@@ -89,7 +140,6 @@ public class CarController : MonoBehaviour
         // 2. Wheel Motors (Driving)
         if (movementInput != 0)
         {
-            // Unity's motor speed is reversed (negative moves right), so we multiply by -1
             JointMotor2D motor = new JointMotor2D();
             motor.motorSpeed = movementInput * speed * -1f; 
             motor.maxMotorTorque = 10000f;
@@ -102,13 +152,26 @@ public class CarController : MonoBehaviour
         }
         else
         {
-            // Turn off motor so it rolls naturally when no buttons are pressed
             backWheel.useMotor = false;
             frontWheel.useMotor = false;
         }
 
         // 3. Air Rotation (Flipping)
-        // This applies rotational force to the car body. 
         carRigidbody.AddTorque(-movementInput * rotationSpeed * Time.fixedDeltaTime, ForceMode2D.Force);
+
+        // 4. THE NEW ROCKET NITRO!
+        if (isNitroActive)
+        {
+            if (nitroThrusterPoint != null)
+            {
+                // Applies the forward force exactly at your custom point to prevent nosedives!
+                carRigidbody.AddForceAtPosition(transform.right * nitroBoostForce, nitroThrusterPoint.position, ForceMode2D.Force);
+            }
+            else
+            {
+                // Fallback to center of mass if no point is assigned
+                carRigidbody.AddRelativeForce(Vector2.right * nitroBoostForce, ForceMode2D.Force);
+            }
+        }
     }
 }

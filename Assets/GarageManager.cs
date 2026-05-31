@@ -7,33 +7,99 @@ public class GarageManager : MonoBehaviour
     [Header("UI - Bank")]
     public TextMeshProUGUI totalCoinsText;
 
-    [Header("UI - Levels")]
+    [Header("UI - Levels (Displays: 'Lv 3 / Max 5')")]
     public TextMeshProUGUI engineLevelText;
     public TextMeshProUGUI suspensionLevelText;
     public TextMeshProUGUI tiresLevelText;
     public TextMeshProUGUI fuelLevelText;
 
-    [Header("UI - Costs")]
+    [Header("UI - Upgrade Costs")]
     public TextMeshProUGUI engineCostText;
     public TextMeshProUGUI suspensionCostText;
     public TextMeshProUGUI tiresCostText;
     public TextMeshProUGUI fuelCostText;
 
-    private int engineLevel;
-    private int suspensionLevel;
-    private int tiresLevel;
-    private int fuelLevel;
+    [Header("UI - Nitro")]
+    public TextMeshProUGUI nitroAmountText;
+    public TextMeshProUGUI nitroCostText;
+    public int nitroCost = 250; 
+
+    // Max Purchased Levels
+    private int maxEngine, maxSus, maxTire, maxFuel;
+    // Currently Equipped Levels
+    private int eqEngine, eqSus, eqTire, eqFuel;
+    private int nitroAmount;
     
-    private int baseCost = 100; // Formula: Level * baseCost
+    private int baseCost = 100;
 
     void Start()
     {
-        // Load saved levels
-        engineLevel = PlayerPrefs.GetInt("EngineLevel", 1);
-        suspensionLevel = PlayerPrefs.GetInt("SuspensionLevel", 1);
-        tiresLevel = PlayerPrefs.GetInt("TireLevel", 1);
-        fuelLevel = PlayerPrefs.GetInt("FuelLevel", 1);
+        // Load Max Levels
+        maxEngine = PlayerPrefs.GetInt("EngineLevel", 1);
+        maxSus = PlayerPrefs.GetInt("SuspensionLevel", 1);
+        maxTire = PlayerPrefs.GetInt("TireLevel", 1);
+        maxFuel = PlayerPrefs.GetInt("FuelLevel", 1);
 
+        // Load Equipped Levels (Defaults to max if not set)
+        eqEngine = PlayerPrefs.GetInt("EquippedEngineLevel", maxEngine);
+        eqSus = PlayerPrefs.GetInt("EquippedSuspensionLevel", maxSus);
+        eqTire = PlayerPrefs.GetInt("EquippedTireLevel", maxTire);
+        eqFuel = PlayerPrefs.GetInt("EquippedFuelLevel", maxFuel);
+
+        nitroAmount = PlayerPrefs.GetInt("NitroAmount", 0);
+
+        UpdateAllUI();
+    }
+
+    public void TuneStatUp(string statName)
+    {
+        switch (statName)
+        {
+            case "Engine":
+                eqEngine = Mathf.Clamp(eqEngine + 1, 1, maxEngine);
+                PlayerPrefs.SetInt("EquippedEngineLevel", eqEngine);
+                break;
+            case "Suspension":
+                eqSus = Mathf.Clamp(eqSus + 1, 1, maxSus);
+                PlayerPrefs.SetInt("EquippedSuspensionLevel", eqSus);
+                break;
+            case "Tires":
+                eqTire = Mathf.Clamp(eqTire + 1, 1, maxTire);
+                PlayerPrefs.SetInt("EquippedTireLevel", eqTire);
+                break;
+            case "Fuel":
+                eqFuel = Mathf.Clamp(eqFuel + 1, 1, maxFuel);
+                PlayerPrefs.SetInt("EquippedFuelLevel", eqFuel);
+                break;
+        }
+        
+        PlayerPrefs.Save();
+        UpdateAllUI();
+    }
+
+    public void TuneStatDown(string statName)
+    {
+        switch (statName)
+        {
+            case "Engine":
+                eqEngine = Mathf.Clamp(eqEngine - 1, 1, maxEngine);
+                PlayerPrefs.SetInt("EquippedEngineLevel", eqEngine);
+                break;
+            case "Suspension":
+                eqSus = Mathf.Clamp(eqSus - 1, 1, maxSus);
+                PlayerPrefs.SetInt("EquippedSuspensionLevel", eqSus);
+                break;
+            case "Tires":
+                eqTire = Mathf.Clamp(eqTire - 1, 1, maxTire);
+                PlayerPrefs.SetInt("EquippedTireLevel", eqTire);
+                break;
+            case "Fuel":
+                eqFuel = Mathf.Clamp(eqFuel - 1, 1, maxFuel);
+                PlayerPrefs.SetInt("EquippedFuelLevel", eqFuel);
+                break;
+        }
+        
+        PlayerPrefs.Save();
         UpdateAllUI();
     }
 
@@ -42,73 +108,84 @@ public class GarageManager : MonoBehaviour
         int totalCoins = PlayerPrefs.GetInt("SavedCoins", 0);
         int cost = 0;
 
-        // Determine cost based on which stat we are upgrading
         switch (statName)
         {
-            case "Engine": cost = engineLevel * baseCost; break;
-            case "Suspension": cost = suspensionLevel * baseCost; break;
-            case "Tires": cost = tiresLevel * baseCost; break;
-            case "Fuel": cost = fuelLevel * baseCost; break;
+            case "Engine": cost = maxEngine * baseCost; break;
+            case "Suspension": cost = maxSus * baseCost; break;
+            case "Tires": cost = maxTire * baseCost; break;
+            case "Fuel": cost = maxFuel * baseCost; break;
         }
 
-        // Check if we can afford it
         if (totalCoins >= cost)
         {
             totalCoins -= cost;
             PlayerPrefs.SetInt("SavedCoins", totalCoins);
 
-            // Level up and save
             switch (statName)
             {
                 case "Engine": 
-                    engineLevel++; 
-                    PlayerPrefs.SetInt("EngineLevel", engineLevel); 
+                    maxEngine++; eqEngine = maxEngine; 
+                    PlayerPrefs.SetInt("EngineLevel", maxEngine); 
+                    PlayerPrefs.SetInt("EquippedEngineLevel", eqEngine); 
                     break;
                 case "Suspension": 
-                    suspensionLevel++; 
-                    PlayerPrefs.SetInt("SuspensionLevel", suspensionLevel); 
+                    maxSus++; eqSus = maxSus; 
+                    PlayerPrefs.SetInt("SuspensionLevel", maxSus); 
+                    PlayerPrefs.SetInt("EquippedSuspensionLevel", eqSus); 
                     break;
                 case "Tires": 
-                    tiresLevel++; 
-                    PlayerPrefs.SetInt("TireLevel", tiresLevel); 
+                    maxTire++; eqTire = maxTire; 
+                    PlayerPrefs.SetInt("TireLevel", maxTire); 
+                    PlayerPrefs.SetInt("EquippedTireLevel", eqTire); 
                     break;
                 case "Fuel": 
-                    fuelLevel++; 
-                    PlayerPrefs.SetInt("FuelLevel", fuelLevel); 
+                    maxFuel++; eqFuel = maxFuel; 
+                    PlayerPrefs.SetInt("FuelLevel", maxFuel); 
+                    PlayerPrefs.SetInt("EquippedFuelLevel", eqFuel); 
                     break;
             }
 
             PlayerPrefs.Save();
             UpdateAllUI();
         }
-        else
+    }
+
+    public void BuyNitro()
+    {
+        int totalCoins = PlayerPrefs.GetInt("SavedCoins", 0);
+        if (totalCoins >= nitroCost)
         {
-            Debug.Log("Not enough coins!");
+            totalCoins -= nitroCost;
+            PlayerPrefs.SetInt("SavedCoins", totalCoins);
+            nitroAmount++;
+            PlayerPrefs.SetInt("NitroAmount", nitroAmount);
+            PlayerPrefs.Save();
+            UpdateAllUI();
         }
     }
 
     void UpdateAllUI()
     {
-        // Update Bank
-        if (totalCoinsText != null) 
-            totalCoinsText.text = PlayerPrefs.GetInt("SavedCoins", 0).ToString();
+        if (totalCoinsText != null) totalCoinsText.text = PlayerPrefs.GetInt("SavedCoins", 0).ToString();
 
-        // Update Levels
-        if (engineLevelText != null) engineLevelText.text = "Lvl " + engineLevel;
-        if (suspensionLevelText != null) suspensionLevelText.text = "Lvl " + suspensionLevel;
-        if (tiresLevelText != null) tiresLevelText.text = "Lvl " + tiresLevel;
-        if (fuelLevelText != null) fuelLevelText.text = "Lvl " + fuelLevel;
+        // Update Levels to show "Equipped / Max" (e.g., "Lv 2/5")
+        if (engineLevelText != null) engineLevelText.text = "Lv " + eqEngine + " / " + maxEngine;
+        if (suspensionLevelText != null) suspensionLevelText.text = "Lv " + eqSus + " / " + maxSus;
+        if (tiresLevelText != null) tiresLevelText.text = "Lv " + eqTire + " / " + maxTire;
+        if (fuelLevelText != null) fuelLevelText.text = "Lv " + eqFuel + " / " + maxFuel;
 
-        // Update Costs
-        if (engineCostText != null) engineCostText.text = (engineLevel * baseCost).ToString();
-        if (suspensionCostText != null) suspensionCostText.text = (suspensionLevel * baseCost).ToString();
-        if (tiresCostText != null) tiresCostText.text = (tiresLevel * baseCost).ToString();
-        if (fuelCostText != null) fuelCostText.text = (fuelLevel * baseCost).ToString();
+        // Update Upgrade Costs
+        if (engineCostText != null) engineCostText.text = "Cost: " + (maxEngine * baseCost);
+        if (suspensionCostText != null) suspensionCostText.text = "Cost: " + (maxSus * baseCost);
+        if (tiresCostText != null) tiresCostText.text = "Cost: " + (maxTire * baseCost);
+        if (fuelCostText != null) fuelCostText.text = "Cost: " + (maxFuel * baseCost);
+
+        if (nitroAmountText != null) nitroAmountText.text = "Owned: " + nitroAmount;
+        if (nitroCostText != null) nitroCostText.text = nitroCost.ToString();
     }
 
     public void StartGame()
     {
-        // Load the Gameplay scene (Assuming it is Build Index 1)
         SceneManager.LoadScene(1);
     }
 }

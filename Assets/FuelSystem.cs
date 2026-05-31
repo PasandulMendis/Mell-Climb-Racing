@@ -16,8 +16,10 @@ public class FuelSystem : MonoBehaviour
 
     void Start()
     {
-        // Read Fuel Upgrade from Save Data
-        int fuelLevel = PlayerPrefs.GetInt("FuelLevel", 1);
+        // Read Fuel Upgrade from Save Data (Checking Equipped Level)
+        int maxFuelLevel = PlayerPrefs.GetInt("FuelLevel", 1);
+        int fuelLevel = PlayerPrefs.GetInt("EquippedFuelLevel", maxFuelLevel);
+        
         maxFuel = 100f + ((fuelLevel - 1) * 20f);
 
         currentFuel = maxFuel;

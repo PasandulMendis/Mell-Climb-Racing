@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI distanceText; 
     public TextMeshProUGUI highScoreText; 
     public GameObject gameOverPanel; 
-    // Removed mainMenuPanel
+    public TextMeshProUGUI nitroCountText; // Show how many nitros we have during gameplay
 
     [Header("Player Tracking")]
     public Transform playerCar;
@@ -43,6 +43,9 @@ public class GameManager : MonoBehaviour
         highestDistance = PlayerPrefs.GetInt("HighestDistance", 0);
         
         UpdateCoinUI(); 
+        
+        // Setup initial Nitro UI
+        UpdateNitroUI(PlayerPrefs.GetInt("NitroAmount", 0));
         
         if (highScoreText != null)
         {
@@ -100,6 +103,14 @@ public class GameManager : MonoBehaviour
         if (coinText != null)
         {
             coinText.text = totalCoins.ToString();
+        }
+    }
+
+    public void UpdateNitroUI(int count)
+    {
+        if (nitroCountText != null)
+        {
+            nitroCountText.text = "Nitro: " + count.ToString();
         }
     }
 
