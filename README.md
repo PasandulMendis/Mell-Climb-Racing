@@ -27,12 +27,12 @@
 **Goal:** Make the car feel different when upgraded.
 
 ### Tasks
-- [ ] Wire the `CarController` script to accept variable stats:
+- [x] Wire the `CarController` script to accept variable stats:
   - **Engine:** Torque
   - **Tires:** Grip / Friction
   - **Suspension:** Spring stiffness
   - **Fuel:** Capacity
-- [ ] Test different preset values to ensure upgrades feel impactful.
+- [x] Test different preset values to ensure upgrades feel impactful.
 
 ---
 
