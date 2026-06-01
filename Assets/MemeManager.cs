@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Video; // We need this to play .mp4 files!
 
 public class MemeManager : MonoBehaviour
 {
@@ -7,17 +7,22 @@ public class MemeManager : MonoBehaviour
 
     public enum MemeEvent { Idle, Happy, Angry, Scared }
 
-    [Header("Meme Displays")]
-    public Image streamerCam; // 16:9 UI Image on the Canvas
-    public SpriteRenderer driverSeat; // 1:1 Sprite attached to the car
+    [Header("Video Players")]
+    public VideoPlayer streamerPlayer;
+    public VideoPlayer driverPlayer;
 
-    [Header("Meme Graphics (Drag your sprites here)")]
-    public Sprite[] idleMemes;
-    public Sprite[] happyMemes;
-    public Sprite[] angryMemes;
-    public Sprite[] scaredMemes;
+    [Header("Streamer Cam Memes (Reaction Clips)")]
+    public VideoClip[] streamerIdle;
+    public VideoClip[] streamerHappy;
+    public VideoClip[] streamerAngry;
+    public VideoClip[] streamerScared;
 
-    private float memeTimer = 0f;
+    [Header("Driver Seat Memes (Crazy Actions)")]
+    public VideoClip[] driverIdle;
+    public VideoClip[] driverHappy;
+    public VideoClip[] driverAngry;
+    public VideoClip[] driverScared;
+
     private MemeEvent currentEvent = MemeEvent.Idle;
 
     void Awake()
@@ -27,59 +32,73 @@ public class MemeManager : MonoBehaviour
 
     void Start()
     {
+        // Subscribe to the exact moment the videos finish playing
+        if (streamerPlayer != null)
+        {
+            streamerPlayer.loopPointReached += OnVideoFinished;
+        }
+        if (driverPlayer != null)
+        {
+            driverPlayer.loopPointReached += OnVideoFinished;
+        }
+
         SetMeme(MemeEvent.Idle);
     }
 
-    void Update()
-    {
-        // Count down the timer. When it hits 0, return to the Idle meme.
-        if (memeTimer > 0)
-        {
-            memeTimer -= Time.deltaTime;
-            if (memeTimer <= 0 && currentEvent != MemeEvent.Idle)
-            {
-                SetMeme(MemeEvent.Idle);
-            }
-        }
-    }
-
-    public void TriggerMeme(MemeEvent memeType, float duration = 2f)
+    public void TriggerMeme(MemeEvent memeType)
     {
         // Don't overwrite the Game Over meme
         if (currentEvent == MemeEvent.Angry) return;
+        
+        // Don't restart the meme if it's already playing!
+        if (currentEvent == memeType) return;
 
         SetMeme(memeType);
-        
-        if (memeType != MemeEvent.Angry) 
-        {
-            memeTimer = duration; // Revert back to idle after 'duration' seconds
-        }
-        else
-        {
-            memeTimer = 0f; // Angry (Game Over) stays forever
-        }
     }
 
     void SetMeme(MemeEvent memeType)
     {
         currentEvent = memeType;
-        Sprite[] selectedArray = idleMemes;
+        
+        VideoClip[] selectedStreamerArray = streamerIdle;
+        VideoClip[] selectedDriverArray = driverIdle;
 
         switch (memeType)
         {
-            case MemeEvent.Idle: selectedArray = idleMemes; break;
-            case MemeEvent.Happy: selectedArray = happyMemes; break;
-            case MemeEvent.Angry: selectedArray = angryMemes; break;
-            case MemeEvent.Scared: selectedArray = scaredMemes; break;
+            case MemeEvent.Idle: 
+                selectedStreamerArray = streamerIdle; selectedDriverArray = driverIdle; break;
+            case MemeEvent.Happy: 
+                selectedStreamerArray = streamerHappy; selectedDriverArray = driverHappy; break;
+            case MemeEvent.Angry: 
+                selectedStreamerArray = streamerAngry; selectedDriverArray = driverAngry; break;
+            case MemeEvent.Scared: 
+                selectedStreamerArray = streamerScared; selectedDriverArray = driverScared; break;
         }
 
-        if (selectedArray.Length > 0)
+        // Apply random Streamer meme
+        if (streamerPlayer != null && selectedStreamerArray.Length > 0)
         {
-            // Pick a random meme from the correct category
-            Sprite randomMeme = selectedArray[Random.Range(0, selectedArray.Length)];
-            
-            if (streamerCam != null) streamerCam.sprite = randomMeme;
-            if (driverSeat != null) driverSeat.sprite = randomMeme;
+            streamerPlayer.clip = selectedStreamerArray[Random.Range(0, selectedStreamerArray.Length)];
+            streamerPlayer.isLooping = (memeType == MemeEvent.Idle || memeType == MemeEvent.Angry);
+            streamerPlayer.Play();
+        }
+        
+        // Apply random Driver meme
+        if (driverPlayer != null && selectedDriverArray.Length > 0)
+        {
+            driverPlayer.clip = selectedDriverArray[Random.Range(0, selectedDriverArray.Length)];
+            driverPlayer.isLooping = (memeType == MemeEvent.Idle || memeType == MemeEvent.Angry);
+            driverPlayer.Play();
+        }
+    }
+
+    // This is called automatically by Unity the exact millisecond a video ends!
+    void OnVideoFinished(VideoPlayer vp)
+    {
+        // If the video that finished wasn't Idle or Angry, return to Idle!
+        if (currentEvent != MemeEvent.Idle && currentEvent != MemeEvent.Angry)
+        {
+            SetMeme(MemeEvent.Idle);
         }
     }
 }

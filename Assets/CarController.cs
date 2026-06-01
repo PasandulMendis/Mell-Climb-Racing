@@ -16,6 +16,10 @@ public class CarController : MonoBehaviour
     public float nitroBoostForce = 15000f; // The physical ROCKET push force!
     public float nitroDuration = 2.0f;     // Lasts for 2 seconds
     public Transform nitroThrusterPoint; // NEW: Move this in Unity to balance the car!
+
+    [Header("Meme Settings")]
+    public float scaredHeightTrigger = 6f; // How high off the ground to trigger Jumpscare!
+
     private int currentNitro;
     private bool isNitroActive = false;
     private float nitroTimer = 0f;
@@ -118,7 +122,7 @@ public class CarController : MonoBehaviour
         // TRIGGER HAPPY/HYPE MEME!
         if (MemeManager.instance != null)
         {
-            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy, nitroDuration);
+            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
         }
 
         // Update Game UI
@@ -177,6 +181,35 @@ public class CarController : MonoBehaviour
             {
                 // Fallback to center of mass if no point is assigned
                 carRigidbody.AddRelativeForce(Vector2.right * nitroBoostForce, ForceMode2D.Force);
+            }
+        }
+
+        // 5. NEW: Check Altitude for the Jumpscare/Scared Meme!
+        CheckAltitudeForMeme();
+    }
+
+    void CheckAltitudeForMeme()
+    {
+        // Cast a ray downwards to see how far the ground is
+        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, Vector2.down, scaredHeightTrigger);
+        bool hitGround = false;
+
+        foreach (var hit in hits)
+        {
+            // Ignore the car itself and triggers (like coins/fuel cans)
+            if (!hit.collider.isTrigger && !hit.collider.CompareTag("Player"))
+            {
+                hitGround = true; // We found the ground!
+                break;
+            }
+        }
+
+        // If we didn't hit the ground within our trigger height, we are HIGH in the air!
+        if (!hitGround)
+        {
+            if (MemeManager.instance != null)
+            {
+                MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared);
             }
         }
     }

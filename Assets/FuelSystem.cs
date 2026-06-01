@@ -85,10 +85,10 @@ public class FuelSystem : MonoBehaviour
         currentFuel = maxFuel;
         Debug.Log("Fuel Refilled!");
         
-        // TRIGGER HAPPY MEME FOR 2 SECONDS!
+        // TRIGGER HAPPY MEME
         if (MemeManager.instance != null)
         {
-            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy, 2f);
+            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
         }
     }
 
