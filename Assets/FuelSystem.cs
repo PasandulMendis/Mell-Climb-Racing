@@ -83,7 +83,13 @@ public class FuelSystem : MonoBehaviour
     void RefillFuel()
     {
         currentFuel = maxFuel;
-        Debug.Log("Fuel Refilled! -> (Mellstroy Happy Meme plays here soon)");
+        Debug.Log("Fuel Refilled!");
+        
+        // TRIGGER HAPPY MEME FOR 2 SECONDS!
+        if (MemeManager.instance != null)
+        {
+            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy, 2f);
+        }
     }
 
     void OutOfFuel()

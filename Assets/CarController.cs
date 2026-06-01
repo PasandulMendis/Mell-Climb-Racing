@@ -115,6 +115,12 @@ public class CarController : MonoBehaviour
 
         nitroTimer = nitroDuration;
 
+        // TRIGGER HAPPY/HYPE MEME!
+        if (MemeManager.instance != null)
+        {
+            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy, nitroDuration);
+        }
+
         // Update Game UI
         if (GameManager.instance != null)
         {

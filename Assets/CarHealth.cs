@@ -26,6 +26,12 @@ public class CarHealth : MonoBehaviour
 
         Debug.Log("Game Over: " + reason);
 
+        // TRIGGER ANGRY/SAD MEME (Stays forever until restart)
+        if (MemeManager.instance != null)
+        {
+            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry);
+        }
+
         // Tell the Game Manager the game is over!
         GameManager.instance.GameOver();
 
