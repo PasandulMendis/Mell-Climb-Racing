@@ -54,9 +54,9 @@
 **Goal:** Integrate the Mellstroy memes into the gameplay.
 
 ### Tasks
-- [ ] **The Driver (1:1 Video/GIF):** Attach a UI/Sprite player to the car seat that stays upright. Connect it to the game state (*Idle, Speeding, Flipping*).
-- [ ] **The Streamer (16:9 Corner Cam):** Create a UI canvas overlay.
-- [ ] **The Event Manager:** Write a script that detects events (*Airtime, Crash, Low Fuel, Coin streak*) and tells the Streamer and Driver which meme video/sprite to play.
+- [x] **The Driver (1:1 Video/GIF):** Attach a UI/Sprite player to the car seat that stays upright. Connect it to the game state (*Idle, Speeding, Flipping*).
+- [x] **The Streamer (16:9 Corner Cam):** Create a UI canvas overlay.
+- [x] **The Event Manager:** Write a script that detects events (*Airtime, Crash, Low Fuel, Coin streak*) and tells the Streamer and Driver which meme video/sprite to play.
 
 ---
 
