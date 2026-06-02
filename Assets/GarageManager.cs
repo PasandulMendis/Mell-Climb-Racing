@@ -31,20 +31,23 @@ public class GarageManager : MonoBehaviour
     private int nitroAmount;
     
     private int baseCost = 100;
+    private int carID; // Tracks which car we are upgrading
 
     void Start()
     {
-        // Load Max Levels
-        maxEngine = PlayerPrefs.GetInt("EngineLevel", 1);
-        maxSus = PlayerPrefs.GetInt("SuspensionLevel", 1);
-        maxTire = PlayerPrefs.GetInt("TireLevel", 1);
-        maxFuel = PlayerPrefs.GetInt("FuelLevel", 1);
+        carID = PlayerPrefs.GetInt("SelectedCar", 0);
 
-        // Load Equipped Levels (Defaults to max if not set)
-        eqEngine = PlayerPrefs.GetInt("EquippedEngineLevel", maxEngine);
-        eqSus = PlayerPrefs.GetInt("EquippedSuspensionLevel", maxSus);
-        eqTire = PlayerPrefs.GetInt("EquippedTireLevel", maxTire);
-        eqFuel = PlayerPrefs.GetInt("EquippedFuelLevel", maxFuel);
+        // Load Max Levels for THIS car
+        maxEngine = PlayerPrefs.GetInt("Car_" + carID + "_EngineLevel", 1);
+        maxSus = PlayerPrefs.GetInt("Car_" + carID + "_SuspensionLevel", 1);
+        maxTire = PlayerPrefs.GetInt("Car_" + carID + "_TireLevel", 1);
+        maxFuel = PlayerPrefs.GetInt("Car_" + carID + "_FuelLevel", 1);
+
+        // Load Equipped Levels for THIS car (Defaults to max if not set)
+        eqEngine = PlayerPrefs.GetInt("Car_" + carID + "_EquippedEngineLevel", maxEngine);
+        eqSus = PlayerPrefs.GetInt("Car_" + carID + "_EquippedSuspensionLevel", maxSus);
+        eqTire = PlayerPrefs.GetInt("Car_" + carID + "_EquippedTireLevel", maxTire);
+        eqFuel = PlayerPrefs.GetInt("Car_" + carID + "_EquippedFuelLevel", maxFuel);
 
         nitroAmount = PlayerPrefs.GetInt("NitroAmount", 0);
 
@@ -57,19 +60,19 @@ public class GarageManager : MonoBehaviour
         {
             case "Engine":
                 eqEngine = Mathf.Clamp(eqEngine + 1, 1, maxEngine);
-                PlayerPrefs.SetInt("EquippedEngineLevel", eqEngine);
+                PlayerPrefs.SetInt("Car_" + carID + "_EquippedEngineLevel", eqEngine);
                 break;
             case "Suspension":
                 eqSus = Mathf.Clamp(eqSus + 1, 1, maxSus);
-                PlayerPrefs.SetInt("EquippedSuspensionLevel", eqSus);
+                PlayerPrefs.SetInt("Car_" + carID + "_EquippedSuspensionLevel", eqSus);
                 break;
             case "Tires":
                 eqTire = Mathf.Clamp(eqTire + 1, 1, maxTire);
-                PlayerPrefs.SetInt("EquippedTireLevel", eqTire);
+                PlayerPrefs.SetInt("Car_" + carID + "_EquippedTireLevel", eqTire);
                 break;
             case "Fuel":
                 eqFuel = Mathf.Clamp(eqFuel + 1, 1, maxFuel);
-                PlayerPrefs.SetInt("EquippedFuelLevel", eqFuel);
+                PlayerPrefs.SetInt("Car_" + carID + "_EquippedFuelLevel", eqFuel);
                 break;
         }
         
@@ -83,19 +86,19 @@ public class GarageManager : MonoBehaviour
         {
             case "Engine":
                 eqEngine = Mathf.Clamp(eqEngine - 1, 1, maxEngine);
-                PlayerPrefs.SetInt("EquippedEngineLevel", eqEngine);
+                PlayerPrefs.SetInt("Car_" + carID + "_EquippedEngineLevel", eqEngine);
                 break;
             case "Suspension":
                 eqSus = Mathf.Clamp(eqSus - 1, 1, maxSus);
-                PlayerPrefs.SetInt("EquippedSuspensionLevel", eqSus);
+                PlayerPrefs.SetInt("Car_" + carID + "_EquippedSuspensionLevel", eqSus);
                 break;
             case "Tires":
                 eqTire = Mathf.Clamp(eqTire - 1, 1, maxTire);
-                PlayerPrefs.SetInt("EquippedTireLevel", eqTire);
+                PlayerPrefs.SetInt("Car_" + carID + "_EquippedTireLevel", eqTire);
                 break;
             case "Fuel":
                 eqFuel = Mathf.Clamp(eqFuel - 1, 1, maxFuel);
-                PlayerPrefs.SetInt("EquippedFuelLevel", eqFuel);
+                PlayerPrefs.SetInt("Car_" + carID + "_EquippedFuelLevel", eqFuel);
                 break;
         }
         
@@ -125,23 +128,23 @@ public class GarageManager : MonoBehaviour
             {
                 case "Engine": 
                     maxEngine++; eqEngine = maxEngine; 
-                    PlayerPrefs.SetInt("EngineLevel", maxEngine); 
-                    PlayerPrefs.SetInt("EquippedEngineLevel", eqEngine); 
+                    PlayerPrefs.SetInt("Car_" + carID + "_EngineLevel", maxEngine); 
+                    PlayerPrefs.SetInt("Car_" + carID + "_EquippedEngineLevel", eqEngine); 
                     break;
                 case "Suspension": 
                     maxSus++; eqSus = maxSus; 
-                    PlayerPrefs.SetInt("SuspensionLevel", maxSus); 
-                    PlayerPrefs.SetInt("EquippedSuspensionLevel", eqSus); 
+                    PlayerPrefs.SetInt("Car_" + carID + "_SuspensionLevel", maxSus); 
+                    PlayerPrefs.SetInt("Car_" + carID + "_EquippedSuspensionLevel", eqSus); 
                     break;
                 case "Tires": 
                     maxTire++; eqTire = maxTire; 
-                    PlayerPrefs.SetInt("TireLevel", maxTire); 
-                    PlayerPrefs.SetInt("EquippedTireLevel", eqTire); 
+                    PlayerPrefs.SetInt("Car_" + carID + "_TireLevel", maxTire); 
+                    PlayerPrefs.SetInt("Car_" + carID + "_EquippedTireLevel", eqTire); 
                     break;
                 case "Fuel": 
                     maxFuel++; eqFuel = maxFuel; 
-                    PlayerPrefs.SetInt("FuelLevel", maxFuel); 
-                    PlayerPrefs.SetInt("EquippedFuelLevel", eqFuel); 
+                    PlayerPrefs.SetInt("Car_" + carID + "_FuelLevel", maxFuel); 
+                    PlayerPrefs.SetInt("Car_" + carID + "_EquippedFuelLevel", eqFuel); 
                     break;
             }
 
@@ -186,6 +189,7 @@ public class GarageManager : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene(1);
+        // Change this from 1 to 2, because GameScene is now Scene index 2!
+        SceneManager.LoadScene(2);
     }
 }

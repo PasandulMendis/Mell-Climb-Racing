@@ -16,9 +16,20 @@ public class FuelSystem : MonoBehaviour
 
     void Start()
     {
-        // Read Fuel Upgrade from Save Data (Checking Equipped Level)
-        int maxFuelLevel = PlayerPrefs.GetInt("FuelLevel", 1);
-        int fuelLevel = PlayerPrefs.GetInt("EquippedFuelLevel", maxFuelLevel);
+        // --- NEW: Find the UI Slider automatically since this is a Prefab! ---
+        if (fuelSlider == null)
+        {
+            GameObject uiBar = GameObject.Find("FuelBar");
+            if (uiBar != null)
+            {
+                fuelSlider = uiBar.GetComponent<Slider>();
+            }
+        }
+
+        // --- NEW: Read Fuel Upgrade for THIS SPECIFIC CAR ---
+        int carID = PlayerPrefs.GetInt("SelectedCar", 0);
+        int maxFuelLevel = PlayerPrefs.GetInt("Car_" + carID + "_FuelLevel", 1);
+        int fuelLevel = PlayerPrefs.GetInt("Car_" + carID + "_EquippedFuelLevel", maxFuelLevel);
         
         maxFuel = 100f + ((fuelLevel - 1) * 20f);
 

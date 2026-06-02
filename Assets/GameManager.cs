@@ -1,10 +1,15 @@
 using UnityEngine;
-using TMPro; // We use TextMeshPro because it makes text look high-quality and crisp!
+using TMPro; 
 
 public class GameManager : MonoBehaviour
 {
-    // This is called a "Singleton". It allows ANY other script to talk to the GameManager easily!
     public static GameManager instance; 
+
+    [Header("Dynamic Spawning")]
+    public GameObject[] carPrefabs;
+    public GameObject[] mapPrefabs;
+    public Transform spawnPoint; // Where the car drops in
+    public CameraController mainCamera; // We need to tell the camera what to follow!
 
     [Header("Game Stats")]
     public int totalCoins = 0;
@@ -17,81 +22,73 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI distanceText; 
     public TextMeshProUGUI highScoreText; 
     public GameObject gameOverPanel; 
-    public TextMeshProUGUI nitroCountText; // Show how many nitros we have during gameplay
+    public TextMeshProUGUI nitroCountText; 
 
     [Header("Player Tracking")]
-    public Transform playerCar;
+    public Transform playerCar; // This will be assigned automatically now
     private Vector3 startPosition;
 
     void Awake()
     {
-        // Setup the Singleton
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (instance == null) instance = this;
+        else Destroy(gameObject);
     }
 
     void Start()
     {
-        // Load saved coins and high score from the device!
+        // 1. SPAWN THE MAP
+        int selectedMap = PlayerPrefs.GetInt("SelectedMap", 0);
+        if (mapPrefabs.Length > selectedMap && mapPrefabs[selectedMap] != null)
+        {
+            // Spawn the map at the center of the world (0,0,0)
+            Instantiate(mapPrefabs[selectedMap], Vector3.zero, Quaternion.identity);
+        }
+
+        // 2. SPAWN THE CAR
+        int selectedCar = PlayerPrefs.GetInt("SelectedCar", 0);
+        if (carPrefabs.Length > selectedCar && carPrefabs[selectedCar] != null)
+        {
+            // Spawn the car at the specific spawn point
+            GameObject spawnedCar = Instantiate(carPrefabs[selectedCar], spawnPoint.position, Quaternion.identity);
+            
+            playerCar = spawnedCar.transform;
+            startPosition = playerCar.position;
+
+            // Tell the camera to follow our newly spawned car!
+            if (mainCamera != null)
+            {
+                mainCamera.target = playerCar;
+            }
+        }
+
+        // Load stats
         totalCoins = PlayerPrefs.GetInt("SavedCoins", 0);
         highestDistance = PlayerPrefs.GetInt("HighestDistance", 0);
         
         UpdateCoinUI(); 
-        
-        // Setup initial Nitro UI
         UpdateNitroUI(PlayerPrefs.GetInt("NitroAmount", 0));
         
-        if (highScoreText != null)
-        {
-            highScoreText.text = "Best: " + highestDistance.ToString() + "m";
-        }
-        
-        if (playerCar != null)
-        {
-            startPosition = playerCar.position;
-        }
-
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(false);
-        }
-
-        // Removed the Main Menu and Time.timeScale freeze from here
+        if (highScoreText != null) highScoreText.text = "Best: " + highestDistance.ToString() + "m";
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
     }
 
     void Update()
     {
         if (!isGameOver && playerCar != null)
         {
-            // Calculate distance based on how far right the car has moved
             distanceTraveled = Mathf.Max(0, playerCar.position.x - startPosition.x);
             int currentDistanceInt = Mathf.FloorToInt(distanceTraveled);
             
-            // Update the UI (formatting to show whole numbers + 'm' for meters)
-            if (distanceText != null)
-            {
-                distanceText.text = currentDistanceInt.ToString() + "m";
-            }
+            if (distanceText != null) distanceText.text = currentDistanceInt.ToString() + "m";
 
-            // Check if we beat the high score during the run!
             if (currentDistanceInt > highestDistance)
             {
                 highestDistance = currentDistanceInt;
-                if (highScoreText != null)
-                {
-                    highScoreText.text = "Best: " + highestDistance.ToString() + "m";
-                }
+                if (highScoreText != null) highScoreText.text = "Best: " + highestDistance.ToString() + "m";
             }
         }
     }
 
-    // Other scripts (like the Coin) will call this function!
     public void AddCoins(int amount)
     {
         totalCoins += amount;
@@ -100,18 +97,12 @@ public class GameManager : MonoBehaviour
 
     void UpdateCoinUI()
     {
-        if (coinText != null)
-        {
-            coinText.text = totalCoins.ToString();
-        }
+        if (coinText != null) coinText.text = totalCoins.ToString();
     }
 
     public void UpdateNitroUI(int count)
     {
-        if (nitroCountText != null)
-        {
-            nitroCountText.text = "Nitro: " + count.ToString();
-        }
+        if (nitroCountText != null) nitroCountText.text = "Nitro: " + count.ToString();
     }
 
     public void GameOver()
@@ -119,28 +110,16 @@ public class GameManager : MonoBehaviour
         if (isGameOver) return;
         isGameOver = true;
 
-        // Show the Game Over UI
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(true);
-        }
+        if (gameOverPanel != null) gameOverPanel.SetActive(true);
 
-        // SAVE THE COINS AND HIGH SCORE! 
-        // totalCoins already includes what we loaded at the start + what we collected
         PlayerPrefs.SetInt("SavedCoins", totalCoins);
         PlayerPrefs.SetInt("HighestDistance", highestDistance);
         PlayerPrefs.Save();
-        
-        Debug.Log("Total Saved Coins is now: " + PlayerPrefs.GetInt("SavedCoins", 0));
     }
     
-    // We will link this to a UI Button later
     public void ReturnToMenu()
     {
-        // Now this will load the Garage scene (Scene index 0) instead of reloading the game!
         Time.timeScale = 1f; 
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0); 
+        UnityEngine.SceneManagement.SceneManager.LoadScene(1); // Return to Garage
     }
-
-    // Removed the StartGame() method from here
 }

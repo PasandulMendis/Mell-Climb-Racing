@@ -28,15 +28,17 @@ public class CarController : MonoBehaviour
 
     void Start()
     {
-        // 1. Read Upgrades from Save Data (Now checking Equipped levels!)
-        int maxEngine = PlayerPrefs.GetInt("EngineLevel", 1);
-        int engineLevel = PlayerPrefs.GetInt("EquippedEngineLevel", maxEngine);
+        int carID = PlayerPrefs.GetInt("SelectedCar", 0);
 
-        int maxSus = PlayerPrefs.GetInt("SuspensionLevel", 1);
-        int suspensionLevel = PlayerPrefs.GetInt("EquippedSuspensionLevel", maxSus);
+        // 1. Read Upgrades from Save Data (Now checking Car-Specific Equipped levels!)
+        int maxEngine = PlayerPrefs.GetInt("Car_" + carID + "_EngineLevel", 1);
+        int engineLevel = PlayerPrefs.GetInt("Car_" + carID + "_EquippedEngineLevel", maxEngine);
 
-        int maxTire = PlayerPrefs.GetInt("TireLevel", 1);
-        int tireLevel = PlayerPrefs.GetInt("EquippedTireLevel", maxTire);
+        int maxSus = PlayerPrefs.GetInt("Car_" + carID + "_SuspensionLevel", 1);
+        int suspensionLevel = PlayerPrefs.GetInt("Car_" + carID + "_EquippedSuspensionLevel", maxSus);
+
+        int maxTire = PlayerPrefs.GetInt("Car_" + carID + "_TireLevel", 1);
+        int tireLevel = PlayerPrefs.GetInt("Car_" + carID + "_EquippedTireLevel", maxTire);
 
         // 2. Apply Engine Upgrade
         speed = 1500f + ((engineLevel - 1) * 200f);
