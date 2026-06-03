@@ -7,9 +7,9 @@ public class GameManager : MonoBehaviour
 
     [Header("Dynamic Spawning")]
     public GameObject[] carPrefabs;
-    public GameObject[] mapPrefabs;
-    public Transform spawnPoint; // Where the car drops in
-    public CameraController mainCamera; // We need to tell the camera what to follow!
+    public GameObject[] mapPrefabs; // These are now Map Generators!
+    public Transform spawnPoint; 
+    public CameraController mainCamera; 
 
     [Header("Game Stats")]
     public int totalCoins = 0;
@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI nitroCountText; 
 
     [Header("Player Tracking")]
-    public Transform playerCar; // This will be assigned automatically now
+    public Transform playerCar; 
     private Vector3 startPosition;
 
     void Awake()
@@ -36,11 +36,11 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // 1. SPAWN THE MAP
+        // 1. SPAWN THE MAP GENERATOR
         int selectedMap = PlayerPrefs.GetInt("SelectedMap", 0);
         if (mapPrefabs.Length > selectedMap && mapPrefabs[selectedMap] != null)
         {
-            // Spawn the map at the center of the world (0,0,0)
+            // This spawns the MapGenerator (which instantly starts spawning chunks!)
             Instantiate(mapPrefabs[selectedMap], Vector3.zero, Quaternion.identity);
         }
 
@@ -48,20 +48,18 @@ public class GameManager : MonoBehaviour
         int selectedCar = PlayerPrefs.GetInt("SelectedCar", 0);
         if (carPrefabs.Length > selectedCar && carPrefabs[selectedCar] != null)
         {
-            // Spawn the car at the specific spawn point
             GameObject spawnedCar = Instantiate(carPrefabs[selectedCar], spawnPoint.position, Quaternion.identity);
             
             playerCar = spawnedCar.transform;
             startPosition = playerCar.position;
 
-            // Tell the camera to follow our newly spawned car!
             if (mainCamera != null)
             {
                 mainCamera.target = playerCar;
             }
         }
 
-        // Load stats
+        // 3. LOAD STATS
         totalCoins = PlayerPrefs.GetInt("SavedCoins", 0);
         highestDistance = PlayerPrefs.GetInt("HighestDistance", 0);
         
