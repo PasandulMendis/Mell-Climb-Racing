@@ -44,10 +44,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1084b39d10038495f8fe2db019a03a2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
-  chunkPrefabs:
-  - {fileID: 4883027112455105004, guid: f514f10546b404a7c9d90c8e9f8c2f88, type: 3}
-  - {fileID: 8497211218200060321, guid: ba5676b788001475bbadc13debbfb5c0, type: 3}
-  - {fileID: 1239340889431677073, guid: 01a2e375e40e34fbbb6b38b8db7c27be, type: 3}
+  seed: 12345
   chunksToSpawnAhead: 3
   chunkWidth: 20
-  destroyDistanceBehind: 50
+  destroyDistanceBehind: 60
+  terrainDepth: 1
+  pointSpacing: 2
+  baseAmplitude: 5
+  maxAmplitude: 25
+  difficultyScaling: 0.02
+  noiseFrequency: 0.05
+  secondaryNoiseFrequency: 0.2
+  secondaryAmplitude: 1
+  blankChunkPrefab: {fileID: 2503069242505576877, guid: 1a41ed39a7dae4b47a390be90b337059, type: 3}
+  coinPrefab: {fileID: 8338996839119132599, guid: 41b2a52c4e2674f359c167ab09930a43, type: 3}
+  fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
