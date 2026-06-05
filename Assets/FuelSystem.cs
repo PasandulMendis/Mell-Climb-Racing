@@ -94,7 +94,15 @@ public class FuelSystem : MonoBehaviour
     void RefillFuel()
     {
         currentFuel = maxFuel;
+        isOutOfFuel = false; // FIX: Tell the system we have fuel again!
         Debug.Log("Fuel Refilled!");
+
+        // FIX: Wake the CarController back up so we can drive!
+        CarController controller = GetComponent<CarController>();
+        if (controller != null)
+        {
+            controller.hasFuel = true;
+        }
         
         // TRIGGER HAPPY MEME
         if (MemeManager.instance != null)
@@ -108,13 +116,11 @@ public class FuelSystem : MonoBehaviour
         Debug.Log("Fuel Empty! Coasting to a stop...");
         isOutOfFuel = true;
         
-        // Disable driving input so the player can't accelerate anymore
+        // FIX: Don't fully disable the script, let it handle the engine braking friction!
         CarController controller = GetComponent<CarController>();
         if (controller != null)
         {
-            controller.enabled = false;
-            controller.backWheel.useMotor = false;
-            controller.frontWheel.useMotor = false;
+            controller.hasFuel = false;
         }
     }
 

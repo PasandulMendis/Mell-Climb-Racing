@@ -5580,6 +5580,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e3ed87fb54db415e9792048d60b8a61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GarageManager
+  carPrefabs:
+  - {fileID: 8374513663811443938, guid: 7b6deddbb92734b9581f36cd437cc60f, type: 3}
   totalCoinsText: {fileID: 1451584720}
   engineLevelText: {fileID: 369181974}
   suspensionLevelText: {fileID: 2007000125}

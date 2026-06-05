@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Dynamic Spawning")]
     public GameObject[] carPrefabs;
-    public GameObject[] mapPrefabs; // These are now Map Generators!
+    public GameObject[] mapPrefabs; 
     public Transform spawnPoint; 
     public CameraController mainCamera; 
 
@@ -16,6 +16,10 @@ public class GameManager : MonoBehaviour
     public float distanceTraveled = 0f;
     public int highestDistance = 0;
     public bool isGameOver = false;
+
+    [Header("Mobile Inputs")]
+    [HideInInspector] public bool isMobileGasPressed = false;
+    [HideInInspector] public bool isMobileBrakePressed = false;
 
     [Header("UI References")]
     public TextMeshProUGUI coinText; 
@@ -36,15 +40,12 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // 1. SPAWN THE MAP GENERATOR
         int selectedMap = PlayerPrefs.GetInt("SelectedMap", 0);
         if (mapPrefabs.Length > selectedMap && mapPrefabs[selectedMap] != null)
         {
-            // This spawns the MapGenerator (which instantly starts spawning chunks!)
             Instantiate(mapPrefabs[selectedMap], Vector3.zero, Quaternion.identity);
         }
 
-        // 2. SPAWN THE CAR
         int selectedCar = PlayerPrefs.GetInt("SelectedCar", 0);
         if (carPrefabs.Length > selectedCar && carPrefabs[selectedCar] != null)
         {
@@ -59,7 +60,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 3. LOAD STATS
         totalCoins = PlayerPrefs.GetInt("SavedCoins", 0);
         highestDistance = PlayerPrefs.GetInt("HighestDistance", 0);
         
@@ -86,6 +86,23 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+
+    // --- MOBILE UI INPUT METHODS ---
+    public void PointerDownGas() { isMobileGasPressed = true; }
+    public void PointerUpGas() { isMobileGasPressed = false; }
+    
+    public void PointerDownBrake() { isMobileBrakePressed = true; }
+    public void PointerUpBrake() { isMobileBrakePressed = false; }
+
+    public void MobileNitroPressed()
+    {
+        if (playerCar != null)
+        {
+            CarController cc = playerCar.GetComponent<CarController>();
+            if (cc != null) cc.TryActivateNitro();
+        }
+    }
+    // -------------------------------
 
     public void AddCoins(int amount)
     {
@@ -118,6 +135,6 @@ public class GameManager : MonoBehaviour
     public void ReturnToMenu()
     {
         Time.timeScale = 1f; 
-        UnityEngine.SceneManagement.SceneManager.LoadScene(1); // Return to Garage
+        UnityEngine.SceneManagement.SceneManager.LoadScene(1); 
     }
 }
