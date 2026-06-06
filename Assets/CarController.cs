@@ -8,25 +8,31 @@ public class CarController : MonoBehaviour
     public WheelJoint2D backWheel;
     public WheelJoint2D frontWheel;
 
-    [Header("Upgrade Levels (Set values for each level)")]
+    [Header("Upgrade Levels")]
     public float[] engineSpeedLevels = new float[] { 1500f, 1700f, 1900f, 2100f, 2300f };
     public float[] suspensionFrequencyLevels = new float[] { 4f, 4.5f, 5f, 5.5f, 6f };
     public float[] tireFrictionLevels = new float[] { 1.5f, 1.8f, 2.1f, 2.4f, 2.7f };
     public float[] fuelCapacityLevels = new float[] { 100f, 120f, 140f, 160f, 180f };
 
-    [Header("Upgrade Costs (Match array lengths with levels above)")]
+    [Header("Upgrade Costs")]
     public int[] engineCostLevels = new int[] { 0, 150, 300, 600, 1000 };
     public int[] suspensionCostLevels = new int[] { 0, 100, 250, 500, 900 };
     public int[] tireCostLevels = new int[] { 0, 120, 280, 550, 950 };
     public int[] fuelCostLevels = new int[] { 0, 80, 200, 400, 800 };
 
-    [Header("Current Stats (Auto-assigned on Start)")]
+    [Header("Current Stats (Auto-assigned)")]
     public float speed;       
     public float maxFuel;
     public float rotationSpeed = 250f; 
 
     [Header("Drive Settings")]
     public bool isFourWheelDrive = false; 
+
+    [Header("Air Control & Stunts")]
+    [Tooltip("Multiply rotation speed when all wheels leave the ground for better flips!")]
+    public float airRotationMultiplier = 1.5f;
+    [Tooltip("Coins rewarded for completing a 360 degree flip")]
+    public int flipCoinBonus = 100;
 
     [Header("Nitro System")]
     public float nitroBoostForce = 15000f; 
@@ -38,6 +44,17 @@ public class CarController : MonoBehaviour
     public float coastingBrakeForce = 300f;
     [HideInInspector] public bool hasFuel = true;
 
+    [Header("Audio & Effects")]
+    public AudioSource engineAudioSource;
+    public ParticleSystem exhaustParticleSystem;
+    public float minPitch = 0.8f;
+    public float maxPitch = 2.5f;
+    public float pitchMultiplier = 0.05f;
+
+    [Header("Wheel Dirt Particles")]
+    public ParticleSystem backWheelDirt;
+    public ParticleSystem frontWheelDirt;
+
     [Header("Meme Settings")]
     public float scaredHeightTrigger = 6f; 
 
@@ -47,6 +64,17 @@ public class CarController : MonoBehaviour
 
     private float movementInput;
 
+    // Physical ground contact tracking (No more finicky raycasts!)
+    private WheelContact backContact;
+    private WheelContact frontContact;
+    private bool backGrounded = false;
+    private bool frontGrounded = false;
+
+    // Stunt State Tracking
+    private float totalAirRotation = 0f;
+    private float lastZRotation = 0f;
+    private bool wasAirborneLastFrame = false;
+
     void Start()
     {
         WheelJoint2D[] allJoints = GetComponents<WheelJoint2D>();
@@ -54,6 +82,18 @@ public class CarController : MonoBehaviour
         {
             backWheel = allJoints[0];
             frontWheel = allJoints[1];
+        }
+
+        // --- NEW: Dynamic Wheel Contact Auto-Setup ---
+        if (backWheel != null && backWheel.connectedBody != null)
+        {
+            backContact = backWheel.connectedBody.gameObject.GetComponent<WheelContact>();
+            if (backContact == null) backContact = backWheel.connectedBody.gameObject.AddComponent<WheelContact>();
+        }
+        if (frontWheel != null && frontWheel.connectedBody != null)
+        {
+            frontContact = frontWheel.connectedBody.gameObject.GetComponent<WheelContact>();
+            if (frontContact == null) frontContact = frontWheel.connectedBody.gameObject.AddComponent<WheelContact>();
         }
 
         int carID = PlayerPrefs.GetInt("SelectedCar", 0);
@@ -117,41 +157,118 @@ public class CarController : MonoBehaviour
         if (GameManager.instance != null && GameManager.instance.isGameOver)
         {
             movementInput = 0f;
+            HandleAudioAndEffects();
+            HandleDirtParticles();
             return;
         }
 
         movementInput = 0f;
         
-        bool mobileGas = GameManager.instance != null && GameManager.instance.isMobileGasPressed;
-        bool mobileBrake = GameManager.instance != null && GameManager.instance.isMobileBrakePressed;
-
-        if (mobileGas || (Keyboard.current != null && (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)))
+        if (Keyboard.current != null)
         {
-            movementInput = 1f; 
-        }
-        else if (mobileBrake || (Keyboard.current != null && (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)))
-        {
-            movementInput = -1f; 
+            if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed) movementInput = 1f; 
+            else if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed) movementInput = -1f; 
+            
+            if (Keyboard.current.shiftKey.wasPressedThisFrame) TryActivateNitro();
         }
 
-        if (Keyboard.current != null && Keyboard.current.shiftKey.wasPressedThisFrame)
+        // --- NEW: Read Mobile Inputs from GameManager! ---
+        if (GameManager.instance != null)
         {
-            TryActivateNitro();
+            if (GameManager.instance.isMobileGasPressed) movementInput = 1f;
+            else if (GameManager.instance.isMobileBrakePressed) movementInput = -1f;
         }
+
+        if (!hasFuel) movementInput = 0f; 
 
         if (isNitroActive)
         {
             nitroTimer -= Time.deltaTime;
-            if (nitroTimer <= 0)
+            if (nitroTimer <= 0) DeactivateNitro();
+        }
+
+        HandleAudioAndEffects();
+        HandleDirtParticles();
+    }
+
+    void HandleAudioAndEffects()
+    {
+        if (engineAudioSource != null)
+        {
+            if (hasFuel && (GameManager.instance == null || !GameManager.instance.isGameOver))
             {
-                DeactivateNitro();
+                float speedMagnitude = carRigidbody.linearVelocity.magnitude;
+                float targetPitch = minPitch + (speedMagnitude * pitchMultiplier);
+                
+                if (movementInput > 0) targetPitch += 0.3f; 
+
+                targetPitch = Mathf.Clamp(targetPitch, minPitch, maxPitch);
+                engineAudioSource.pitch = Mathf.Lerp(engineAudioSource.pitch, targetPitch, Time.deltaTime * 5f);
             }
+            else
+            {
+                engineAudioSource.pitch = Mathf.Lerp(engineAudioSource.pitch, 0f, Time.deltaTime * 2f);
+            }
+        }
+
+        if (exhaustParticleSystem != null)
+        {
+            var emission = exhaustParticleSystem.emission;
+            if (hasFuel && (GameManager.instance == null || !GameManager.instance.isGameOver))
+            {
+                if (movementInput > 0) emission.rateOverTime = 30f; 
+                else emission.rateOverTime = 5f; 
+            }
+            else
+            {
+                emission.rateOverTime = 0f; 
+            }
+        }
+    }
+
+    void HandleDirtParticles()
+    {
+        if (backWheelDirt != null)
+        {
+            var em = backWheelDirt.emission;
+            if (backGrounded && movementInput != 0 && hasFuel) em.rateOverTime = 30f;
+            else em.rateOverTime = 0f;
+        }
+
+        if (frontWheelDirt != null)
+        {
+            var em = frontWheelDirt.emission;
+            if (frontGrounded && movementInput != 0 && hasFuel && isFourWheelDrive) em.rateOverTime = 30f;
+            else em.rateOverTime = 0f;
+        }
+    }
+
+    // Kept signature for backwards compatibility, now reads dynamic physical contacts!
+    bool CheckWheelGrounded(Transform wheelTrans)
+    {
+        if (wheelTrans == null) return false;
+        if (backWheel != null && wheelTrans == backWheel.transform) return backGrounded;
+        if (frontWheel != null && wheelTrans == frontWheel.transform) return frontGrounded;
+        return false;
+    }
+
+    public void UpdateDirtColor(Color newColor)
+    {
+        if (backWheelDirt != null)
+        {
+            var main = backWheelDirt.main;
+            main.startColor = newColor;
+        }
+        if (frontWheelDirt != null)
+        {
+            var main = frontWheelDirt.main;
+            main.startColor = newColor;
         }
     }
 
     public void TryActivateNitro()
     {
-        if (currentNitro > 0 && !isNitroActive && (GameManager.instance == null || !GameManager.instance.isGameOver))
+        if (currentNitro > 0 && !isNitroActive)
         {
             ActivateNitro();
         }
@@ -161,21 +278,12 @@ public class CarController : MonoBehaviour
     {
         isNitroActive = true;
         currentNitro--; 
-        
         PlayerPrefs.SetInt("NitroAmount", currentNitro); 
         PlayerPrefs.Save();
-
         nitroTimer = nitroDuration;
 
-        if (MemeManager.instance != null)
-        {
-            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
-        }
-
-        if (GameManager.instance != null)
-        {
-            GameManager.instance.UpdateNitroUI(currentNitro);
-        }
+        if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
+        if (GameManager.instance != null) GameManager.instance.UpdateNitroUI(currentNitro);
     }
 
     void DeactivateNitro()
@@ -185,6 +293,10 @@ public class CarController : MonoBehaviour
 
     void FixedUpdate()
     {
+        // 1. Gather physics-based ground state from the wheel colliders directly
+        backGrounded = backContact != null ? backContact.CheckGrounded() : false;
+        frontGrounded = frontContact != null ? frontContact.CheckGrounded() : false;
+
         if (GameManager.instance != null && GameManager.instance.isGameOver)
         {
             if (backWheel != null) backWheel.useMotor = false;
@@ -192,11 +304,11 @@ public class CarController : MonoBehaviour
             return;
         }
 
-        // Force input to 0 if we are out of gas, ignoring player/mobile controls
-        if (!hasFuel)
-        {
-            movementInput = 0f;
-        }
+        // Both wheels must be fully off the ground for stunt progression and flips
+        bool isAirborne = !backGrounded && !frontGrounded;
+
+        // Balancing control is enabled as long as at least ONE wheel is off the ground
+        bool canRotate = !backGrounded || !frontGrounded;
 
         if (movementInput != 0)
         {
@@ -217,15 +329,11 @@ public class CarController : MonoBehaviour
                     frontWheel.motor = motor;
                     frontWheel.useMotor = true;
                 }
-                else
-                {
-                    frontWheel.useMotor = false;
-                }
+                else frontWheel.useMotor = false;
             }
         }
         else
         {
-            // ENGINE BRAKING / COASTING FRICTION
             JointMotor2D brakeMotor = new JointMotor2D();
             brakeMotor.motorSpeed = 0f;
             brakeMotor.maxMotorTorque = coastingBrakeForce;
@@ -242,21 +350,55 @@ public class CarController : MonoBehaviour
             }
         }
 
-        carRigidbody.AddTorque(-movementInput * rotationSpeed * Time.fixedDeltaTime, ForceMode2D.Force);
+        // Apply balancing torque when tilting conditions are met
+        if (canRotate)
+        {
+            float flipTorque = movementInput * rotationSpeed * airRotationMultiplier * carRigidbody.mass * 50f;
+            carRigidbody.AddTorque(flipTorque, ForceMode2D.Force);
+        }
 
         if (isNitroActive && hasFuel)
         {
-            if (nitroThrusterPoint != null)
-            {
-                carRigidbody.AddForceAtPosition(transform.right * nitroBoostForce, nitroThrusterPoint.position, ForceMode2D.Force);
-            }
-            else
-            {
-                carRigidbody.AddRelativeForce(Vector2.right * nitroBoostForce, ForceMode2D.Force);
-            }
+            if (nitroThrusterPoint != null) carRigidbody.AddForceAtPosition(transform.right * nitroBoostForce, nitroThrusterPoint.position, ForceMode2D.Force);
+            else carRigidbody.AddRelativeForce(Vector2.right * nitroBoostForce, ForceMode2D.Force);
         }
 
+        HandleStunts(isAirborne);
         CheckAltitudeForMeme();
+    }
+
+    void HandleStunts(bool isAirborne)
+    {
+        if (isAirborne)
+        {
+            if (!wasAirborneLastFrame)
+            {
+                totalAirRotation = 0f;
+                lastZRotation = transform.eulerAngles.z;
+            }
+
+            float currentZ = transform.eulerAngles.z;
+            float deltaZ = Mathf.DeltaAngle(lastZRotation, currentZ);
+            totalAirRotation += deltaZ;
+            lastZRotation = currentZ;
+
+            if (Mathf.Abs(totalAirRotation) >= 360f)
+            {
+                string flipType = totalAirRotation > 0 ? "Backflip" : "Frontflip";
+                Debug.Log(flipType + " completed! +" + flipCoinBonus + " Coins!");
+
+                if (GameManager.instance != null) GameManager.instance.AddCoins(flipCoinBonus);
+                if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
+
+                totalAirRotation -= Mathf.Sign(totalAirRotation) * 360f;
+            }
+        }
+        else
+        {
+            totalAirRotation = 0f;
+        }
+
+        wasAirborneLastFrame = isAirborne;
     }
 
     void CheckAltitudeForMeme()
@@ -266,16 +408,36 @@ public class CarController : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            if (!hit.collider.isTrigger && !hit.collider.CompareTag("Player"))
+            if (!hit.collider.isTrigger && !hit.collider.CompareTag("Player") && !hit.collider.transform.IsChildOf(this.transform))
             {
                 hitGround = true; 
                 break;
             }
         }
 
-        if (!hitGround && MemeManager.instance != null)
+        if (!hitGround && MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared);
+    }
+}
+
+// --- HELPER COMPONENT FOR BULLETPROOF GROUND DETECTION ---
+public class WheelContact : MonoBehaviour
+{
+    private bool touchedThisFrame = false;
+
+    // Fired by Unity's physics system when a physical wheel collider is touching anything
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        // Ignore colliders on the player's chassis or child components (like the car's own frame)
+        if (!collision.collider.CompareTag("Player") && !collision.collider.transform.IsChildOf(transform.root))
         {
-            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared);
+            touchedThisFrame = true;
         }
+    }
+
+    public bool CheckGrounded()
+    {
+        bool wasGrounded = touchedThisFrame;
+        touchedThisFrame = false; // Reset for next FixedUpdate cycle
+        return wasGrounded;
     }
 }

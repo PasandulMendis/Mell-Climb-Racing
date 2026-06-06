@@ -40,6 +40,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // --- NEW: Unlock 120 FPS exclusively for the gameplay scene! ---
+        Application.targetFrameRate = 120;
+
         int selectedMap = PlayerPrefs.GetInt("SelectedMap", 0);
         if (mapPrefabs.Length > selectedMap && mapPrefabs[selectedMap] != null)
         {
@@ -135,6 +138,10 @@ public class GameManager : MonoBehaviour
     public void ReturnToMenu()
     {
         Time.timeScale = 1f; 
+        
+        // --- NEW: Drop back to 60 FPS in the menus to save battery life ---
+        Application.targetFrameRate = 60; 
+        
         UnityEngine.SceneManagement.SceneManager.LoadScene(1); 
     }
 }
