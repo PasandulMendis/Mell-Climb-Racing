@@ -64,10 +64,10 @@
 **Goal:** Build the menus to navigate the game and upgrade cars.
 
 ### Tasks
-- [ ] Create the **HUD (Heads Up Display)** showing Fuel Bar, Distance, and Coins.
-- [ ] Build the **Main Menu**.
-- [ ] Build the **Garage UI** using a horizontal scrolling card layout.
-- [ ] Implement the save system (`PlayerPrefs`) so coins, unlocked cars, and upgrades persist when the game is closed.
+- [x] Create the **HUD (Heads Up Display)** showing Fuel Bar, Distance, and Coins.
+- [x] Build the **Main Menu**.
+- [x] Build the **Garage UI** using a horizontal scrolling card layout.
+- [x] Implement the save system (`PlayerPrefs`) so coins, unlocked cars, and upgrades persist when the game is closed.
 
 ---
 
@@ -85,7 +85,7 @@
 **Goal:** Make the game sound good and feel "Play Store ready."
 
 ### Tasks
-- [ ] Add looping **Engine sounds** (pitch changes dynamically based on vehicle speed).
+- [x] Add looping **Engine sounds** (pitch changes dynamically based on vehicle speed).
 - [ ] Add UI click sounds, coin pickup sounds, and Mellstroy meme audio clips.
 - [ ] Performance optimization (ensuring stable framerates on older mobile devices).
 - [ ] Build and export the final **Android APK/AAB** file.
