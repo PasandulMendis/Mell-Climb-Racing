@@ -28,19 +28,31 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverPanel; 
     public TextMeshProUGUI nitroCountText; 
 
+    [Header("Dashboard UI")]
+    public RectTransform revNeedle; // The rotating needle image
+    [Tooltip("The Z rotation angle when the car is completely stopped")]
+    public float minRevAngle = 135f; 
+    [Tooltip("The Z rotation angle when the engine is maxed out")]
+    public float maxRevAngle = -135f;
+
+    [Header("Fuel Dashboard UI")]
+    public RectTransform fuelNeedle; // The rotating fuel needle image
+    [Tooltip("The Z rotation angle when Empty")]
+    public float minFuelAngle = 135f; 
+    [Tooltip("The Z rotation angle when Full")]
+    public float maxFuelAngle = -135f;
+    [Tooltip("The warning_lit.png image that flashes when fuel is low")]
+    public GameObject fuelWarningLight; 
+
     [Header("Milestones & Custom Tracker")]
-    [Tooltip("The flag image that will move")]
     public GameObject flagIndicator; 
-    [Tooltip("An empty UI object marking the far LEFT side of your bar")]
     public Transform flagStartPoint; 
-    [Tooltip("An empty UI object marking the far RIGHT side of your bar")]
     public Transform flagEndPoint; 
 
     public TextMeshProUGUI nextMilestoneText; 
     public GameObject milestonePopupPanel; 
     public TextMeshProUGUI milestonePopupText; 
     
-    [Tooltip("How many meters away before the flag appears on the bar?")]
     public float milestoneVisibleRange = 200f;
 
     private int maxMilestoneLevel = 0; 
@@ -91,7 +103,6 @@ public class GameManager : MonoBehaviour
         if (highScoreText != null) highScoreText.text = "Best: " + highestDistance.ToString() + "m";
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
 
-        // Calculate the next milestone based on the Hill Climb Racing math pattern
         nextMilestoneDistance = GetMilestoneDistance(maxMilestoneLevel + 1);
         
         if (nextMilestoneText != null) nextMilestoneText.text = nextMilestoneDistance.ToString() + "m";
@@ -108,20 +119,65 @@ public class GameManager : MonoBehaviour
             
             if (distanceText != null) distanceText.text = currentDistanceInt.ToString() + "m";
 
-            // --- THE NEW CUSTOM TRACKER MATH ---
+            // --- DASHBOARD REV NEEDLE LOGIC ---
+            if (revNeedle != null)
+            {
+                CarController cc = playerCar.GetComponent<CarController>();
+                if (cc != null)
+                {
+                    // Map the 0.0 -> 1.0 RPM value to the physical angle of the gauge
+                    float targetAngle = Mathf.Lerp(minRevAngle, maxRevAngle, cc.currentRPM);
+                    revNeedle.rotation = Quaternion.Euler(0f, 0f, targetAngle);
+                }
+            }
+
+            // --- DASHBOARD FUEL NEEDLE & WARNING LOGIC ---
+            FuelSystem fs = playerCar.GetComponent<FuelSystem>();
+            CarController carController = playerCar.GetComponent<CarController>();
+            
+            if (fs != null && carController != null)
+            {
+                // Calculate percentage (0.0 to 1.0)
+                float fuelPercent = Mathf.Clamp01(fs.currentFuel / Mathf.Max(carController.maxFuel, 1f));
+
+                if (fuelNeedle != null)
+                {
+                    // Fuel = 0 (Empty) -> minFuelAngle | Fuel = 1 (Full) -> maxFuelAngle
+                    float targetAngle = Mathf.Lerp(minFuelAngle, maxFuelAngle, fuelPercent);
+                    fuelNeedle.rotation = Quaternion.Euler(0f, 0f, targetAngle);
+                }
+
+                if (fuelWarningLight != null)
+                {
+                    if (fuelPercent <= 0.2f && fuelPercent > 0f)
+                    {
+                        // Blink rapidly if fuel is 20% or lower
+                        bool isBlinking = Mathf.PingPong(Time.time * 6f, 1f) > 0.5f;
+                        fuelWarningLight.SetActive(isBlinking);
+                    }
+                    else if (fuelPercent <= 0f)
+                    {
+                        // Stay solidly lit when completely empty!
+                        fuelWarningLight.SetActive(true);
+                    }
+                    else
+                    {
+                        // Turn off if we have plenty of fuel
+                        fuelWarningLight.SetActive(false);
+                    }
+                }
+            }
+            // ----------------------------------
+
             float distToMilestone = nextMilestoneDistance - distanceTraveled;
 
             if (flagIndicator != null && flagStartPoint != null && flagEndPoint != null)
             {
-                // Only show the flag if we are exactly within range AND haven't passed it yet
                 if (distToMilestone <= milestoneVisibleRange && distToMilestone > 0)
                 {
                     flagIndicator.SetActive(true);
                     
-                    // 200m away = 0.0 (Start Point), 0m away = 1.0 (End Point)
                     float progressPercentage = 1f - (distToMilestone / milestoneVisibleRange);
-                    
-                    // Smoothly slide the flag between the two points!
                     flagIndicator.transform.position = Vector3.Lerp(flagStartPoint.position, flagEndPoint.position, progressPercentage);
                 }
                 else
@@ -149,12 +205,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // --- HILL CLIMB RACING DISTANCE FORMULA ---
     private int GetMilestoneDistance(int targetLevel)
     {
-        if (targetLevel <= 1) return 200; // Level 1 is always 200m
-        
-        // Every level after 1 adds an extra 300m
+        if (targetLevel <= 1) return 200; 
         return 200 + ((targetLevel - 1) * 300);
     }
 
@@ -163,7 +216,6 @@ public class GameManager : MonoBehaviour
         maxMilestoneLevel++;
         PlayerPrefs.SetInt("MaxMilestone_Map_" + currentMapIndex, maxMilestoneLevel);
         
-        // Hill Climb Racing Reward Formula (Level * 1000)
         int reward = maxMilestoneLevel * 1000; 
         AddCoins(reward);
 
@@ -176,7 +228,6 @@ public class GameManager : MonoBehaviour
 
         if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
 
-        // Calculate the next target distance
         nextMilestoneDistance = GetMilestoneDistance(maxMilestoneLevel + 1);
         if (nextMilestoneText != null) nextMilestoneText.text = nextMilestoneDistance.ToString() + "m";
     }
@@ -223,7 +274,6 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.Save();
     }
     
-    // Goes to Garage (Scene 1)
     public void ReturnToMenu()
     {
         Time.timeScale = 1f; 
@@ -231,7 +281,6 @@ public class GameManager : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene(1); 
     }
 
-    // Goes to Main Menu (Scene 0)
     public void ReturnToMainMenu()
     {
         Time.timeScale = 1f; 

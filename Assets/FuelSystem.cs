@@ -1,110 +1,81 @@
 using UnityEngine;
-using UnityEngine.UI; // We need this to talk to the UI Canvas!
 
 public class FuelSystem : MonoBehaviour
 {
     [Header("Fuel Settings")]
-    public float maxFuel = 100f;
     public float currentFuel;
-    public float fuelDrainRate = 5f; // How much fuel lost per second
+    [Tooltip("How fast fuel drains per second")]
+    public float fuelDrainRate = 5f;
 
-    private bool isOutOfFuel = false;
-    private Rigidbody2D carRb;
+    [HideInInspector] public bool isOutOfFuel = false;
 
-    [Header("UI")]
-    public Slider fuelSlider; // We will drag our on-screen fuel bar into this slot
+    private CarController carController;
 
     void Start()
     {
-        // --- NEW: Find the UI Slider automatically since this is a Prefab! ---
-        if (fuelSlider == null)
-        {
-            GameObject uiBar = GameObject.Find("FuelBar");
-            if (uiBar != null)
-            {
-                fuelSlider = uiBar.GetComponent<Slider>();
-            }
-        }
-
-        // --- NEW: Read Fuel Upgrade for THIS SPECIFIC CAR ---
-        int carID = PlayerPrefs.GetInt("SelectedCar", 0);
-        int maxFuelLevel = PlayerPrefs.GetInt("Car_" + carID + "_FuelLevel", 1);
-        int fuelLevel = PlayerPrefs.GetInt("Car_" + carID + "_EquippedFuelLevel", maxFuelLevel);
+        // Find the CarController script on this car
+        carController = GetComponent<CarController>();
         
-        maxFuel = 100f + ((fuelLevel - 1) * 20f);
-
-        currentFuel = maxFuel;
-        carRb = GetComponent<Rigidbody2D>();
-        
-        // Setup the slider max value when the game starts
-        if (fuelSlider != null)
+        // Set initial fuel to the max fuel defined by our Garage Upgrades!
+        if (carController != null)
         {
-            fuelSlider.maxValue = maxFuel;
-            fuelSlider.value = currentFuel;
+            currentFuel = carController.maxFuel;
         }
     }
 
     void Update()
     {
-        // If out of fuel, wait for the car to stop moving before triggering Game Over
-        if (isOutOfFuel)
-        {
-            if (carRb != null && carRb.linearVelocity.magnitude <= 0.5f)
-            {
-                OutOfFuelDeath();
-            }
-            return; // Stop draining fuel
-        }
+        // Stop draining if the game is already over
+        if (GameManager.instance != null && GameManager.instance.isGameOver) return;
+        if (carController == null) return;
 
-        // Drain fuel over time
-        if (currentFuel > 0)
+        if (!isOutOfFuel)
         {
+            // 1. Drain fuel over time
             currentFuel -= fuelDrainRate * Time.deltaTime;
-            
-            // Update the UI Slider every frame
-            if (fuelSlider != null)
+
+            // 2. Clamp fuel between 0 and our upgraded maxFuel
+            currentFuel = Mathf.Clamp(currentFuel, 0f, carController.maxFuel);
+
+            // 3. Check for empty tank
+            if (currentFuel <= 0)
             {
-                fuelSlider.value = currentFuel;
+                OutOfFuel();
             }
         }
         else
         {
-            currentFuel = 0;
-            if (fuelSlider != null)
+            // --- NEW: DEATH BY COASTING ---
+            // If we are out of fuel, wait until the car completely stops rolling!
+            if (carController.carRigidbody.linearVelocity.magnitude < 0.1f)
             {
-                fuelSlider.value = 0;
+                OutOfFuelDeath();
             }
-            OutOfFuel();
         }
     }
 
-    // This is called when the car hits a trigger collider (like a pickup)
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Make sure the object we hit has the Tag "FuelCan"
         if (other.CompareTag("FuelCan"))
         {
             RefillFuel();
             
-            // Destroy the fuel can so we can't pick it up twice
-            Destroy(other.gameObject); 
+            // Destroy the fuel can so it disappears
+            Destroy(other.gameObject);
         }
     }
 
-    void RefillFuel()
+    public void RefillFuel()
     {
-        currentFuel = maxFuel;
-        isOutOfFuel = false; // FIX: Tell the system we have fuel again!
-        Debug.Log("Fuel Refilled!");
-
-        // FIX: Wake the CarController back up so we can drive!
-        CarController controller = GetComponent<CarController>();
-        if (controller != null)
+        if (carController != null)
         {
-            controller.hasFuel = true;
+            currentFuel = carController.maxFuel;
+            carController.hasFuel = true; // Wake the engine back up!
         }
         
-        // TRIGGER HAPPY MEME
+        isOutOfFuel = false;
+        Debug.Log("Fuel Refilled!");
+
         if (MemeManager.instance != null)
         {
             MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
@@ -113,21 +84,32 @@ public class FuelSystem : MonoBehaviour
 
     void OutOfFuel()
     {
+        if (isOutOfFuel) return;
+        
         Debug.Log("Fuel Empty! Coasting to a stop...");
         isOutOfFuel = true;
         
-        // FIX: Don't fully disable the script, let it handle the engine braking friction!
-        CarController controller = GetComponent<CarController>();
-        if (controller != null)
+        // Turn off the engine so we start coasting and applying friction
+        if (carController != null)
         {
-            controller.hasFuel = false;
+            carController.hasFuel = false;
         }
     }
 
     void OutOfFuelDeath()
     {
-        Debug.Log("Car stopped. Game Over! -> (Mellstroy Angry Meme)");
-        GetComponentInChildren<CarHealth>().Die("Out of Gas!");
-        this.enabled = false; // Stop checking
+        if (GameManager.instance != null && GameManager.instance.isGameOver) return;
+        
+        Debug.Log("Game Over: Out of Fuel and Stopped!");
+        
+        if (MemeManager.instance != null) 
+        {
+            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry);
+        }
+
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.GameOver();
+        }
     }
 }

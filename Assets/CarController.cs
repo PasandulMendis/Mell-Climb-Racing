@@ -58,13 +58,16 @@ public class CarController : MonoBehaviour
     [Header("Meme Settings")]
     public float scaredHeightTrigger = 6f; 
 
+    // --- NEW: Expose RPM for the UI Dashboard ---
+    [HideInInspector] public float currentRPM = 0f;
+
     private int currentNitro;
     private bool isNitroActive = false;
     private float nitroTimer = 0f;
 
     private float movementInput;
 
-    // Physical ground contact tracking (No more finicky raycasts!)
+    // Physical ground contact tracking
     private WheelContact backContact;
     private WheelContact frontContact;
     private bool backGrounded = false;
@@ -84,7 +87,6 @@ public class CarController : MonoBehaviour
             frontWheel = allJoints[1];
         }
 
-        // --- NEW: Dynamic Wheel Contact Auto-Setup ---
         if (backWheel != null && backWheel.connectedBody != null)
         {
             backContact = backWheel.connectedBody.gameObject.GetComponent<WheelContact>();
@@ -172,13 +174,6 @@ public class CarController : MonoBehaviour
             if (Keyboard.current.shiftKey.wasPressedThisFrame) TryActivateNitro();
         }
 
-        // --- NEW: Read Mobile Inputs from GameManager! ---
-        if (GameManager.instance != null)
-        {
-            if (GameManager.instance.isMobileGasPressed) movementInput = 1f;
-            else if (GameManager.instance.isMobileBrakePressed) movementInput = -1f;
-        }
-
         if (!hasFuel) movementInput = 0f; 
 
         if (isNitroActive)
@@ -193,13 +188,23 @@ public class CarController : MonoBehaviour
 
     void HandleAudioAndEffects()
     {
+        // --- NEW: Calculate fake RPM for the Dashboard (0.0 to 1.0) ---
+        float speedMagnitude = carRigidbody.linearVelocity.magnitude;
+        float normalizedRPM = speedMagnitude / 30f; // 30 is roughly our max realistic speed magnitude
+        
+        if (movementInput > 0 && hasFuel) 
+        {
+            normalizedRPM += 0.3f; // Rev spike when pressing gas!
+        }
+        
+        currentRPM = Mathf.Lerp(currentRPM, Mathf.Clamp01(normalizedRPM), Time.deltaTime * 5f);
+        // -------------------------------------------------------------
+
         if (engineAudioSource != null)
         {
             if (hasFuel && (GameManager.instance == null || !GameManager.instance.isGameOver))
             {
-                float speedMagnitude = carRigidbody.linearVelocity.magnitude;
                 float targetPitch = minPitch + (speedMagnitude * pitchMultiplier);
-                
                 if (movementInput > 0) targetPitch += 0.3f; 
 
                 targetPitch = Mathf.Clamp(targetPitch, minPitch, maxPitch);
@@ -243,7 +248,6 @@ public class CarController : MonoBehaviour
         }
     }
 
-    // Kept signature for backwards compatibility, now reads dynamic physical contacts!
     bool CheckWheelGrounded(Transform wheelTrans)
     {
         if (wheelTrans == null) return false;
@@ -293,7 +297,6 @@ public class CarController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 1. Gather physics-based ground state from the wheel colliders directly
         backGrounded = backContact != null ? backContact.CheckGrounded() : false;
         frontGrounded = frontContact != null ? frontContact.CheckGrounded() : false;
 
@@ -304,10 +307,7 @@ public class CarController : MonoBehaviour
             return;
         }
 
-        // Both wheels must be fully off the ground for stunt progression and flips
         bool isAirborne = !backGrounded && !frontGrounded;
-
-        // Balancing control is enabled as long as at least ONE wheel is off the ground
         bool canRotate = !backGrounded || !frontGrounded;
 
         if (movementInput != 0)
@@ -350,7 +350,6 @@ public class CarController : MonoBehaviour
             }
         }
 
-        // Apply balancing torque when tilting conditions are met
         if (canRotate)
         {
             float flipTorque = movementInput * rotationSpeed * airRotationMultiplier * carRigidbody.mass * 50f;
@@ -419,15 +418,12 @@ public class CarController : MonoBehaviour
     }
 }
 
-// --- HELPER COMPONENT FOR BULLETPROOF GROUND DETECTION ---
 public class WheelContact : MonoBehaviour
 {
     private bool touchedThisFrame = false;
 
-    // Fired by Unity's physics system when a physical wheel collider is touching anything
     void OnCollisionStay2D(Collision2D collision)
     {
-        // Ignore colliders on the player's chassis or child components (like the car's own frame)
         if (!collision.collider.CompareTag("Player") && !collision.collider.transform.IsChildOf(transform.root))
         {
             touchedThisFrame = true;
@@ -437,7 +433,7 @@ public class WheelContact : MonoBehaviour
     public bool CheckGrounded()
     {
         bool wasGrounded = touchedThisFrame;
-        touchedThisFrame = false; // Reset for next FixedUpdate cycle
+        touchedThisFrame = false; 
         return wasGrounded;
     }
 }

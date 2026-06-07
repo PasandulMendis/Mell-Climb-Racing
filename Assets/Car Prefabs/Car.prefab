@@ -881,12 +881,54 @@ MonoBehaviour:
   carRigidbody: {fileID: 1359164956613615306}
   backWheel: {fileID: 1436022057002365322}
   frontWheel: {fileID: 1436022057002365322}
+  engineSpeedLevels:
+  - 1500
+  - 1700
+  - 1900
+  - 2100
+  - 2300
+  suspensionFrequencyLevels:
+  - 4
+  - 4.5
+  - 5
+  - 5.5
+  - 6
+  tireFrictionLevels:
+  - 1.5
+  - 1.8
+  - 2.1
+  - 2.4
+  - 2.7
+  fuelCapacityLevels:
+  - 100
+  - 120
+  - 140
+  - 160
+  - 180
+  engineCostLevels: 00000000960000002c01000058020000e8030000
+  suspensionCostLevels: 0000000064000000fa000000f401000084030000
+  tireCostLevels: 00000000780000001801000026020000b6030000
+  fuelCostLevels: 0000000050000000c80000009001000020030000
   speed: 1500
+  maxFuel: 0
   rotationSpeed: 250
+  isFourWheelDrive: 0
+  airRotationMultiplier: 1.5
+  flipCoinBonus: 100
   nitroBoostForce: 25
   nitroDuration: 4
   nitroThrusterPoint: {fileID: 6488087045609720082}
+  coastingBrakeForce: 300
+  hasFuel: 1
+  engineAudioSource: {fileID: 0}
+  exhaustParticleSystem: {fileID: 0}
+  minPitch: 0.8
+  maxPitch: 2.5
+  pitchMultiplier: 0.05
+  backWheelDirt: {fileID: 0}
+  frontWheelDirt: {fileID: 0}
   scaredHeightTrigger: 6
+  currentRPM: 0
 --- !u!114 &7891034384017083176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -899,10 +941,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b1dc0148efe846b99ffd5ad4f5fa923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FuelSystem
-  maxFuel: 100
   currentFuel: 0
-  fuelDrainRate: 5
-  fuelSlider: {fileID: 0}
+  fuelDrainRate: 7.5
+  isOutOfFuel: 0
 --- !u!212 &921221001478004009
 SpriteRenderer:
   serializedVersion: 2
