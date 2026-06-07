@@ -201,4 +201,10 @@ public class GarageManager : MonoBehaviour
         // Change this from 1 to 2, because GameScene is now Scene index 2!
         SceneManager.LoadScene(2);
     }
+
+    // --- NEW: Go Back to Main Menu ---
+    public void ReturnToMainMenu()
+    {
+        SceneManager.LoadScene(0); 
+    }
 }
