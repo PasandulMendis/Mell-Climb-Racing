@@ -30,18 +30,17 @@ public class GameManager : MonoBehaviour
 
     [Header("Dashboard UI")]
     public RectTransform revNeedle; // The rotating needle image
-    [Tooltip("The Z rotation angle when the car is completely stopped")]
     public float minRevAngle = 135f; 
-    [Tooltip("The Z rotation angle when the engine is maxed out")]
     public float maxRevAngle = -135f;
+    [Tooltip("The warning_lit.png image that flashes when hitting the rev limiter")]
+    public GameObject revWarningLight; 
+    [Tooltip("RPM threshold (0.0 to 1.0) to start vibrating and flashing")]
+    public float revWarningThreshold = 0.95f;
 
     [Header("Fuel Dashboard UI")]
-    public RectTransform fuelNeedle; // The rotating fuel needle image
-    [Tooltip("The Z rotation angle when Empty")]
+    public RectTransform fuelNeedle; 
     public float minFuelAngle = 135f; 
-    [Tooltip("The Z rotation angle when Full")]
     public float maxFuelAngle = -135f;
-    [Tooltip("The warning_lit.png image that flashes when fuel is low")]
     public GameObject fuelWarningLight; 
 
     [Header("Milestones & Custom Tracker")]
@@ -125,24 +124,40 @@ public class GameManager : MonoBehaviour
                 CarController cc = playerCar.GetComponent<CarController>();
                 if (cc != null)
                 {
-                    // Map the 0.0 -> 1.0 RPM value to the physical angle of the gauge
                     float targetAngle = Mathf.Lerp(minRevAngle, maxRevAngle, cc.currentRPM);
+                    
+                    // --- NEW: REV LIMITER VIBRATION & LIGHT ---
+                    if (cc.currentRPM >= revWarningThreshold && cc.hasFuel)
+                    {
+                        // Add violent jitter/vibration to the needle
+                        targetAngle += Random.Range(-4f, 4f); 
+                        
+                        if (revWarningLight != null)
+                        {
+                            // Rapid flashing
+                            bool isBlinking = Mathf.PingPong(Time.time * 15f, 1f) > 0.5f;
+                            revWarningLight.SetActive(isBlinking);
+                        }
+                    }
+                    else
+                    {
+                        if (revWarningLight != null) revWarningLight.SetActive(false);
+                    }
+
                     revNeedle.rotation = Quaternion.Euler(0f, 0f, targetAngle);
                 }
             }
 
-            // --- DASHBOARD FUEL NEEDLE & WARNING LOGIC ---
+            // --- DASHBOARD FUEL LOGIC ---
             FuelSystem fs = playerCar.GetComponent<FuelSystem>();
             CarController carController = playerCar.GetComponent<CarController>();
             
             if (fs != null && carController != null)
             {
-                // Calculate percentage (0.0 to 1.0)
                 float fuelPercent = Mathf.Clamp01(fs.currentFuel / Mathf.Max(carController.maxFuel, 1f));
 
                 if (fuelNeedle != null)
                 {
-                    // Fuel = 0 (Empty) -> minFuelAngle | Fuel = 1 (Full) -> maxFuelAngle
                     float targetAngle = Mathf.Lerp(minFuelAngle, maxFuelAngle, fuelPercent);
                     fuelNeedle.rotation = Quaternion.Euler(0f, 0f, targetAngle);
                 }
@@ -151,18 +166,15 @@ public class GameManager : MonoBehaviour
                 {
                     if (fuelPercent <= 0.2f && fuelPercent > 0f)
                     {
-                        // Blink rapidly if fuel is 20% or lower
                         bool isBlinking = Mathf.PingPong(Time.time * 6f, 1f) > 0.5f;
                         fuelWarningLight.SetActive(isBlinking);
                     }
                     else if (fuelPercent <= 0f)
                     {
-                        // Stay solidly lit when completely empty!
                         fuelWarningLight.SetActive(true);
                     }
                     else
                     {
-                        // Turn off if we have plenty of fuel
                         fuelWarningLight.SetActive(false);
                     }
                 }

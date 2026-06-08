@@ -51,6 +51,14 @@ public class CarController : MonoBehaviour
     public float maxPitch = 2.5f;
     public float pitchMultiplier = 0.05f;
 
+    [Header("Rev Limiter Settings")]
+    [Tooltip("RPM required to trigger the rev limiter sound (0.0 to 1.0)")]
+    public float revLimiterThreshold = 0.95f;
+    [Tooltip("How much the audio pitch drops when bouncing off the limiter")]
+    public float revLimiterPitchDrop = 0.4f;
+    [Tooltip("How fast the limiter stutters (bounces)")]
+    public float revLimiterBounceSpeed = 25f;
+
     [Header("Wheel Dirt Particles")]
     public ParticleSystem backWheelDirt;
     public ParticleSystem frontWheelDirt;
@@ -58,7 +66,7 @@ public class CarController : MonoBehaviour
     [Header("Meme Settings")]
     public float scaredHeightTrigger = 6f; 
 
-    // --- NEW: Expose RPM for the UI Dashboard ---
+    // Expose RPM for the UI Dashboard
     [HideInInspector] public float currentRPM = 0f;
 
     private int currentNitro;
@@ -66,6 +74,7 @@ public class CarController : MonoBehaviour
     private float nitroTimer = 0f;
 
     private float movementInput;
+    private float rpmCap = 1f; // Ratio of current speed vs absolute max speed
 
     // Physical ground contact tracking
     private WheelContact backContact;
@@ -87,6 +96,7 @@ public class CarController : MonoBehaviour
             frontWheel = allJoints[1];
         }
 
+        // --- Auto-Setup Ground Contact Scripts ---
         if (backWheel != null && backWheel.connectedBody != null)
         {
             backContact = backWheel.connectedBody.gameObject.GetComponent<WheelContact>();
@@ -110,7 +120,15 @@ public class CarController : MonoBehaviour
         int tireIdx = Mathf.Clamp(tireLevel - 1, 0, Mathf.Max(0, tireFrictionLevels.Length - 1));
         int fuelIdx = Mathf.Clamp(fuelLevel - 1, 0, Mathf.Max(0, fuelCapacityLevels.Length - 1));
 
-        if (engineSpeedLevels.Length > 0) speed = engineSpeedLevels[engIdx];
+        if (engineSpeedLevels.Length > 0) 
+        {
+            speed = engineSpeedLevels[engIdx];
+            
+            // --- NEW: Calculate the RPM Limit Ratio based on upgrades! ---
+            float absoluteMaxSpeed = engineSpeedLevels[engineSpeedLevels.Length - 1];
+            rpmCap = speed / absoluteMaxSpeed; // e.g., Level 1 = 1500 / 2300 = ~0.65 (65%)
+        }
+        
         if (fuelCapacityLevels.Length > 0) maxFuel = fuelCapacityLevels[fuelIdx];
 
         if (suspensionFrequencyLevels.Length > 0)
@@ -174,6 +192,12 @@ public class CarController : MonoBehaviour
             if (Keyboard.current.shiftKey.wasPressedThisFrame) TryActivateNitro();
         }
 
+        if (GameManager.instance != null)
+        {
+            if (GameManager.instance.isMobileGasPressed) movementInput = 1f;
+            else if (GameManager.instance.isMobileBrakePressed) movementInput = -1f;
+        }
+
         if (!hasFuel) movementInput = 0f; 
 
         if (isNitroActive)
@@ -188,27 +212,61 @@ public class CarController : MonoBehaviour
 
     void HandleAudioAndEffects()
     {
-        // --- NEW: Calculate fake RPM for the Dashboard (0.0 to 1.0) ---
-        float speedMagnitude = carRigidbody.linearVelocity.magnitude;
-        float normalizedRPM = speedMagnitude / 30f; // 30 is roughly our max realistic speed magnitude
-        
-        if (movementInput > 0 && hasFuel) 
+        // --- DASHBOARD RPM CALCULATION (Engine Load & Fake Gears) ---
+        float targetRPM = 0.1f; // Engine idle
+
+        if (hasFuel)
         {
-            normalizedRPM += 0.3f; // Rev spike when pressing gas!
+            if (isNitroActive)
+            {
+                targetRPM = 1.0f * rpmCap; // Nitro pushes engine to its upgrade cap
+            }
+            else if (movementInput > 0)
+            {
+                if (!backGrounded)
+                {
+                    // Engine freely revs to max (limited by upgrades) when in the air!
+                    targetRPM = 1.0f * rpmCap; 
+                }
+                else
+                {
+                    // Simulate gears: divide speed into chunks of 10. 
+                    float speedMagnitude = carRigidbody.linearVelocity.magnitude;
+                    float gearSize = 10f; 
+                    float gearProgress = (speedMagnitude % gearSize) / gearSize;
+                    
+                    targetRPM = Mathf.Lerp(0.4f, 0.95f, gearProgress) * rpmCap;
+                }
+            }
+            else if (movementInput < 0)
+            {
+                targetRPM = 0.5f * rpmCap; // Rev slightly when reversing/braking
+            }
         }
         
-        currentRPM = Mathf.Lerp(currentRPM, Mathf.Clamp01(normalizedRPM), Time.deltaTime * 5f);
-        // -------------------------------------------------------------
+        // Apply smooth needle movement
+        float lerpSpeed = (movementInput > 0 && !backGrounded) ? 15f : 8f;
+        currentRPM = Mathf.Lerp(currentRPM, targetRPM, Time.deltaTime * lerpSpeed);
 
+        // --- ENGINE AUDIO ---
         if (engineAudioSource != null)
         {
             if (hasFuel && (GameManager.instance == null || !GameManager.instance.isGameOver))
             {
-                float targetPitch = minPitch + (speedMagnitude * pitchMultiplier);
-                if (movementInput > 0) targetPitch += 0.3f; 
+                // Tie the audio pitch directly to the RPM needle for realistic gear shifting sounds!
+                float targetPitch = Mathf.Lerp(minPitch, maxPitch, currentRPM);
 
-                targetPitch = Mathf.Clamp(targetPitch, minPitch, maxPitch);
-                engineAudioSource.pitch = Mathf.Lerp(engineAudioSource.pitch, targetPitch, Time.deltaTime * 5f);
+                // --- REV LIMITER AUDIO BOUNCE ---
+                if (currentRPM >= revLimiterThreshold && movementInput > 0)
+                {
+                    // Rapidly drop the pitch to simulate an engine bouncing off the limiter
+                    if (Mathf.PingPong(Time.time * revLimiterBounceSpeed, 1f) > 0.5f)
+                    {
+                        targetPitch -= revLimiterPitchDrop; 
+                    }
+                }
+
+                engineAudioSource.pitch = Mathf.Lerp(engineAudioSource.pitch, targetPitch, Time.deltaTime * 10f);
             }
             else
             {
@@ -216,6 +274,7 @@ public class CarController : MonoBehaviour
             }
         }
 
+        // --- EXHAUST SMOKE ---
         if (exhaustParticleSystem != null)
         {
             var emission = exhaustParticleSystem.emission;
@@ -246,14 +305,6 @@ public class CarController : MonoBehaviour
             if (frontGrounded && movementInput != 0 && hasFuel && isFourWheelDrive) em.rateOverTime = 30f;
             else em.rateOverTime = 0f;
         }
-    }
-
-    bool CheckWheelGrounded(Transform wheelTrans)
-    {
-        if (wheelTrans == null) return false;
-        if (backWheel != null && wheelTrans == backWheel.transform) return backGrounded;
-        if (frontWheel != null && wheelTrans == frontWheel.transform) return frontGrounded;
-        return false;
     }
 
     public void UpdateDirtColor(Color newColor)
@@ -297,6 +348,7 @@ public class CarController : MonoBehaviour
 
     void FixedUpdate()
     {
+        // 1. Gather physics-based ground state from the wheel colliders directly
         backGrounded = backContact != null ? backContact.CheckGrounded() : false;
         frontGrounded = frontContact != null ? frontContact.CheckGrounded() : false;
 
@@ -307,7 +359,10 @@ public class CarController : MonoBehaviour
             return;
         }
 
+        // Both wheels must be fully off the ground for stunt progression and flips
         bool isAirborne = !backGrounded && !frontGrounded;
+
+        // Balancing control is enabled as long as at least ONE wheel is off the ground
         bool canRotate = !backGrounded || !frontGrounded;
 
         if (movementInput != 0)
@@ -350,6 +405,7 @@ public class CarController : MonoBehaviour
             }
         }
 
+        // Apply balancing torque when tilting conditions are met
         if (canRotate)
         {
             float flipTorque = movementInput * rotationSpeed * airRotationMultiplier * carRigidbody.mass * 50f;
@@ -418,12 +474,16 @@ public class CarController : MonoBehaviour
     }
 }
 
+// --- CRITICAL HELPER COMPONENT FOR BULLETPROOF GROUND DETECTION ---
+// (Make sure you don't miss copying this part at the very bottom!)
 public class WheelContact : MonoBehaviour
 {
     private bool touchedThisFrame = false;
 
+    // Fired by Unity's physics system when a physical wheel collider is touching anything
     void OnCollisionStay2D(Collision2D collision)
     {
+        // Ignore colliders on the player's chassis or child components (like the car's own frame)
         if (!collision.collider.CompareTag("Player") && !collision.collider.transform.IsChildOf(transform.root))
         {
             touchedThisFrame = true;
@@ -433,7 +493,7 @@ public class WheelContact : MonoBehaviour
     public bool CheckGrounded()
     {
         bool wasGrounded = touchedThisFrame;
-        touchedThisFrame = false; 
+        touchedThisFrame = false; // Reset for next FixedUpdate cycle
         return wasGrounded;
     }
 }

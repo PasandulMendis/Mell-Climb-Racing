@@ -29,7 +29,8 @@ public class CarHealth : MonoBehaviour
         // TRIGGER ANGRY/SAD MEME (Stays forever until restart)
         if (MemeManager.instance != null)
         {
-            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry);
+            // NEW: Pass 'true' for forceOverride, and 'true' for isGameOver!
+            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry, true, true);
         }
 
         // Tell the Game Manager the game is over!

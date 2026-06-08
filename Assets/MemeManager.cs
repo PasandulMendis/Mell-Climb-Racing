@@ -30,6 +30,7 @@ public class MemeManager : MonoBehaviour
     
     private int lastStreamerIndex = -1;
     private int lastDriverIndex = -1;
+    private bool isGameOverPermanent = false; // NEW
 
     void Awake()
     {
@@ -42,12 +43,14 @@ public class MemeManager : MonoBehaviour
         if (driverPlayer != null) driverPlayer.loopPointReached += OnDriverFinished;
 
         // Force the initial idle state
-        TriggerMeme(MemeEvent.Idle, true);
+        TriggerMeme(MemeEvent.Idle, true, false);
     }
 
-    public void TriggerMeme(MemeEvent memeType, bool forceOverride = false)
+    // UPDATED SIGNATURE: We added 'isGameOver' to track if the lock should be permanent
+    public void TriggerMeme(MemeEvent memeType, bool forceOverride = false, bool isGameOver = false)
     {
-        if (currentEvent == MemeEvent.Angry) return; // Game over is permanent
+        if (isGameOverPermanent) return; // Game over is permanent
+        if (isGameOver) isGameOverPermanent = true;
         
         // NEW: Always allow 'Happy' (Fuel/Nitro) to instantly interrupt and restart!
         // We still protect 'Scared' and 'Idle' so they don't stutter every frame.
@@ -57,14 +60,14 @@ public class MemeManager : MonoBehaviour
 
         // Play Streamer
         VideoClip[] sClips = GetStreamerArray(memeType);
-        PlayClip(streamerPlayer, sClips, memeType, ref lastStreamerIndex);
+        PlayClip(streamerPlayer, sClips, memeType, ref lastStreamerIndex, isGameOver);
 
         // Play Driver
         VideoClip[] dClips = GetDriverArray(memeType);
-        PlayClip(driverPlayer, dClips, memeType, ref lastDriverIndex);
+        PlayClip(driverPlayer, dClips, memeType, ref lastDriverIndex, isGameOver);
     }
 
-    void PlayClip(VideoPlayer player, VideoClip[] array, MemeEvent memeType, ref int lastIndexTracker)
+    void PlayClip(VideoPlayer player, VideoClip[] array, MemeEvent memeType, ref int lastIndexTracker, bool isGameOver)
     {
         if (player == null || array == null || array.Length == 0) return;
 
@@ -82,7 +85,9 @@ public class MemeManager : MonoBehaviour
         player.Stop(); 
         
         player.clip = array[newIndex];
-        player.isLooping = (memeType == MemeEvent.Idle || memeType == MemeEvent.Angry);
+        
+        // Let it loop if it's Idle, OR if it's a permanent Game Over state!
+        player.isLooping = (memeType == MemeEvent.Idle || isGameOver);
         player.Play();
     }
 
@@ -111,18 +116,20 @@ public class MemeManager : MonoBehaviour
     // 3. INDEPENDENT FINISHERS: Stops a short streamer video from cutting off a long driver video!
     void OnStreamerFinished(VideoPlayer vp)
     {
-        if (currentEvent != MemeEvent.Idle && currentEvent != MemeEvent.Angry)
+        // Only return to Idle if we are not dead!
+        if (currentEvent != MemeEvent.Idle && !isGameOverPermanent)
         {
-            PlayClip(streamerPlayer, streamerIdle, MemeEvent.Idle, ref lastStreamerIndex);
+            PlayClip(streamerPlayer, streamerIdle, MemeEvent.Idle, ref lastStreamerIndex, false);
             CheckIfBothIdle();
         }
     }
 
     void OnDriverFinished(VideoPlayer vp)
     {
-        if (currentEvent != MemeEvent.Idle && currentEvent != MemeEvent.Angry)
+        // Only return to Idle if we are not dead!
+        if (currentEvent != MemeEvent.Idle && !isGameOverPermanent)
         {
-            PlayClip(driverPlayer, driverIdle, MemeEvent.Idle, ref lastDriverIndex);
+            PlayClip(driverPlayer, driverIdle, MemeEvent.Idle, ref lastDriverIndex, false);
             CheckIfBothIdle();
         }
     }
