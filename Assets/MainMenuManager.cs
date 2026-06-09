@@ -133,6 +133,11 @@ public class MainMenuManager : MonoBehaviour
                 else if (cars[i].isUnlocked) cars[i].buttonText.text = "SELECT";
                 else cars[i].buttonText.text = "Buy: " + cars[i].price;
             }
+            else
+            {
+                // ADDED HELPFUL DEBUGGER: This will tell you exactly which slot is missing!
+                Debug.LogWarning("UI ERROR: Car at Index [" + i + "] is missing its 'Button Text' reference in the MainMenuManager!");
+            }
         }
 
         // Update Map Buttons
@@ -144,13 +149,16 @@ public class MainMenuManager : MonoBehaviour
                 else if (maps[i].isUnlocked) maps[i].buttonText.text = "SELECT";
                 else maps[i].buttonText.text = "Buy: " + maps[i].price;
             }
+            else
+            {
+                Debug.LogWarning("UI ERROR: Map at Index [" + i + "] is missing its 'Button Text' reference in the MainMenuManager!");
+            }
         }
     }
 
     // --- LOAD NEXT SCENE ---
     public void GoToGarage()
     {
-        // Assumes Garage is Scene 1
         SceneManager.LoadScene(1);
     }
 }

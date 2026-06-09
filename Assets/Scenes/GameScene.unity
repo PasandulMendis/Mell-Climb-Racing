@@ -2441,6 +2441,7 @@ MonoBehaviour:
   - {fileID: 8890536893444065306, guid: a41fcf0ecaff747369f6ce9a65320e1c, type: 3}
   - {fileID: 8890536893444065306, guid: 1ec92bbaa943c4978b463a0bb32820de, type: 3}
   - {fileID: 8890536893444065306, guid: b0a73f12ac72a4ada8d07f151dfcf2a1, type: 3}
+  - {fileID: 8890536893444065306, guid: 0b0bbf9b40a04490682ed8cccab4dd1f, type: 3}
   mapPrefabs:
   - {fileID: 8208565040995769957, guid: 8ed44fbc6db62494fabe695cf8cedbc3, type: 3}
   - {fileID: 4749007571791627337, guid: a700757fa3cf04a80a9d81c34f049c79, type: 3}
