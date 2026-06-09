@@ -59,3 +59,10 @@ MonoBehaviour:
   blankChunkPrefab: {fileID: 2503069242505576877, guid: 1a41ed39a7dae4b47a390be90b337059, type: 3}
   coinPrefab: {fileID: 8561688181454407625, guid: e4874a4bc2f634f6482ae386c3bab6be, type: 3}
   fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
+  generateBridges: 1
+  ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
+  minBridgeGapWidth: 4
+  maxBridgeGapWidth: 8
+  gorgeDepth: 10
+  expectedPlankWidth: 1
+  bridgeYOffset: -0.1
