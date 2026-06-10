@@ -9,7 +9,6 @@ public class MapGenerator : MonoBehaviour
     public int chunksToSpawnAhead = 5; 
     public float chunkWidth = 20f;     
     public float destroyDistanceBehind = 50f; 
-    [Tooltip("Increased to 80 to completely hide the bottom of the world during deep gorges!")]
     public float terrainDepth = 80f;
     
     [Header("Math & Difficulty (Perlin Noise)")]
@@ -29,31 +28,40 @@ public class MapGenerator : MonoBehaviour
     [Header("Destructible Terrain & Bridges")]
     public bool generateBridges = false; 
     public GameObject ropeBridgePrefab;
-    [Tooltip("Minimum random width of the bridge gap")]
     public float minBridgeGapWidth = 15f;
-    [Tooltip("Maximum random width of the bridge gap")]
     public float maxBridgeGapWidth = 35f;
-    [Tooltip("How deep the terrain drops into a gorge under the bridge")]
     public float gorgeDepth = 30f;
-    
-    [Tooltip("Approximate width of a single plank. Used to calculate how many planks are needed for random gaps.")]
     public float expectedPlankWidth = 1.5f;
-    [Tooltip("Adjust this to make the bridge perfectly flush with the dirt. (Use a negative number to sink the bridge slightly)")]
     public float bridgeYOffset = -0.1f;
+
+    [Header("Fluid Hazards (Water/Mud)")]
+    public bool generateWaterPools = false;
+    public GameObject waterPoolPrefab;
+    public float minWaterWidth = 15f;
+    public float maxWaterWidth = 40f;
+    [Tooltip("How deep the U-shaped bowl dips into the earth")]
+    public float waterDepth = 8f;
+    [Tooltip("Adjusts where the water sits vertically. Positive moves the water line UP.")]
+    public float waterLevelOffset = -2f;
+    [Tooltip("Set this higher than your car (e.g., 3 if car is 2) but lower than your terrain (e.g., 4) to make the car look submerged!")]
+    public int waterSortingOrder = 3;
 
     private Transform playerCar;
     private float nextSpawnX = 0f;
     private List<GameObject> activeChunks = new List<GameObject>();
     private float oldestChunkStartX = 0f;
 
-    // Deterministic Spacing Variables
+    // Spacing Variables
     private float nextCoinX = 10f; 
     private float nextFuelX = 50f;  
     private int coinsLeftInGroup = 5; 
     
-    // Bridge Spacing Variables
     private float nextBridgeX = 100f;
     private float currentBridgeGapWidth;
+    
+    private float nextWaterX = 250f;
+    private float currentWaterWidth;
+    private bool isBuildingWater = false;
 
     void Start()
     {
@@ -61,13 +69,17 @@ public class MapGenerator : MonoBehaviour
         nextSpawnX = 0f;
         oldestChunkStartX = 0f;
 
-        // Deterministically calculate the first bridge based on map seed!
+        // Setup Bridge Seed
         float rawNextBridge = 100f + (Mathf.PerlinNoise(seed, seed) * 50f);
-        // Snap strictly to the pointSpacing grid to prevent alignment bugs!
         nextBridgeX = Mathf.Round(rawNextBridge / pointSpacing) * pointSpacing;
-        
         float rawGap = Mathf.Lerp(minBridgeGapWidth, maxBridgeGapWidth, Mathf.PerlinNoise(nextBridgeX, seed));
         currentBridgeGapWidth = Mathf.Round(rawGap / pointSpacing) * pointSpacing;
+
+        // Setup Water Seed (Offset from bridges to reduce overlap)
+        float rawNextWater = 250f + (Mathf.PerlinNoise(seed + 1, seed) * 100f);
+        nextWaterX = Mathf.Round(rawNextWater / pointSpacing) * pointSpacing;
+        float rawWaterWidth = Mathf.Lerp(minWaterWidth, maxWaterWidth, Mathf.PerlinNoise(nextWaterX, seed));
+        currentWaterWidth = Mathf.Round(rawWaterWidth / pointSpacing) * pointSpacing;
 
         for (int i = 0; i < chunksToSpawnAhead; i++)
         {
@@ -84,33 +96,22 @@ public class MapGenerator : MonoBehaviour
             return;
         }
 
-        // Keep generating chunks as long as the end of the track is too close
-        while (nextSpawnX - playerCar.position.x < (chunksToSpawnAhead * chunkWidth))
-        {
-            SpawnChunk();
-        }
+        while (nextSpawnX - playerCar.position.x < (chunksToSpawnAhead * chunkWidth)) SpawnChunk();
 
-        // Clean up chunks safely behind us
         while (activeChunks.Count > 0)
         {
             float oldestChunkEndX = oldestChunkStartX + chunkWidth;
-            
             if (playerCar.position.x - oldestChunkEndX > destroyDistanceBehind)
             {
                 GameObject oldestChunk = activeChunks[0];
                 activeChunks.RemoveAt(0);
                 Destroy(oldestChunk); 
-                
                 oldestChunkStartX += chunkWidth;
             }
-            else
-            {
-                break; 
-            }
+            else break; 
         }
     }
 
-    // --- NEW HELPER: Extract raw Y calculation so we can predict cliffs! ---
     float GetRawTerrainY(float globalX)
     {
         float currentAmplitude = baseAmplitude + (globalX * difficultyScaling);
@@ -131,17 +132,14 @@ public class MapGenerator : MonoBehaviour
         Spline spline = ssc.spline;
         spline.Clear();
 
-        // 1. MANUALLY GRAB THE PHYSICS COLLIDER
         EdgeCollider2D edgeCol = newChunk.GetComponent<EdgeCollider2D>();
         if (edgeCol == null) edgeCol = newChunk.AddComponent<EdgeCollider2D>();
         List<Vector2> physicsPoints = new List<Vector2>();
 
-        // Bottom Left Corner (Now using adjustable terrainDepth)
         spline.InsertPointAt(0, new Vector3(0f, -terrainDepth, 0f));
         spline.SetTangentMode(0, ShapeTangentMode.Linear);
-        spline.SetCorner(0, false); // FORCE DISABLING CORNERS TO PREVENT WHITE BOX GLITCH
+        spline.SetCorner(0, false); 
 
-        // 2. FLAWLESS PERCENTAGE MATH (Guarantees exactly hitting the Chunk Width)
         int numSurfacePoints = Mathf.CeilToInt(chunkWidth / pointSpacing);
         int pointIndex = 1;
 
@@ -154,14 +152,47 @@ public class MapGenerator : MonoBehaviour
             float originalY = GetRawTerrainY(globalX);
             float finalY = originalY;
 
-            // Track exactly where we are relative to the current bridge gorge
+            // --- WATER POOL LOGIC (Smooth U-Shape Dip) ---
+            bool inWaterZone = generateWaterPools && globalX >= nextWaterX && globalX <= nextWaterX + currentWaterWidth;
+            
+            if (inWaterZone)
+            {
+                if (!isBuildingWater)
+                {
+                    isBuildingWater = true;
+                    // Spawn the visual water and the fluid physics trigger
+                    float startY = GetRawTerrainY(nextWaterX);
+                    float endY = GetRawTerrainY(nextWaterX + currentWaterWidth);
+                    float midY = (startY + endY) / 2f; 
+                    
+                    Vector2 centerPos = new Vector2(nextWaterX + currentWaterWidth/2f, midY + waterLevelOffset);
+                    SpawnWater(centerPos, currentWaterWidth, waterDepth, newChunk.transform);
+                }
+                
+                // MATH MAGIC: A perfect Sine wave creates a smooth, drivable U-Shaped bowl in the dirt!
+                float dipPercent = (globalX - nextWaterX) / currentWaterWidth;
+                float dipAmount = Mathf.Sin(dipPercent * Mathf.PI) * waterDepth;
+                finalY -= dipAmount;
+            }
+            else if (globalX > nextWaterX + currentWaterWidth && isBuildingWater)
+            {
+                isBuildingWater = false;
+                
+                // Calculate next water pool
+                float rawNextWater = nextWaterX + 250f + (Mathf.PerlinNoise(globalX * 0.2f, seed) * 150f);
+                nextWaterX = Mathf.Round(rawNextWater / pointSpacing) * pointSpacing;
+                
+                float rawWaterWidth = Mathf.Lerp(minWaterWidth, maxWaterWidth, Mathf.PerlinNoise(nextWaterX, seed));
+                currentWaterWidth = Mathf.Round(rawWaterWidth / pointSpacing) * pointSpacing;
+            }
+
+            // --- ROPE BRIDGE LOGIC (90-Degree Gorge) ---
             bool isStartAnchor = generateBridges && Mathf.Abs(globalX - nextBridgeX) < 0.01f;
             bool isEndAnchor = generateBridges && Mathf.Abs(globalX - (nextBridgeX + currentBridgeGapWidth)) < 0.01f;
             bool insideGorge = generateBridges && globalX > nextBridgeX + 0.01f && globalX < (nextBridgeX + currentBridgeGapWidth) - 0.01f;
 
             if (isStartAnchor)
             {
-                // 1. Anchor Point (High Ground)
                 Vector3 anchorPoint = new Vector3(localX, originalY, 0f);
                 spline.InsertPointAt(pointIndex, anchorPoint);
                 physicsPoints.Add(new Vector2(localX, originalY));
@@ -169,7 +200,6 @@ public class MapGenerator : MonoBehaviour
                 spline.SetCorner(pointIndex, false);
                 pointIndex++;
 
-                // 2. Spawn Bridge visually (Only once per physical anchor to avoid duplicates on chunk seams)
                 if (i < numSurfacePoints)
                 {
                     float endY = GetRawTerrainY(nextBridgeX + currentBridgeGapWidth);
@@ -178,7 +208,6 @@ public class MapGenerator : MonoBehaviour
                     SpawnBridge(startPos, endPos, newChunk.transform);
                 }
 
-                // 3. FIX: Drop Point (Low) - This instantly forces a 90 degree cliff edge!
                 Vector3 dropPoint = new Vector3(localX + 0.01f, originalY - gorgeDepth, 0f);
                 spline.InsertPointAt(pointIndex, dropPoint);
                 physicsPoints.Add(new Vector2(localX + 0.01f, originalY - gorgeDepth));
@@ -188,7 +217,6 @@ public class MapGenerator : MonoBehaviour
             }
             else if (isEndAnchor)
             {
-                // 1. FIX: Rise Point (Low) - This instantly forces the other 90 degree cliff edge!
                 Vector3 risePoint = new Vector3(localX - 0.01f, originalY - gorgeDepth, 0f);
                 spline.InsertPointAt(pointIndex, risePoint);
                 physicsPoints.Add(new Vector2(localX - 0.01f, originalY - gorgeDepth));
@@ -196,7 +224,6 @@ public class MapGenerator : MonoBehaviour
                 spline.SetCorner(pointIndex, false);
                 pointIndex++;
 
-                // 2. Anchor Point (High Ground)
                 Vector3 anchorPoint = new Vector3(localX, originalY, 0f);
                 spline.InsertPointAt(pointIndex, anchorPoint);
                 physicsPoints.Add(new Vector2(localX, originalY));
@@ -204,19 +231,16 @@ public class MapGenerator : MonoBehaviour
                 spline.SetCorner(pointIndex, false);
                 pointIndex++;
 
-                // 3. Setup Next Bridge mathematically
                 if (i < numSurfacePoints)
                 {
                     float rawNextBridge = nextBridgeX + 150f + (Mathf.PerlinNoise(globalX * 0.1f, seed) * 150f);
                     nextBridgeX = Mathf.Round(rawNextBridge / pointSpacing) * pointSpacing;
-                    
                     float rawGap = Mathf.Lerp(minBridgeGapWidth, maxBridgeGapWidth, Mathf.PerlinNoise(nextBridgeX, seed));
                     currentBridgeGapWidth = Mathf.Round(rawGap / pointSpacing) * pointSpacing;
                 }
             }
             else
             {
-                // Standard terrain (Or keeping the terrain flat down inside the gorge)
                 if (insideGorge) finalY -= gorgeDepth;
 
                 Vector3 localPoint = new Vector3(localX, finalY, 0f);
@@ -227,24 +251,18 @@ public class MapGenerator : MonoBehaviour
                 pointIndex++;
             }
 
-            // Only try to spawn pickups if we are NOT on the exact last connecting seam
-            // AND not exactly on the bridge anchors (to avoid weird floating physics)
             if (i < numSurfacePoints && !isStartAnchor && !isEndAnchor)
             {
-                // Notice we pass "originalY", so if a coin spawns in a gorge, it floats safely UP on the bridge!
                 SpawnPickups(new Vector3(globalX, originalY, 0f), newChunk.transform);
             }
         }
 
-        // Bottom Right Corner (Now using adjustable terrainDepth)
         spline.InsertPointAt(pointIndex, new Vector3(chunkWidth, -terrainDepth, 0f));
         spline.SetTangentMode(pointIndex, ShapeTangentMode.Linear);
-        spline.SetCorner(pointIndex, false); // Disable corners on the bottom right point
+        spline.SetCorner(pointIndex, false); 
 
-        // Refresh structural assets first
         ssc.RefreshSpriteShape();
         
-        // --- CRITICAL BOUNDING BOX FIX ---
         if (spline.GetPointCount() > 0)
         {
             Bounds localBounds = new Bounds(spline.GetPosition(0), Vector3.zero);
@@ -252,17 +270,10 @@ public class MapGenerator : MonoBehaviour
             {
                 localBounds.Encapsulate(spline.GetPosition(k));
             }
-            
-            // Push these updated, accurate bounds directly to the SpriteShapeRenderer!
-            if (ssc.spriteShapeRenderer != null)
-            {
-                ssc.spriteShapeRenderer.SetLocalAABB(localBounds);
-            }
+            if (ssc.spriteShapeRenderer != null) ssc.spriteShapeRenderer.SetLocalAABB(localBounds);
         }
         
-        // 3. APPLY THE BULLETPROOF PHYSICS LINE
         edgeCol.SetPoints(physicsPoints);
-        
         activeChunks.Add(newChunk);
         nextSpawnX += chunkWidth;
     }
@@ -275,15 +286,41 @@ public class MapGenerator : MonoBehaviour
             RopeBridge bridgeScript = bridge.GetComponent<RopeBridge>();
             if (bridgeScript != null)
             {
-                // FIX 1: Dynamically calculate the exact number of planks needed based on gap distance
                 float distance = Vector2.Distance(startPos, endPos);
                 bridgeScript.plankCount = Mathf.Max(2, Mathf.RoundToInt(distance / expectedPlankWidth));
 
-                // FIX 2: Apply the customizable offset so the bridge sits flush with the road
                 startPos.y += bridgeYOffset; 
                 endPos.y += bridgeYOffset;
                 
                 bridgeScript.BuildBridge(startPos, endPos);
+            }
+        }
+    }
+
+    void SpawnWater(Vector2 centerPos, float width, float depth, Transform chunkParent)
+    {
+        if (waterPoolPrefab != null)
+        {
+            // FIX: Spawn exactly on Z = 0f alongside the car so orthographic clipping works smoothly
+            Vector3 spawnPos = new Vector3(centerPos.x, centerPos.y, 0f);
+            GameObject water = Instantiate(waterPoolPrefab, spawnPos, Quaternion.identity, chunkParent);
+            
+            // FIX: Force the mesh renderer to sort based on inspector settings to allow car submersion!
+            MeshRenderer mr = water.GetComponent<MeshRenderer>();
+            if (mr != null)
+            {
+                mr.sortingOrder = waterSortingOrder;
+            }
+
+            DynamicWater2D waterScript = water.GetComponent<DynamicWater2D>();
+            if (waterScript != null)
+            {
+                water.transform.localScale = Vector3.one; 
+                waterScript.GenerateWater(width, depth);
+            }
+            else
+            {
+                water.transform.localScale = new Vector3(width, depth, 1f);
             }
         }
     }

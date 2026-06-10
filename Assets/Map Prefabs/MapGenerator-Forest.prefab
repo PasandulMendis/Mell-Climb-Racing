@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1084b39d10038495f8fe2db019a03a2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
-  seed: 12345
+  seed: 200607
   chunksToSpawnAhead: 3
   chunkWidth: 20
   destroyDistanceBehind: 60
@@ -66,3 +66,10 @@ MonoBehaviour:
   gorgeDepth: 10
   expectedPlankWidth: 1
   bridgeYOffset: -0.1
+  generateWaterPools: 1
+  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
+  minWaterWidth: 6
+  maxWaterWidth: 13
+  waterDepth: 1
+  waterLevelOffset: -1
+  waterSortingOrder: 4
