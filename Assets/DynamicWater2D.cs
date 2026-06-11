@@ -44,12 +44,14 @@ public class DynamicWater2D : MonoBehaviour
     private float waterHeight;
     private BoxCollider2D col2D;
     private AudioSource audioSource;
+    private ParticleSystem[] bubbleSystems; 
 
     // Called dynamically by MapGenerator
-    public void GenerateWater(float width, float height)
+    // UPDATED: Now receives a separate 'physicsWidth' to stop the car from floating while on the dirt edge!
+    public void GenerateWater(float visualWidth, float visualHeight, float physicsWidth)
     {
-        waterWidth = width;
-        waterHeight = height;
+        waterWidth = visualWidth;
+        waterHeight = visualHeight;
 
         // Setup Audio
         if (splashSound != null && audioSource == null)
@@ -61,14 +63,14 @@ public class DynamicWater2D : MonoBehaviour
         // Setup Trigger Collider
         col2D = GetComponent<BoxCollider2D>();
         col2D.isTrigger = true;
-        col2D.size = new Vector2(waterWidth, waterHeight);
+        // The trigger uses physicsWidth so it doesn't bleed into the dirt, but keeps the full visual height
+        col2D.size = new Vector2(physicsWidth, waterHeight);
         col2D.offset = Vector2.zero; // Assuming pivot is in the center
 
         // Setup Mesh Component
         MeshFilter mf = GetComponent<MeshFilter>();
         MeshRenderer mr = GetComponent<MeshRenderer>();
         
-        // Auto-assign a default material that supports vertex colors if none exists
         if (mr.sharedMaterial == null)
         {
             Shader shader = Shader.Find("Sprites/Default");
@@ -127,6 +129,9 @@ public class DynamicWater2D : MonoBehaviour
         }
 
         UpdateMesh();
+        
+        // Track all bubble particle systems
+        bubbleSystems = GetComponentsInChildren<ParticleSystem>();
     }
 
     void FixedUpdate()
@@ -135,7 +140,7 @@ public class DynamicWater2D : MonoBehaviour
 
         float baseHeight = waterHeight / 2f;
 
-        // 1. Hooke's Law (Spring simulation for each individual node)
+        // 1. Hooke's Law (Spring simulation)
         for (int i = 0; i < nodeCount; i++)
         {
             float displacement = yPositions[i] - baseHeight;
@@ -144,11 +149,11 @@ public class DynamicWater2D : MonoBehaviour
             yPositions[i] += velocities[i];
         }
 
-        // 2. Wave Propagation (Nodes pull on their left and right neighbors)
+        // 2. Wave Propagation
         float[] leftDeltas = new float[nodeCount];
         float[] rightDeltas = new float[nodeCount];
 
-        for (int j = 0; j < 8; j++) // 8 iterations for smooth liquid propagation
+        for (int j = 0; j < 8; j++) 
         {
             for (int i = 0; i < nodeCount; i++)
             {
@@ -170,12 +175,53 @@ public class DynamicWater2D : MonoBehaviour
             }
         }
 
-        // 3. Apply the math physics visually to the 3D Mesh!
+        // 3. Apply physics visually
         for (int i = 0; i < nodeCount; i++)
         {
             vertices[i].y = yPositions[i];
         }
         UpdateMesh();
+        
+        // Pop bubbles exactly as they hit the dynamically waving water surface!
+        if (bubbleSystems != null)
+        {
+            foreach (ParticleSystem ps in bubbleSystems)
+            {
+                if (ps == null || !ps.isPlaying) continue;
+
+                ParticleSystem.Particle[] particles = new ParticleSystem.Particle[ps.main.maxParticles];
+                int aliveCount = ps.GetParticles(particles);
+
+                for (int i = 0; i < aliveCount; i++)
+                {
+                    Vector3 worldPos = ps.transform.TransformPoint(particles[i].position);
+                    float localX = worldPos.x - transform.position.x;
+
+                    float surfaceY = waterHeight / 2f;
+                    if (xPositions != null && xPositions.Length > 1)
+                    {
+                        float halfWidth = waterWidth / 2f;
+                        float clampedX = Mathf.Clamp(localX, -halfWidth, halfWidth);
+                        for (int k = 0; k < nodeCount - 1; k++)
+                        {
+                            if (clampedX >= xPositions[k] && clampedX <= xPositions[k + 1])
+                            {
+                                float t = (clampedX - xPositions[k]) / (xPositions[k + 1] - xPositions[k]);
+                                surfaceY = Mathf.Lerp(yPositions[k], yPositions[k + 1], t);
+                                break;
+                            }
+                        }
+                    }
+
+                    float worldSurfaceY = transform.position.y + surfaceY;
+                    if (worldPos.y >= worldSurfaceY)
+                    {
+                        particles[i].remainingLifetime = -1f; 
+                    }
+                }
+                ps.SetParticles(particles, aliveCount);
+            }
+        }
     }
 
     void UpdateMesh()
@@ -191,13 +237,11 @@ public class DynamicWater2D : MonoBehaviour
     {
         if (xPositions == null) return;
         
-        // Convert world position to local position
         float localX = worldXPosition - transform.position.x;
         
         int nearestNode = 0;
         float shortestDist = float.MaxValue;
         
-        // Find the specific node you landed on
         for (int i = 0; i < nodeCount; i++)
         {
             float dist = Mathf.Abs(xPositions[i] - localX);
@@ -208,13 +252,11 @@ public class DynamicWater2D : MonoBehaviour
             }
         }
         
-        // Smash the wave downwards! Cap the force so massive heavy trucks don't break the mesh.
         float impact = Mathf.Clamp(velocity, -200f, 200f);
         velocities[nearestNode] += impact * collisionForceMultiplier;
 
         if (splashPrefab != null)
         {
-            // Spawn splash particle EXACTLY at the height of the rippling wave
             Vector3 splashPos = new Vector3(worldXPosition, transform.position.y + yPositions[nearestNode], 0);
             Instantiate(splashPrefab, splashPos, Quaternion.identity);
         }
@@ -229,7 +271,6 @@ public class DynamicWater2D : MonoBehaviour
     void OnTriggerEnter2D(Collider2D col)
     {
         Rigidbody2D rb = col.attachedRigidbody;
-        // Only splash if entering fast enough downwards
         if (rb != null && rb.linearVelocity.y < -1f)
         {
             Splash(col.bounds.center.x, rb.linearVelocity.y * rb.mass);
@@ -243,7 +284,6 @@ public class DynamicWater2D : MonoBehaviour
 
         float localX = col.bounds.center.x - transform.position.x;
         
-        // PERFECT BUOYANCY: Interpolate exactly where the surface wave is at this exact X position!
         float surfaceY = waterHeight / 2f; 
         int nearestNode = 0;
 
@@ -256,7 +296,6 @@ public class DynamicWater2D : MonoBehaviour
                     float t = (localX - xPositions[i]) / (xPositions[i+1] - xPositions[i]);
                     surfaceY = Mathf.Lerp(yPositions[i], yPositions[i+1], t);
                     
-                    // Keep track of the closest node for our continuous wake effect
                     nearestNode = (t < 0.5f) ? i : i + 1;
                     break;
                 }
@@ -268,33 +307,20 @@ public class DynamicWater2D : MonoBehaviour
 
         if (depth > 0)
         {
-            // Push Up
             float upwardForce = depth * buoyancyStrength * rb.mass;
             rb.AddForce(Vector2.up * upwardForce, ForceMode2D.Force);
 
-            // Drag Down
             rb.linearVelocity *= (1f - (fluidViscosity * Time.fixedDeltaTime));
             rb.angularVelocity *= (1f - (fluidViscosity * Time.fixedDeltaTime));
 
-            // --- CONTINUOUS WAKE LOGIC ---
-            // Create a ripple based on the car's movement speed while submerged
             float speed = rb.linearVelocity.magnitude;
             
             if (speed > 0.5f && xPositions != null)
             {
-                // Calculate a tiny force based on speed and mass
                 float wakeForce = speed * rb.mass * continuousWakeMultiplier;
                 
-                // If the car is driving up/floating up, lift the water slightly. Otherwise, push it down.
-                // This makes the water visually "stick" to the car's movements.
-                if (rb.linearVelocity.y > 0.1f) 
-                {
-                    velocities[nearestNode] += wakeForce; 
-                } 
-                else 
-                {
-                    velocities[nearestNode] -= wakeForce;
-                }
+                if (rb.linearVelocity.y > 0.1f) velocities[nearestNode] += wakeForce; 
+                else velocities[nearestNode] -= wakeForce;
             }
         }
     }

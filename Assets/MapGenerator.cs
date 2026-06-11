@@ -34,24 +34,28 @@ public class MapGenerator : MonoBehaviour
     public float expectedPlankWidth = 1.5f;
     public float bridgeYOffset = -0.1f;
 
-    [Header("Fluid Hazards (Water/Mud)")]
+    [Header("Fluid Hazards (Water & Mud)")]
     public bool generateWaterPools = false;
     public GameObject waterPoolPrefab;
+    public GameObject mudPoolPrefab; 
+    [Range(0f, 1f)] public float mudProbability = 0.3f;
     public float minWaterWidth = 15f;
     public float maxWaterWidth = 40f;
-    [Tooltip("How deep the U-shaped bowl dips into the earth")]
     public float waterDepth = 8f;
-    [Tooltip("Adjusts where the water sits vertically. Positive moves the water line UP.")]
     public float waterLevelOffset = -2f;
-    [Tooltip("Set this higher than your car (e.g., 3 if car is 2) but lower than your terrain (e.g., 4) to make the car look submerged!")]
     public int waterSortingOrder = 3;
+
+    [Header("Scatter Obstacles (Logs, Boulders)")]
+    public bool generateScatterObstacles = false;
+    public GameObject[] scatterPrefabs;
+    public float minScatterDistance = 100f;
+    public float maxScatterDistance = 250f;
 
     private Transform playerCar;
     private float nextSpawnX = 0f;
     private List<GameObject> activeChunks = new List<GameObject>();
     private float oldestChunkStartX = 0f;
 
-    // Spacing Variables
     private float nextCoinX = 10f; 
     private float nextFuelX = 50f;  
     private int coinsLeftInGroup = 5; 
@@ -62,6 +66,8 @@ public class MapGenerator : MonoBehaviour
     private float nextWaterX = 250f;
     private float currentWaterWidth;
     private bool isBuildingWater = false;
+    
+    private float nextScatterX = 150f;
 
     void Start()
     {
@@ -69,17 +75,18 @@ public class MapGenerator : MonoBehaviour
         nextSpawnX = 0f;
         oldestChunkStartX = 0f;
 
-        // Setup Bridge Seed
         float rawNextBridge = 100f + (Mathf.PerlinNoise(seed, seed) * 50f);
         nextBridgeX = Mathf.Round(rawNextBridge / pointSpacing) * pointSpacing;
         float rawGap = Mathf.Lerp(minBridgeGapWidth, maxBridgeGapWidth, Mathf.PerlinNoise(nextBridgeX, seed));
         currentBridgeGapWidth = Mathf.Round(rawGap / pointSpacing) * pointSpacing;
 
-        // Setup Water Seed (Offset from bridges to reduce overlap)
         float rawNextWater = 250f + (Mathf.PerlinNoise(seed + 1, seed) * 100f);
         nextWaterX = Mathf.Round(rawNextWater / pointSpacing) * pointSpacing;
         float rawWaterWidth = Mathf.Lerp(minWaterWidth, maxWaterWidth, Mathf.PerlinNoise(nextWaterX, seed));
         currentWaterWidth = Mathf.Round(rawWaterWidth / pointSpacing) * pointSpacing;
+
+        float rawNextScatter = 150f + (Mathf.PerlinNoise(seed + 2, seed) * 100f);
+        nextScatterX = Mathf.Round(rawNextScatter / pointSpacing) * pointSpacing;
 
         for (int i = 0; i < chunksToSpawnAhead; i++)
         {
@@ -152,7 +159,7 @@ public class MapGenerator : MonoBehaviour
             float originalY = GetRawTerrainY(globalX);
             float finalY = originalY;
 
-            // --- WATER POOL LOGIC (Smooth U-Shape Dip) ---
+            // --- FLUID POOL LOGIC ---
             bool inWaterZone = generateWaterPools && globalX >= nextWaterX && globalX <= nextWaterX + currentWaterWidth;
             
             if (inWaterZone)
@@ -160,16 +167,29 @@ public class MapGenerator : MonoBehaviour
                 if (!isBuildingWater)
                 {
                     isBuildingWater = true;
-                    // Spawn the visual water and the fluid physics trigger
                     float startY = GetRawTerrainY(nextWaterX);
                     float endY = GetRawTerrainY(nextWaterX + currentWaterWidth);
                     float midY = (startY + endY) / 2f; 
                     
-                    Vector2 centerPos = new Vector2(nextWaterX + currentWaterWidth/2f, midY + waterLevelOffset);
-                    SpawnWater(centerPos, currentWaterWidth, waterDepth, newChunk.transform);
+                    // --- GAP FIXES ---
+                    // 1. Visually bleed the width out 15 units to hide vertical side gaps in the dirt walls
+                    float paddedVisualWidth = currentWaterWidth + 15f;
+                    
+                    // 2. Add massive depth padding so it completely buries into the floor
+                    float paddedVisualDepth = (waterDepth * 2f) + 20f; 
+                    
+                    // 3. Anchor the top surface of the mesh flawlessly so depth changes push downwards, not upwards!
+                    float surfaceY = midY + waterLevelOffset;
+                    float centerOffsetY = surfaceY - (paddedVisualDepth / 2f);
+                    
+                    Vector2 centerPos = new Vector2(nextWaterX + currentWaterWidth / 2f, centerOffsetY);
+                    
+                    bool isMud = mudPoolPrefab != null && (Mathf.PerlinNoise(nextWaterX * 0.1f, seed) < mudProbability);
+                    
+                    // Pass the padded sizes for visuals, and the currentWaterWidth for physics!
+                    SpawnFluid(centerPos, paddedVisualWidth, paddedVisualDepth, currentWaterWidth, newChunk.transform, isMud);
                 }
                 
-                // MATH MAGIC: A perfect Sine wave creates a smooth, drivable U-Shaped bowl in the dirt!
                 float dipPercent = (globalX - nextWaterX) / currentWaterWidth;
                 float dipAmount = Mathf.Sin(dipPercent * Mathf.PI) * waterDepth;
                 finalY -= dipAmount;
@@ -177,16 +197,13 @@ public class MapGenerator : MonoBehaviour
             else if (globalX > nextWaterX + currentWaterWidth && isBuildingWater)
             {
                 isBuildingWater = false;
-                
-                // Calculate next water pool
                 float rawNextWater = nextWaterX + 250f + (Mathf.PerlinNoise(globalX * 0.2f, seed) * 150f);
                 nextWaterX = Mathf.Round(rawNextWater / pointSpacing) * pointSpacing;
-                
                 float rawWaterWidth = Mathf.Lerp(minWaterWidth, maxWaterWidth, Mathf.PerlinNoise(nextWaterX, seed));
                 currentWaterWidth = Mathf.Round(rawWaterWidth / pointSpacing) * pointSpacing;
             }
 
-            // --- ROPE BRIDGE LOGIC (90-Degree Gorge) ---
+            // --- ROPE BRIDGE LOGIC ---
             bool isStartAnchor = generateBridges && Mathf.Abs(globalX - nextBridgeX) < 0.01f;
             bool isEndAnchor = generateBridges && Mathf.Abs(globalX - (nextBridgeX + currentBridgeGapWidth)) < 0.01f;
             bool insideGorge = generateBridges && globalX > nextBridgeX + 0.01f && globalX < (nextBridgeX + currentBridgeGapWidth) - 0.01f;
@@ -251,6 +268,25 @@ public class MapGenerator : MonoBehaviour
                 pointIndex++;
             }
 
+            // --- SCATTER OBSTACLE LOGIC ---
+            bool isScatterPoint = generateScatterObstacles && Mathf.Abs(globalX - nextScatterX) < 0.01f;
+            if (isScatterPoint)
+            {
+                if (!inWaterZone && !insideGorge && !isStartAnchor && !isEndAnchor && i < numSurfacePoints)
+                {
+                    if (scatterPrefabs != null && scatterPrefabs.Length > 0)
+                    {
+                        int prefabIndex = Mathf.FloorToInt(Mathf.PerlinNoise(globalX, seed) * scatterPrefabs.Length);
+                        prefabIndex = Mathf.Clamp(prefabIndex, 0, scatterPrefabs.Length - 1);
+                        Vector3 spawnPos = new Vector3(globalX, originalY + 1f, 0f);
+                        Instantiate(scatterPrefabs[prefabIndex], spawnPos, Quaternion.identity, newChunk.transform);
+                    }
+                }
+                float rawNextScatter = nextScatterX + Mathf.Lerp(minScatterDistance, maxScatterDistance, Mathf.PerlinNoise(globalX * 0.3f, seed));
+                nextScatterX = Mathf.Round(rawNextScatter / pointSpacing) * pointSpacing;
+            }
+
+            // --- PICKUPS ---
             if (i < numSurfacePoints && !isStartAnchor && !isEndAnchor)
             {
                 SpawnPickups(new Vector3(globalX, originalY, 0f), newChunk.transform);
@@ -297,30 +333,32 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    void SpawnWater(Vector2 centerPos, float width, float depth, Transform chunkParent)
+    // UPDATED to accept physicsWidth so buoyancy triggers don't bleed onto the dirt slopes
+    void SpawnFluid(Vector2 centerPos, float visualWidth, float visualDepth, float physicsWidth, Transform chunkParent, bool isMud)
     {
-        if (waterPoolPrefab != null)
+        GameObject prefabToUse = isMud ? mudPoolPrefab : waterPoolPrefab;
+
+        if (prefabToUse != null)
         {
-            // FIX: Spawn exactly on Z = 0f alongside the car so orthographic clipping works smoothly
             Vector3 spawnPos = new Vector3(centerPos.x, centerPos.y, 0f);
-            GameObject water = Instantiate(waterPoolPrefab, spawnPos, Quaternion.identity, chunkParent);
+            GameObject fluid = Instantiate(prefabToUse, spawnPos, Quaternion.identity, chunkParent);
             
-            // FIX: Force the mesh renderer to sort based on inspector settings to allow car submersion!
-            MeshRenderer mr = water.GetComponent<MeshRenderer>();
+            MeshRenderer mr = fluid.GetComponent<MeshRenderer>();
             if (mr != null)
             {
                 mr.sortingOrder = waterSortingOrder;
             }
 
-            DynamicWater2D waterScript = water.GetComponent<DynamicWater2D>();
-            if (waterScript != null)
+            DynamicWater2D fluidScript = fluid.GetComponent<DynamicWater2D>();
+            if (fluidScript != null)
             {
-                water.transform.localScale = Vector3.one; 
-                waterScript.GenerateWater(width, depth);
+                fluid.transform.localScale = Vector3.one; 
+                // Pass the true physics width along with the padded visuals
+                fluidScript.GenerateWater(visualWidth, visualDepth, physicsWidth);
             }
             else
             {
-                water.transform.localScale = new Vector3(width, depth, 1f);
+                fluid.transform.localScale = new Vector3(visualWidth, visualDepth, 1f);
             }
         }
     }

@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1084b39d10038495f8fe2db019a03a2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
-  seed: 200607
+  seed: 12345
   chunksToSpawnAhead: 3
   chunkWidth: 20
   destroyDistanceBehind: 60
@@ -68,8 +68,15 @@ MonoBehaviour:
   bridgeYOffset: -0.1
   generateWaterPools: 1
   waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
+  mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
+  mudProbability: 0.2
   minWaterWidth: 6
   maxWaterWidth: 13
-  waterDepth: 1
+  waterDepth: 2
   waterLevelOffset: -1
   waterSortingOrder: 4
+  generateScatterObstacles: 1
+  scatterPrefabs:
+  - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
+  minScatterDistance: 200
+  maxScatterDistance: 300

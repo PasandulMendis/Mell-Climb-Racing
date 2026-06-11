@@ -4992,14 +4992,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicWater2D
   nodeCount: 70
-  surfaceColor: {r: 0.26379493, g: 0.7103725, b: 0.9811321, a: 0.8}
+  surfaceColor: {r: 0.19971518, g: 0.59246916, b: 0.8301887, a: 0.8}
   depthColor: {r: 0.0054734685, g: 0.15151043, b: 0.38679248, a: 0.9}
-  springConstant: 0.015
+  springConstant: 0.005
   damping: 0.04
-  spread: 0.05
-  collisionForceMultiplier: 0.05
-  buoyancyStrength: 15
-  fluidViscosity: 1.5
-  continuousWakeMultiplier: 0.01
+  spread: 0.025
+  collisionForceMultiplier: 0.025
+  buoyancyStrength: 2
+  fluidViscosity: 1.25
+  continuousWakeMultiplier: 0.005
   splashPrefab: {fileID: 6074416777744750288, guid: 318281bb6c51b4670a7e8b866ff4bd1a, type: 3}
   splashSound: {fileID: 0}
