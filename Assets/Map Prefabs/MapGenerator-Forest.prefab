@@ -70,13 +70,17 @@ MonoBehaviour:
   waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
   mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
   mudProbability: 0.2
-  minWaterWidth: 6
-  maxWaterWidth: 13
-  waterDepth: 2
-  waterLevelOffset: -1
+  minWaterWidth: 4
+  maxWaterWidth: 16
+  waterDepth: 1
+  waterLevelOffset: 0
   waterSortingOrder: 4
   generateScatterObstacles: 1
   scatterPrefabs:
   - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
   minScatterDistance: 200
   maxScatterDistance: 300
+  generateBouncyHazards: 1
+  bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
+  minBounceDistance: 50
+  maxBounceDistance: 100

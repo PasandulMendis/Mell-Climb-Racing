@@ -45,11 +45,18 @@ public class MapGenerator : MonoBehaviour
     public float waterLevelOffset = -2f;
     public int waterSortingOrder = 3;
 
-    [Header("Scatter Obstacles (Logs, Boulders)")]
+    [Header("Scatter Obstacles")]
     public bool generateScatterObstacles = false;
     public GameObject[] scatterPrefabs;
     public float minScatterDistance = 100f;
     public float maxScatterDistance = 250f;
+
+    [Header("Bouncy Hazards (Trampolines/Tires)")]
+    public bool generateBouncyHazards = false;
+    [Tooltip("Prefab containing the BouncyHazard script")]
+    public GameObject bouncyHazardPrefab;
+    public float minBounceDistance = 200f;
+    public float maxBounceDistance = 400f;
 
     private Transform playerCar;
     private float nextSpawnX = 0f;
@@ -68,6 +75,7 @@ public class MapGenerator : MonoBehaviour
     private bool isBuildingWater = false;
     
     private float nextScatterX = 150f;
+    private float nextBounceX = 200f; // NEW: Bouncy Hazard tracking
 
     void Start()
     {
@@ -87,6 +95,10 @@ public class MapGenerator : MonoBehaviour
 
         float rawNextScatter = 150f + (Mathf.PerlinNoise(seed + 2, seed) * 100f);
         nextScatterX = Mathf.Round(rawNextScatter / pointSpacing) * pointSpacing;
+
+        // NEW: Setup initial bounce seed
+        float rawNextBounce = 200f + (Mathf.PerlinNoise(seed + 3, seed) * 150f);
+        nextBounceX = Mathf.Round(rawNextBounce / pointSpacing) * pointSpacing;
 
         for (int i = 0; i < chunksToSpawnAhead; i++)
         {
@@ -171,22 +183,13 @@ public class MapGenerator : MonoBehaviour
                     float endY = GetRawTerrainY(nextWaterX + currentWaterWidth);
                     float midY = (startY + endY) / 2f; 
                     
-                    // --- GAP FIXES ---
-                    // 1. Visually bleed the width out 15 units to hide vertical side gaps in the dirt walls
                     float paddedVisualWidth = currentWaterWidth + 15f;
-                    
-                    // 2. Add massive depth padding so it completely buries into the floor
                     float paddedVisualDepth = (waterDepth * 2f) + 20f; 
-                    
-                    // 3. Anchor the top surface of the mesh flawlessly so depth changes push downwards, not upwards!
                     float surfaceY = midY + waterLevelOffset;
                     float centerOffsetY = surfaceY - (paddedVisualDepth / 2f);
                     
                     Vector2 centerPos = new Vector2(nextWaterX + currentWaterWidth / 2f, centerOffsetY);
-                    
                     bool isMud = mudPoolPrefab != null && (Mathf.PerlinNoise(nextWaterX * 0.1f, seed) < mudProbability);
-                    
-                    // Pass the padded sizes for visuals, and the currentWaterWidth for physics!
                     SpawnFluid(centerPos, paddedVisualWidth, paddedVisualDepth, currentWaterWidth, newChunk.transform, isMud);
                 }
                 
@@ -268,11 +271,31 @@ public class MapGenerator : MonoBehaviour
                 pointIndex++;
             }
 
+            // --- BOUNCY HAZARD LOGIC ---
+            bool isBouncePoint = generateBouncyHazards && Mathf.Abs(globalX - nextBounceX) < 0.01f;
+            if (isBouncePoint)
+            {
+                // Ensure it spawns on a safe patch of dirt!
+                if (!inWaterZone && !insideGorge && !isStartAnchor && !isEndAnchor && i < numSurfacePoints)
+                {
+                    if (bouncyHazardPrefab != null)
+                    {
+                        // Spawn slightly above the dirt so it rests cleanly on top
+                        Vector3 spawnPos = new Vector3(globalX, originalY + 0.5f, 0f);
+                        Instantiate(bouncyHazardPrefab, spawnPos, Quaternion.identity, newChunk.transform);
+                    }
+                }
+                
+                float rawNextBounce = nextBounceX + Mathf.Lerp(minBounceDistance, maxBounceDistance, Mathf.PerlinNoise(globalX * 0.4f, seed));
+                nextBounceX = Mathf.Round(rawNextBounce / pointSpacing) * pointSpacing;
+            }
+
             // --- SCATTER OBSTACLE LOGIC ---
             bool isScatterPoint = generateScatterObstacles && Mathf.Abs(globalX - nextScatterX) < 0.01f;
             if (isScatterPoint)
             {
-                if (!inWaterZone && !insideGorge && !isStartAnchor && !isEndAnchor && i < numSurfacePoints)
+                // Make sure we don't spawn a scatter pyramid directly on top of a trampoline!
+                if (!inWaterZone && !insideGorge && !isStartAnchor && !isEndAnchor && !isBouncePoint && i < numSurfacePoints)
                 {
                     if (scatterPrefabs != null && scatterPrefabs.Length > 0)
                     {
@@ -287,7 +310,8 @@ public class MapGenerator : MonoBehaviour
             }
 
             // --- PICKUPS ---
-            if (i < numSurfacePoints && !isStartAnchor && !isEndAnchor)
+            // Don't spawn pickups directly inside scatter obstacles or trampolines to prevent physics clipping
+            if (i < numSurfacePoints && !isStartAnchor && !isEndAnchor && !isScatterPoint && !isBouncePoint)
             {
                 SpawnPickups(new Vector3(globalX, originalY, 0f), newChunk.transform);
             }
@@ -333,7 +357,6 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    // UPDATED to accept physicsWidth so buoyancy triggers don't bleed onto the dirt slopes
     void SpawnFluid(Vector2 centerPos, float visualWidth, float visualDepth, float physicsWidth, Transform chunkParent, bool isMud)
     {
         GameObject prefabToUse = isMud ? mudPoolPrefab : waterPoolPrefab;
@@ -353,7 +376,6 @@ public class MapGenerator : MonoBehaviour
             if (fluidScript != null)
             {
                 fluid.transform.localScale = Vector3.one; 
-                // Pass the true physics width along with the padded visuals
                 fluidScript.GenerateWater(visualWidth, visualDepth, physicsWidth);
             }
             else
