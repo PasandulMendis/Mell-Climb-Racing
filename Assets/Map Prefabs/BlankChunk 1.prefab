@@ -99,7 +99,7 @@ SpriteShapeRenderer:
   m_LocalAABB:
     m_Center: {x: 0.0002465248, y: -0.00016963482, z: 0}
     m_Extent: {x: 2.3399153, y: 1.0001695, z: 0}
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!114 &3908663911255920849
 MonoBehaviour:
   m_ObjectHideFlags: 0

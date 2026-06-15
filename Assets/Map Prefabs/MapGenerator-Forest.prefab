@@ -82,5 +82,18 @@ MonoBehaviour:
   maxScatterDistance: 300
   generateBouncyHazards: 1
   bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
-  minBounceDistance: 50
-  maxBounceDistance: 100
+  minBounceDistance: 20
+  maxBounceDistance: 30
+  generateProps: 1
+  propPrefabs:
+  - {fileID: 5944124925490755803, guid: 99057b48309c045a5a8efd135258e2b7, type: 3}
+  - {fileID: 2550463375802288252, guid: 6c9809ce8588043cb8adcdffc02e1c0c, type: 3}
+  - {fileID: 6460039007616440767, guid: 48c8bc451462a47fd8087d847f71973c, type: 3}
+  - {fileID: 1215196087837981991, guid: 3de3de1ae2a6241f09858f2ff44e950a, type: 3}
+  - {fileID: 8531296965459640863, guid: 1e6be7699cf7c4e29bdfde3eb2acbd1a, type: 3}
+  - {fileID: 8463361217836126386, guid: d8ccb8bf2a85741da8cd4af4367e4b59, type: 3}
+  - {fileID: 7366100098912211973, guid: ad275ba7f9326464aba9c68f8932f5d3, type: 3}
+  propCheckInterval: 5
+  propSpawnProbability: 0.5
+  propYOffset: 0
+  propTerrainAlignment: 0.7

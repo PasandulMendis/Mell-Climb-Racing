@@ -58,6 +58,19 @@ public class MapGenerator : MonoBehaviour
     public float minBounceDistance = 200f;
     public float maxBounceDistance = 400f;
 
+    [Header("Environment Props (Visual Set Dressing)")]
+    public bool generateProps = true;
+    [Tooltip("Prefabs for Trees, Bushes, Rocks, Signs, etc. Make sure they have NO colliders!")]
+    public GameObject[] propPrefabs;
+    [Tooltip("How often (in meters) the game tries to plant a prop")]
+    public float propCheckInterval = 5f;
+    [Tooltip("Chance (0 to 1) that a prop actually spawns at each interval")]
+    [Range(0f, 1f)] public float propSpawnProbability = 0.5f;
+    [Tooltip("Vertical offset to stop props from sinking into the road. Positive = Higher.")]
+    public float propYOffset = 0f;
+    [Tooltip("0 = Always perfectly vertical. 1 = Perfectly tilts with the hill slope.")]
+    [Range(0f, 1f)] public float propTerrainAlignment = 0.5f;
+
     private Transform playerCar;
     private float nextSpawnX = 0f;
     private List<GameObject> activeChunks = new List<GameObject>();
@@ -75,7 +88,8 @@ public class MapGenerator : MonoBehaviour
     private bool isBuildingWater = false;
     
     private float nextScatterX = 150f;
-    private float nextBounceX = 200f; // NEW: Bouncy Hazard tracking
+    private float nextBounceX = 200f; 
+    private float nextPropX = 5f; 
 
     void Start()
     {
@@ -96,9 +110,10 @@ public class MapGenerator : MonoBehaviour
         float rawNextScatter = 150f + (Mathf.PerlinNoise(seed + 2, seed) * 100f);
         nextScatterX = Mathf.Round(rawNextScatter / pointSpacing) * pointSpacing;
 
-        // NEW: Setup initial bounce seed
         float rawNextBounce = 200f + (Mathf.PerlinNoise(seed + 3, seed) * 150f);
         nextBounceX = Mathf.Round(rawNextBounce / pointSpacing) * pointSpacing;
+        
+        nextPropX = pointSpacing;
 
         for (int i = 0; i < chunksToSpawnAhead; i++)
         {
@@ -275,12 +290,10 @@ public class MapGenerator : MonoBehaviour
             bool isBouncePoint = generateBouncyHazards && Mathf.Abs(globalX - nextBounceX) < 0.01f;
             if (isBouncePoint)
             {
-                // Ensure it spawns on a safe patch of dirt!
                 if (!inWaterZone && !insideGorge && !isStartAnchor && !isEndAnchor && i < numSurfacePoints)
                 {
                     if (bouncyHazardPrefab != null)
                     {
-                        // Spawn slightly above the dirt so it rests cleanly on top
                         Vector3 spawnPos = new Vector3(globalX, originalY + 0.5f, 0f);
                         Instantiate(bouncyHazardPrefab, spawnPos, Quaternion.identity, newChunk.transform);
                     }
@@ -294,7 +307,6 @@ public class MapGenerator : MonoBehaviour
             bool isScatterPoint = generateScatterObstacles && Mathf.Abs(globalX - nextScatterX) < 0.01f;
             if (isScatterPoint)
             {
-                // Make sure we don't spawn a scatter pyramid directly on top of a trampoline!
                 if (!inWaterZone && !insideGorge && !isStartAnchor && !isEndAnchor && !isBouncePoint && i < numSurfacePoints)
                 {
                     if (scatterPrefabs != null && scatterPrefabs.Length > 0)
@@ -310,10 +322,15 @@ public class MapGenerator : MonoBehaviour
             }
 
             // --- PICKUPS ---
-            // Don't spawn pickups directly inside scatter obstacles or trampolines to prevent physics clipping
             if (i < numSurfacePoints && !isStartAnchor && !isEndAnchor && !isScatterPoint && !isBouncePoint)
             {
                 SpawnPickups(new Vector3(globalX, originalY, 0f), newChunk.transform);
+            }
+            
+            // --- ENVIRONMENT PROPS (Trees, Bushes, Signs) ---
+            if (generateProps && globalX >= nextPropX && i < numSurfacePoints && !inWaterZone && !insideGorge)
+            {
+                SpawnEnvironmentProps(new Vector3(globalX, originalY, 0f), newChunk.transform);
             }
         }
 
@@ -403,5 +420,60 @@ public class MapGenerator : MonoBehaviour
                 coinsLeftInGroup = Mathf.FloorToInt(Mathf.PerlinNoise(groundPosition.x * 0.3f, seed) * 4) + 3;
             }
         }
+    }
+
+    void SpawnEnvironmentProps(Vector3 groundPosition, Transform chunkParent)
+    {
+        if (propPrefabs != null && propPrefabs.Length > 0)
+        {
+            // Deterministic random check based on position and seed
+            float randomVal = Mathf.PerlinNoise(groundPosition.x * 0.4f, seed + 5.5f);
+            
+            if (randomVal < propSpawnProbability)
+            {
+                float indexNoise = Mathf.PerlinNoise(groundPosition.x * 12.34f, seed + 6.6f);
+                int prefabIndex = Mathf.FloorToInt(indexNoise * propPrefabs.Length);
+                prefabIndex = Mathf.Clamp(prefabIndex, 0, propPrefabs.Length - 1);
+                
+                float zOffset = (Mathf.PerlinNoise(groundPosition.x * 8.1f, seed + 7.7f) > 0.5f) ? Random.Range(3f, 8f) : Random.Range(-2f, -4f);
+                
+                Vector3 spawnPos = new Vector3(groundPosition.x, groundPosition.y + propYOffset, zOffset);
+                
+                GameObject prop = Instantiate(propPrefabs[prefabIndex], spawnPos, Quaternion.identity, chunkParent);
+
+                // =====================================================================
+                // FIX: Automatically detect sprite bounds and shift it up so it never sinks!
+                // =====================================================================
+                SpriteRenderer sr = prop.GetComponentInChildren<SpriteRenderer>();
+                if (sr != null)
+                {
+                    // Calculate the distance from the spawnPos to the absolute bottom edge of the sprite
+                    float shiftAmount = spawnPos.y - sr.bounds.min.y;
+                    
+                    // Shift the prop upwards by that exact amount
+                    prop.transform.position += new Vector3(0f, shiftAmount, 0f);
+                }
+                // =====================================================================
+                
+                // FIX 3: Terrain Alignment (Calculate the slope at this exact X position)
+                float yAhead = GetRawTerrainY(groundPosition.x + 0.1f);
+                float yBehind = GetRawTerrainY(groundPosition.x - 0.1f);
+                Vector2 slopeDir = new Vector2(0.2f, yAhead - yBehind).normalized;
+                float terrainAngle = Mathf.Atan2(slopeDir.y, slopeDir.x) * Mathf.Rad2Deg;
+                
+                // Lerp between 0 (straight up) and the terrain's angle
+                float finalAngle = Mathf.Lerp(0f, terrainAngle, propTerrainAlignment);
+                prop.transform.localRotation = Quaternion.Euler(0f, 0f, finalAngle);
+
+                // Randomly flip the sprite horizontally for extra visual variety
+                if (Mathf.PerlinNoise(groundPosition.x * 9.9f, seed + 8.8f) > 0.5f)
+                {
+                    prop.transform.localScale = new Vector3(-prop.transform.localScale.x, prop.transform.localScale.y, prop.transform.localScale.z);
+                }
+            }
+        }
+        
+        // Advance to the next potential prop spawn point
+        nextPropX += propCheckInterval;
     }
 }
