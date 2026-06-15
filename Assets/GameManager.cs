@@ -17,6 +17,11 @@ public class GameManager : MonoBehaviour
     public int highestDistance = 0;
     public bool isGameOver = false;
 
+    [Header("Pause Menu & Audio")]
+    public GameObject pauseMenuPanel;
+    public TextMeshProUGUI muteButtonText;
+    [HideInInspector] public bool isPaused = false;
+
     [Header("Mobile Inputs")]
     [HideInInspector] public bool isMobileGasPressed = false;
     [HideInInspector] public bool isMobileBrakePressed = false;
@@ -101,16 +106,21 @@ public class GameManager : MonoBehaviour
         
         if (highScoreText != null) highScoreText.text = "Best: " + highestDistance.ToString() + "m";
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
 
         nextMilestoneDistance = GetMilestoneDistance(maxMilestoneLevel + 1);
         
         if (nextMilestoneText != null) nextMilestoneText.text = nextMilestoneDistance.ToString() + "m";
         if (milestonePopupPanel != null) milestonePopupPanel.SetActive(false);
         if (flagIndicator != null) flagIndicator.SetActive(false);
+
+        ApplyMuteState();
     }
 
     void Update()
     {
+        if (isPaused) return; // Prevent game logic from running while paused
+
         if (!isGameOver && playerCar != null)
         {
             distanceTraveled = Mathf.Max(0, playerCar.position.x - startPosition.x);
@@ -126,15 +136,12 @@ public class GameManager : MonoBehaviour
                 {
                     float targetAngle = Mathf.Lerp(minRevAngle, maxRevAngle, cc.currentRPM);
                     
-                    // --- NEW: REV LIMITER VIBRATION & LIGHT ---
                     if (cc.currentRPM >= revWarningThreshold && cc.hasFuel)
                     {
-                        // Add violent jitter/vibration to the needle
                         targetAngle += Random.Range(-4f, 4f); 
                         
                         if (revWarningLight != null)
                         {
-                            // Rapid flashing
                             bool isBlinking = Mathf.PingPong(Time.time * 15f, 1f) > 0.5f;
                             revWarningLight.SetActive(isBlinking);
                         }
@@ -244,6 +251,61 @@ public class GameManager : MonoBehaviour
         if (nextMilestoneText != null) nextMilestoneText.text = nextMilestoneDistance.ToString() + "m";
     }
 
+    // --- PAUSE MENU LOGIC ---
+    public void PauseGame()
+    {
+        if (isGameOver) return; // Don't allow pausing if dead
+        
+        isPaused = true;
+        Time.timeScale = 0f; // Freeze all physics and delta time
+        
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(true);
+    }
+
+    public void ResumeGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f; // Unfreeze the game
+        
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
+    }
+
+    public void RestartGame()
+    {
+        Time.timeScale = 1f; 
+        Application.targetFrameRate = 60;
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void ToggleMute()
+    {
+        bool isMuted = PlayerPrefs.GetInt("IsMuted", 0) == 1;
+        PlayerPrefs.SetInt("IsMuted", !isMuted ? 1 : 0);
+        PlayerPrefs.Save();
+        
+        ApplyMuteState();
+        
+        // Also force the MemeManager to update its VideoPlayer volume immediately
+        if (MemeManager.instance != null)
+        {
+            MemeManager.instance.ApplyMuteState();
+        }
+    }
+
+    public void ApplyMuteState()
+    {
+        bool isMuted = PlayerPrefs.GetInt("IsMuted", 0) == 1;
+        
+        // Globally mutes all standard AudioSources in the scene (Engine, Impacts, Coins)
+        AudioListener.volume = isMuted ? 0f : 1f;
+        
+        if (muteButtonText != null)
+        {
+            muteButtonText.text = isMuted ? "UNMUTE" : "MUTE";
+        }
+    }
+
+    // --- INPUTS & GENERAL ---
     public void PointerDownGas() { isMobileGasPressed = true; }
     public void PointerUpGas() { isMobileGasPressed = false; }
     public void PointerDownBrake() { isMobileBrakePressed = true; }

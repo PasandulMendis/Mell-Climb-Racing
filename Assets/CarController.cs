@@ -86,6 +86,10 @@ public class CarController : MonoBehaviour
     private float totalAirRotation = 0f;
     private float lastZRotation = 0f;
     private bool wasAirborneLastFrame = false;
+    
+    // --- NEW: Stunt Counters ---
+    private float currentAirTime = 0f;
+    private int flipsThisJump = 0;
 
     void Start()
     {
@@ -426,31 +430,60 @@ public class CarController : MonoBehaviour
     {
         if (isAirborne)
         {
+            // Just lifted off the ground this exact frame!
             if (!wasAirborneLastFrame)
             {
                 totalAirRotation = 0f;
                 lastZRotation = transform.eulerAngles.z;
+                currentAirTime = 0f;
+                flipsThisJump = 0;
             }
+
+            // Increment our air timer
+            currentAirTime += Time.deltaTime;
 
             float currentZ = transform.eulerAngles.z;
             float deltaZ = Mathf.DeltaAngle(lastZRotation, currentZ);
             totalAirRotation += deltaZ;
             lastZRotation = currentZ;
 
+            // Did we complete a full 360?
             if (Mathf.Abs(totalAirRotation) >= 360f)
             {
+                flipsThisJump++;
                 string flipType = totalAirRotation > 0 ? "Backflip" : "Frontflip";
-                Debug.Log(flipType + " completed! +" + flipCoinBonus + " Coins!");
+                
+                // Talk to the new StuntManager if it exists!
+                if (StuntManager.instance != null)
+                {
+                    StuntManager.instance.ProcessFlip(flipType, flipsThisJump, transform.position);
+                }
+                else 
+                {
+                    // Fallback to old basic reward if manager is missing
+                    if (GameManager.instance != null) GameManager.instance.AddCoins(flipCoinBonus);
+                    if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
+                }
 
-                if (GameManager.instance != null) GameManager.instance.AddCoins(flipCoinBonus);
-                if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
-
+                // Reset rotation tracker for the *next* flip in this jump
                 totalAirRotation -= Mathf.Sign(totalAirRotation) * 360f;
             }
         }
         else
         {
+            // Just landed on the ground this exact frame!
+            if (wasAirborneLastFrame)
+            {
+                if (StuntManager.instance != null)
+                {
+                    StuntManager.instance.ProcessAirTime(currentAirTime, transform.position);
+                }
+            }
+            
+            // Reset everything while driving normally
             totalAirRotation = 0f;
+            currentAirTime = 0f;
+            flipsThisJump = 0;
         }
 
         wasAirborneLastFrame = isAirborne;

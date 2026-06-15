@@ -44,6 +44,19 @@ public class MemeManager : MonoBehaviour
 
         // Force the initial idle state
         TriggerMeme(MemeEvent.Idle, true, false);
+        
+        // Ensure videos start with the correct volume based on saved mute settings
+        ApplyMuteState();
+    }
+
+    // Force the Video Players to sync with the AudioListener mute state
+    public void ApplyMuteState()
+    {
+        bool isMuted = PlayerPrefs.GetInt("IsMuted", 0) == 1;
+        float volume = isMuted ? 0f : 1f;
+        
+        if (streamerPlayer != null) streamerPlayer.SetDirectAudioVolume(0, volume);
+        if (driverPlayer != null) driverPlayer.SetDirectAudioVolume(0, volume);
     }
 
     // UPDATED SIGNATURE: We added 'isGameOver' to track if the lock should be permanent
