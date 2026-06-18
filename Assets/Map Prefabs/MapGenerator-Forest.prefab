@@ -44,19 +44,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1084b39d10038495f8fe2db019a03a2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
-  seed: 12345
+  seed: 1111
   chunksToSpawnAhead: 3
   chunkWidth: 20
   destroyDistanceBehind: 60
-  terrainDepth: 1
+  terrainDepth: 2
   pointSpacing: 2
-  baseAmplitude: 5
-  maxAmplitude: 25
-  difficultyScaling: 0.02
-  noiseFrequency: 0.05
-  secondaryNoiseFrequency: 0.2
+  baseAmplitude: 4
+  maxAmplitude: 20
+  difficultyScaling: 0.018
+  noiseFrequency: 0.04
+  secondaryNoiseFrequency: 0.15
   secondaryAmplitude: 1
-  blankChunkPrefab: {fileID: 2503069242505576877, guid: 1a41ed39a7dae4b47a390be90b337059, type: 3}
+  blankChunkPrefab: {fileID: 2503069242505576877, guid: 78bc2df6de1b3435d9f9adb7ad7fd37d, type: 3}
   coinPrefab: {fileID: 8561688181454407625, guid: e4874a4bc2f634f6482ae386c3bab6be, type: 3}
   fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
   generateBridges: 1
@@ -82,18 +82,15 @@ MonoBehaviour:
   maxScatterDistance: 300
   generateBouncyHazards: 1
   bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
-  minBounceDistance: 20
-  maxBounceDistance: 30
+  minBounceDistance: 200
+  maxBounceDistance: 300
   generateProps: 1
   propPrefabs:
   - {fileID: 5944124925490755803, guid: 99057b48309c045a5a8efd135258e2b7, type: 3}
   - {fileID: 2550463375802288252, guid: 6c9809ce8588043cb8adcdffc02e1c0c, type: 3}
   - {fileID: 6460039007616440767, guid: 48c8bc451462a47fd8087d847f71973c, type: 3}
   - {fileID: 1215196087837981991, guid: 3de3de1ae2a6241f09858f2ff44e950a, type: 3}
-  - {fileID: 8531296965459640863, guid: 1e6be7699cf7c4e29bdfde3eb2acbd1a, type: 3}
-  - {fileID: 8463361217836126386, guid: d8ccb8bf2a85741da8cd4af4367e4b59, type: 3}
-  - {fileID: 7366100098912211973, guid: ad275ba7f9326464aba9c68f8932f5d3, type: 3}
-  propCheckInterval: 5
-  propSpawnProbability: 0.5
+  propCheckInterval: 3
+  propSpawnProbability: 0.683
   propYOffset: 0
   propTerrainAlignment: 0.7

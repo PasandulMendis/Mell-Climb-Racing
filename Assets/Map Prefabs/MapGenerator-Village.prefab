@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8208565040995769957
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1618981065495509087}
+  - component: {fileID: 3336066225909921812}
+  m_Layer: 0
+  m_Name: MapGenerator-Village
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1618981065495509087
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8208565040995769957}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 15.56053, y: 0.12489, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3336066225909921812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8208565040995769957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1084b39d10038495f8fe2db019a03a2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
+  seed: 12345
+  chunksToSpawnAhead: 3
+  chunkWidth: 20
+  destroyDistanceBehind: 60
+  terrainDepth: 1
+  pointSpacing: 2
+  baseAmplitude: 5
+  maxAmplitude: 25
+  difficultyScaling: 0.02
+  noiseFrequency: 0.05
+  secondaryNoiseFrequency: 0.2
+  secondaryAmplitude: 1
+  blankChunkPrefab: {fileID: 2503069242505576877, guid: 1a41ed39a7dae4b47a390be90b337059, type: 3}
+  coinPrefab: {fileID: 8561688181454407625, guid: e4874a4bc2f634f6482ae386c3bab6be, type: 3}
+  fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
+  generateBridges: 1
+  ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
+  minBridgeGapWidth: 4
+  maxBridgeGapWidth: 8
+  gorgeDepth: 10
+  expectedPlankWidth: 1
+  bridgeYOffset: -0.1
+  generateWaterPools: 1
+  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
+  mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
+  mudProbability: 0.2
+  minWaterWidth: 4
+  maxWaterWidth: 16
+  waterDepth: 1
+  waterLevelOffset: 0
+  waterSortingOrder: 4
+  generateScatterObstacles: 1
+  scatterPrefabs:
+  - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
+  minScatterDistance: 200
+  maxScatterDistance: 300
+  generateBouncyHazards: 1
+  bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
+  minBounceDistance: 200
+  maxBounceDistance: 300
+  generateProps: 1
+  propPrefabs:
+  - {fileID: 5944124925490755803, guid: 99057b48309c045a5a8efd135258e2b7, type: 3}
+  - {fileID: 2550463375802288252, guid: 6c9809ce8588043cb8adcdffc02e1c0c, type: 3}
+  - {fileID: 6460039007616440767, guid: 48c8bc451462a47fd8087d847f71973c, type: 3}
+  - {fileID: 1215196087837981991, guid: 3de3de1ae2a6241f09858f2ff44e950a, type: 3}
+  propCheckInterval: 5
+  propSpawnProbability: 0.5
+  propYOffset: 0
+  propTerrainAlignment: 0.7
