@@ -143,5 +143,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Coin
   coinValue: 5
   magnetSpeed: 15
-  uiFlySpeed: 20
+  uiFlySpeed: 10
   shrinkTargetScale: 0.85
