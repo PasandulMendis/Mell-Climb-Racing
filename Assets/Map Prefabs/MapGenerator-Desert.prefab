@@ -86,27 +86,18 @@ MonoBehaviour:
   maxBounceDistance: 300
   generateProps: 1
   propPrefabs:
-  - {fileID: 1215196087837981991, guid: a7ccc239fd3a347d0b185ad12fde1b8d, type: 3}
   - {fileID: 1215196087837981991, guid: 019ca537817984573b72f1331bbb4217, type: 3}
   - {fileID: 1215196087837981991, guid: 4c9df4896981241b1bdbb42fd0a26df7, type: 3}
-  - {fileID: 1215196087837981991, guid: a7ccc239fd3a347d0b185ad12fde1b8d, type: 3}
   - {fileID: 1215196087837981991, guid: e9cef96bfa38a4e04be603c9fe5a48e5, type: 3}
-  - {fileID: 1215196087837981991, guid: 347bafa140f6348b9b74b368a247cb68, type: 3}
-  - {fileID: 1215196087837981991, guid: a7ccc239fd3a347d0b185ad12fde1b8d, type: 3}
   - {fileID: 1215196087837981991, guid: 347bafa140f6348b9b74b368a247cb68, type: 3}
   - {fileID: 1215196087837981991, guid: 0b6435881a9d14e7b99bc073b837854c, type: 3}
   - {fileID: 1215196087837981991, guid: 4db6b77a6a7d542d7ba2b7b6d962800a, type: 3}
   - {fileID: 1215196087837981991, guid: f4f3e2f682a344ad5b99e366e40af8ac, type: 3}
-  - {fileID: 1215196087837981991, guid: f4f3e2f682a344ad5b99e366e40af8ac, type: 3}
-  - {fileID: 1215196087837981991, guid: 347bafa140f6348b9b74b368a247cb68, type: 3}
-  - {fileID: 1215196087837981991, guid: f4f3e2f682a344ad5b99e366e40af8ac, type: 3}
   - {fileID: 1215196087837981991, guid: a7ccc239fd3a347d0b185ad12fde1b8d, type: 3}
-  - {fileID: 1215196087837981991, guid: a7ccc239fd3a347d0b185ad12fde1b8d, type: 3}
-  - {fileID: 1215196087837981991, guid: a7ccc239fd3a347d0b185ad12fde1b8d, type: 3}
-  - {fileID: 1215196087837981991, guid: a7ccc239fd3a347d0b185ad12fde1b8d, type: 3}
-  - {fileID: 1215196087837981991, guid: f4f3e2f682a344ad5b99e366e40af8ac, type: 3}
-  - {fileID: 1215196087837981991, guid: a7ccc239fd3a347d0b185ad12fde1b8d, type: 3}
-  - {fileID: 1215196087837981991, guid: f4f3e2f682a344ad5b99e366e40af8ac, type: 3}
+  - {fileID: 1215196087837981991, guid: ad471efd7f747435ca90d3e631c2aa84, type: 3}
+  - {fileID: 1215196087837981991, guid: c60131e98fc3c4535bf4146ec85bba23, type: 3}
+  - {fileID: 1215196087837981991, guid: 0077620f007684b02b6cc5a6d92e7729, type: 3}
+  - {fileID: 1215196087837981991, guid: 72d7143815d534efcba0310d2e59e5d0, type: 3}
   propCheckInterval: 4
   propSpawnProbability: 0.5
   propYOffset: 0

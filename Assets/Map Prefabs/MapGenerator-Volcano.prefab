@@ -59,14 +59,14 @@ MonoBehaviour:
   blankChunkPrefab: {fileID: 2503069242505576877, guid: d9741a0dc81b546a8a447d25cae9d643, type: 3}
   coinPrefab: {fileID: 8561688181454407625, guid: e4874a4bc2f634f6482ae386c3bab6be, type: 3}
   fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
-  generateBridges: 1
+  generateBridges: 0
   ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
   minBridgeGapWidth: 4
   maxBridgeGapWidth: 8
   gorgeDepth: 10
   expectedPlankWidth: 1
   bridgeYOffset: -0.1
-  generateWaterPools: 1
+  generateWaterPools: 0
   waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
   mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
   mudProbability: 0.2
@@ -75,22 +75,47 @@ MonoBehaviour:
   waterDepth: 1
   waterLevelOffset: 0
   waterSortingOrder: 4
-  generateScatterObstacles: 1
+  generateScatterObstacles: 0
   scatterPrefabs:
   - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
   minScatterDistance: 200
   maxScatterDistance: 300
-  generateBouncyHazards: 1
+  generateBouncyHazards: 0
   bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
   minBounceDistance: 200
   maxBounceDistance: 300
   generateProps: 1
   propPrefabs:
-  - {fileID: 5944124925490755803, guid: 99057b48309c045a5a8efd135258e2b7, type: 3}
-  - {fileID: 2550463375802288252, guid: 6c9809ce8588043cb8adcdffc02e1c0c, type: 3}
-  - {fileID: 6460039007616440767, guid: 48c8bc451462a47fd8087d847f71973c, type: 3}
-  - {fileID: 1215196087837981991, guid: 3de3de1ae2a6241f09858f2ff44e950a, type: 3}
+  - {fileID: 1215196087837981991, guid: 460f57b5c70cd4d1d8e9d3e7614520cf, type: 3}
+  - {fileID: 1215196087837981991, guid: d166d008c0d2d4ad989dc020ee5824ef, type: 3}
+  - {fileID: 1215196087837981991, guid: fbeff4f0792e5487c824046e205c0913, type: 3}
+  - {fileID: 1215196087837981991, guid: 32f58de21a2774a21aa408bd3c6add69, type: 3}
+  - {fileID: 1215196087837981991, guid: f7334f713c4154632824cbe60806fc97, type: 3}
+  - {fileID: 1215196087837981991, guid: f2f2b9870a1d94da78ceddf11e60c09e, type: 3}
+  - {fileID: 1215196087837981991, guid: 7fbb53165fc22464fbf2f14389851134, type: 3}
+  - {fileID: 1215196087837981991, guid: 95fc94d100e5e4c12b6f78cfaa0fb414, type: 3}
+  - {fileID: 1215196087837981991, guid: d2a94d84ee7a9471785561f0ab59ea20, type: 3}
+  - {fileID: 1215196087837981991, guid: 1830ce143312046dca9d6c838706e064, type: 3}
+  - {fileID: 1215196087837981991, guid: 93f12192bbf4e4e32ae38885a0eca993, type: 3}
+  - {fileID: 1215196087837981991, guid: eb78f08ac57ca4b29b200ed672fb8579, type: 3}
+  - {fileID: 1215196087837981991, guid: 571d358c15e7f40988118ee18b55daaf, type: 3}
+  - {fileID: 1215196087837981991, guid: 63b4affc8725542c090e1afe4b470102, type: 3}
+  - {fileID: 1215196087837981991, guid: 806fe271d29ed4095924012885b78ec7, type: 3}
+  - {fileID: 1215196087837981991, guid: 3d8e97e6c33d646b2b873eaaed70f32d, type: 3}
+  - {fileID: 1215196087837981991, guid: 61a2291bf780042669288d041fa2aae5, type: 3}
+  - {fileID: 1215196087837981991, guid: 374518d4ff568405bb1cf981447d309b, type: 3}
+  - {fileID: 1215196087837981991, guid: 1d3b981b00d3a46d7aac8f16cbc5e3d5, type: 3}
+  - {fileID: 1215196087837981991, guid: 917f75172e3774f3189381f418c267f7, type: 3}
+  - {fileID: 1215196087837981991, guid: c4256a6a33e2e4e26b6881dd6f0c6562, type: 3}
+  - {fileID: 1215196087837981991, guid: 6d0a76f39fa2a4dcaa25f109521d8bdd, type: 3}
+  - {fileID: 1215196087837981991, guid: 0008a68ff369444b08c4c5393b5ae329, type: 3}
+  - {fileID: 1215196087837981991, guid: 17991a48f21574114b31caa3441e62ae, type: 3}
+  - {fileID: 1215196087837981991, guid: 8d3fa8efaec4548fd8889d78b14c6e90, type: 3}
+  - {fileID: 1215196087837981991, guid: 87458f212505e406381b632ed4a042c0, type: 3}
+  - {fileID: 1215196087837981991, guid: b7a76f1ecf50b4b899474499c4dd4869, type: 3}
+  - {fileID: 1215196087837981991, guid: c17e2c7a59bea4db89e701eb282c65c2, type: 3}
+  - {fileID: 1215196087837981991, guid: 78ce14ececb5b4261bf36b49f38418f8, type: 3}
   propCheckInterval: 5
-  propSpawnProbability: 0.5
+  propSpawnProbability: 0.6
   propYOffset: 0
   propTerrainAlignment: 0.7

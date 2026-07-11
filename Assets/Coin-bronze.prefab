@@ -81,7 +81,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_MaskInteraction: 0
   m_Sprite: {fileID: 472993321398755653, guid: 0b94e5b73ebf945deabe9288b7c679f4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -142,3 +142,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
   coinValue: 5
+  magnetSpeed: 15
+  uiFlySpeed: 20
+  shrinkTargetScale: 0.85

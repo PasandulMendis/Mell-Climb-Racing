@@ -15564,6 +15564,8 @@ MonoBehaviour:
   backWheelDirt: {fileID: 5916646985922288629}
   frontWheelDirt: {fileID: 1483555568163866781}
   scaredHeightTrigger: 1000
+  magnetRadius: 0
+  targetUIIcon: {fileID: 0}
   currentRPM: 0
 --- !u!114 &7891034384017083176
 MonoBehaviour:
@@ -15885,7 +15887,7 @@ FixedJoint2D:
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: 0}
-  m_ConnectedAnchor: {x: -1.345, y: 0.12100005}
+  m_ConnectedAnchor: {x: -1.3449707, y: 0.12097168}
   m_DampingRatio: 1
   m_Frequency: 7
 --- !u!114 &8110817232080163289

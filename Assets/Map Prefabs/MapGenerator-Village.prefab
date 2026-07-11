@@ -86,11 +86,30 @@ MonoBehaviour:
   maxBounceDistance: 300
   generateProps: 1
   propPrefabs:
-  - {fileID: 5944124925490755803, guid: 99057b48309c045a5a8efd135258e2b7, type: 3}
-  - {fileID: 2550463375802288252, guid: 6c9809ce8588043cb8adcdffc02e1c0c, type: 3}
-  - {fileID: 6460039007616440767, guid: 48c8bc451462a47fd8087d847f71973c, type: 3}
-  - {fileID: 1215196087837981991, guid: 3de3de1ae2a6241f09858f2ff44e950a, type: 3}
+  - {fileID: 1215196087837981991, guid: 998f151a33f294ab5b6ed3488762b037, type: 3}
+  - {fileID: 1215196087837981991, guid: c5b2a9c2f76b348239ab56054e8fa8f6, type: 3}
+  - {fileID: 1215196087837981991, guid: 4f4104ce4caf04a7da87c0c9eff50276, type: 3}
+  - {fileID: 1215196087837981991, guid: 2cb071f1730a240fa974e8bb8afc9537, type: 3}
+  - {fileID: 1215196087837981991, guid: 89f84f0df94ee44d7a8089a8891bbd77, type: 3}
+  - {fileID: 1215196087837981991, guid: 32b1e429a6f784dcc981b0751a07a352, type: 3}
+  - {fileID: 1215196087837981991, guid: 0ffd41d4be170479b906b0ebed87b12a, type: 3}
+  - {fileID: 1215196087837981991, guid: 3d65dd594dcf14dc6bb65ee3e63a7257, type: 3}
+  - {fileID: 1215196087837981991, guid: 8306d4534c43245c28da5dc20ff3ec33, type: 3}
+  - {fileID: 1215196087837981991, guid: 05356a50797584afcb42ed2adf2188ba, type: 3}
+  - {fileID: 1215196087837981991, guid: 6fdb9251c08534201a7e854ddc07d0f5, type: 3}
+  - {fileID: 1215196087837981991, guid: 462304002ab0240a583c18d2909f395a, type: 3}
+  - {fileID: 1215196087837981991, guid: 5ec6133df1ce04d96b1751daa5e7de2b, type: 3}
+  - {fileID: 1215196087837981991, guid: daa51ad839a3c4f0fae0dc9d4bd3cc7c, type: 3}
+  - {fileID: 1215196087837981991, guid: 8e01a6c1f18614a5885f946c55113a1b, type: 3}
+  - {fileID: 1215196087837981991, guid: 4becd0fcf35bf475da0edf6f3cad4969, type: 3}
+  - {fileID: 1215196087837981991, guid: 47c9d9e58e0df4460aa53b2a17626efd, type: 3}
+  - {fileID: 1215196087837981991, guid: ebc33ef8cda6e40c4abb0f73eb291088, type: 3}
+  - {fileID: 1215196087837981991, guid: a57995cfb4d0548dc8d154cbd1c7ba7b, type: 3}
+  - {fileID: 1215196087837981991, guid: 485e1b09e56764495b99c62c9073504b, type: 3}
+  - {fileID: 1215196087837981991, guid: c3a3a7a14b3c846469b530a8249f4a7f, type: 3}
+  - {fileID: 1215196087837981991, guid: 0eee6149bc06b41eb87673ec979e1285, type: 3}
+  - {fileID: 1215196087837981991, guid: a0b4a846121b24d86b375799f26bf566, type: 3}
   propCheckInterval: 5
-  propSpawnProbability: 0.5
+  propSpawnProbability: 0.55
   propYOffset: 0
-  propTerrainAlignment: 0.7
+  propTerrainAlignment: 0.8
