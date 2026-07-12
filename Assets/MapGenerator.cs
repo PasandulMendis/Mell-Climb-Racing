@@ -58,17 +58,21 @@ public class MapGenerator : MonoBehaviour
     public float minBounceDistance = 200f;
     public float maxBounceDistance = 400f;
 
+    [Header("Jelly Obstacles (Troll Trees!)")]
+    public bool generateJellyObstacles = false;
+    [Tooltip("Prefabs with the JellyObstacle script and a Collider2D attached")]
+    public GameObject[] jellyObstaclePrefabs;
+    public float minJellyDistance = 100f; // Reduced so they spawn more often
+    public float maxJellyDistance = 250f;
+    [Tooltip("Chance (0 to 1) that this tree is SOLID and bounces you. If it fails, it's just a harmless ghost tree!")]
+    [Range(0f, 1f)] public float jellySolidChance = 0.5f;
+
     [Header("Environment Props (Visual Set Dressing)")]
     public bool generateProps = true;
-    [Tooltip("Prefabs for Trees, Bushes, Rocks, Signs, etc. Make sure they have NO colliders!")]
     public GameObject[] propPrefabs;
-    [Tooltip("How often (in meters) the game tries to plant a prop")]
     public float propCheckInterval = 5f;
-    [Tooltip("Chance (0 to 1) that a prop actually spawns at each interval")]
     [Range(0f, 1f)] public float propSpawnProbability = 0.5f;
-    [Tooltip("Vertical offset to stop props from sinking into the road. Positive = Higher.")]
     public float propYOffset = 0f;
-    [Tooltip("0 = Always perfectly vertical. 1 = Perfectly tilts with the hill slope.")]
     [Range(0f, 1f)] public float propTerrainAlignment = 0.5f;
 
     private Transform playerCar;
@@ -89,7 +93,9 @@ public class MapGenerator : MonoBehaviour
     
     private float nextScatterX = 150f;
     private float nextBounceX = 200f; 
+    private float nextJellyX = 300f; 
     private float nextPropX = 5f; 
+    private System.Random runRNG = new System.Random(); // True randomness for per-run probability
 
     void Start()
     {
@@ -113,6 +119,10 @@ public class MapGenerator : MonoBehaviour
         float rawNextBounce = 200f + (Mathf.PerlinNoise(seed + 3, seed) * 150f);
         nextBounceX = Mathf.Round(rawNextBounce / pointSpacing) * pointSpacing;
         
+        // FIXED: Force the very first Troll Tree to spawn much closer to the starting line!
+        float rawNextJelly = 50f + (Mathf.PerlinNoise(seed + 4, seed) * 50f);
+        nextJellyX = Mathf.Round(rawNextJelly / pointSpacing) * pointSpacing;
+
         nextPropX = pointSpacing;
 
         for (int i = 0; i < chunksToSpawnAhead; i++)
@@ -320,14 +330,59 @@ public class MapGenerator : MonoBehaviour
                 float rawNextScatter = nextScatterX + Mathf.Lerp(minScatterDistance, maxScatterDistance, Mathf.PerlinNoise(globalX * 0.3f, seed));
                 nextScatterX = Mathf.Round(rawNextScatter / pointSpacing) * pointSpacing;
             }
+            
+            // --- JELLY OBSTACLE LOGIC (The Troll Trees!) ---
+            bool isJellyPoint = generateJellyObstacles && Mathf.Abs(globalX - nextJellyX) < 0.01f;
+            if (isJellyPoint)
+            {
+                if (!inWaterZone && !insideGorge && !isStartAnchor && !isEndAnchor && !isBouncePoint && !isScatterPoint && i < numSurfacePoints)
+                {
+                    if (jellyObstaclePrefabs != null && jellyObstaclePrefabs.Length > 0)
+                    {
+                        int prefabIndex = Mathf.FloorToInt(Mathf.PerlinNoise(globalX * 3.3f, seed) * jellyObstaclePrefabs.Length);
+                        prefabIndex = Mathf.Clamp(prefabIndex, 0, jellyObstaclePrefabs.Length - 1);
+                        
+                        // ALWAYS spawn the tree so the player learns its location!
+                        // Z is forced to 0 so the car physically crashes into it (if it ends up being solid)
+                        Vector3 spawnPos = new Vector3(globalX, originalY + propYOffset, 0f); 
+                        GameObject jelly = Instantiate(jellyObstaclePrefabs[prefabIndex], spawnPos, Quaternion.identity, newChunk.transform);
+
+                        // Align to terrain and fix sinking (Identical to Set Dressing!)
+                        SpriteRenderer sr = jelly.GetComponentInChildren<SpriteRenderer>();
+                        if (sr != null) jelly.transform.position += new Vector3(0f, spawnPos.y - sr.bounds.min.y, 0f);
+
+                        float yAhead = GetRawTerrainY(globalX + 0.1f);
+                        float yBehind = GetRawTerrainY(globalX - 0.1f);
+                        float terrainAngle = Mathf.Atan2((yAhead - yBehind), 0.2f) * Mathf.Rad2Deg;
+                        jelly.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(0f, terrainAngle, propTerrainAlignment));
+                        
+                        // --- NEW: THE TRUE TROLL LOGIC ---
+                        // Roll the dice. If it fails the chance, it becomes a harmless ghost tree for this run!
+                        if (runRNG.NextDouble() > jellySolidChance)
+                        {
+                            // FIX: Destroy the script FIRST so Unity doesn't block the Collider destruction!
+                            JellyObstacle script = jelly.GetComponent<JellyObstacle>();
+                            if (script != null) Destroy(script);
+                            
+                            Collider2D col = jelly.GetComponent<Collider2D>();
+                            if (col != null) Destroy(col);
+                            
+                            // Push it slightly into the background (Z = 2) so the car cleanly drives in front of it
+                            jelly.transform.position += new Vector3(0f, 0f, 2f);
+                        }
+                    }
+                }
+                float rawNextJelly = nextJellyX + Mathf.Lerp(minJellyDistance, maxJellyDistance, Mathf.PerlinNoise(globalX * 0.6f, seed));
+                nextJellyX = Mathf.Round(rawNextJelly / pointSpacing) * pointSpacing;
+            }
 
             // --- PICKUPS ---
-            if (i < numSurfacePoints && !isStartAnchor && !isEndAnchor && !isScatterPoint && !isBouncePoint)
+            if (i < numSurfacePoints && !isStartAnchor && !isEndAnchor && !isScatterPoint && !isBouncePoint && !isJellyPoint)
             {
                 SpawnPickups(new Vector3(globalX, originalY, 0f), newChunk.transform);
             }
             
-            // --- ENVIRONMENT PROPS (Trees, Bushes, Signs) ---
+            // --- ENVIRONMENT PROPS (Visual Set Dressing) ---
             if (generateProps && globalX >= nextPropX && i < numSurfacePoints && !inWaterZone && !insideGorge)
             {
                 SpawnEnvironmentProps(new Vector3(globalX, originalY, 0f), newChunk.transform);
@@ -426,7 +481,6 @@ public class MapGenerator : MonoBehaviour
     {
         if (propPrefabs != null && propPrefabs.Length > 0)
         {
-            // Deterministic random check based on position and seed
             float randomVal = Mathf.PerlinNoise(groundPosition.x * 0.4f, seed + 5.5f);
             
             if (randomVal < propSpawnProbability)
@@ -441,31 +495,21 @@ public class MapGenerator : MonoBehaviour
                 
                 GameObject prop = Instantiate(propPrefabs[prefabIndex], spawnPos, Quaternion.identity, chunkParent);
 
-                // =====================================================================
-                // FIX: Automatically detect sprite bounds and shift it up so it never sinks!
-                // =====================================================================
                 SpriteRenderer sr = prop.GetComponentInChildren<SpriteRenderer>();
                 if (sr != null)
                 {
-                    // Calculate the distance from the spawnPos to the absolute bottom edge of the sprite
                     float shiftAmount = spawnPos.y - sr.bounds.min.y;
-                    
-                    // Shift the prop upwards by that exact amount
                     prop.transform.position += new Vector3(0f, shiftAmount, 0f);
                 }
-                // =====================================================================
                 
-                // FIX 3: Terrain Alignment (Calculate the slope at this exact X position)
                 float yAhead = GetRawTerrainY(groundPosition.x + 0.1f);
                 float yBehind = GetRawTerrainY(groundPosition.x - 0.1f);
                 Vector2 slopeDir = new Vector2(0.2f, yAhead - yBehind).normalized;
                 float terrainAngle = Mathf.Atan2(slopeDir.y, slopeDir.x) * Mathf.Rad2Deg;
                 
-                // Lerp between 0 (straight up) and the terrain's angle
                 float finalAngle = Mathf.Lerp(0f, terrainAngle, propTerrainAlignment);
                 prop.transform.localRotation = Quaternion.Euler(0f, 0f, finalAngle);
 
-                // Randomly flip the sprite horizontally for extra visual variety
                 if (Mathf.PerlinNoise(groundPosition.x * 9.9f, seed + 8.8f) > 0.5f)
                 {
                     prop.transform.localScale = new Vector3(-prop.transform.localScale.x, prop.transform.localScale.y, prop.transform.localScale.z);
@@ -473,7 +517,6 @@ public class MapGenerator : MonoBehaviour
             }
         }
         
-        // Advance to the next potential prop spawn point
         nextPropX += propCheckInterval;
     }
 }

@@ -84,6 +84,16 @@ MonoBehaviour:
   bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
   minBounceDistance: 200
   maxBounceDistance: 300
+  generateJellyObstacles: 1
+  jellyObstaclePrefabs:
+  - {fileID: 1215196087837981991, guid: dc746bdc8e6da4604b88c820a50fad1a, type: 3}
+  - {fileID: 1215196087837981991, guid: b3c0ccbcb12e74926ac44fdc25b7dd48, type: 3}
+  - {fileID: 1215196087837981991, guid: 469c8b2cf011742398088c1ae1dc57e3, type: 3}
+  - {fileID: 1215196087837981991, guid: 555499488f9ae4e3186c598cbefaf037, type: 3}
+  - {fileID: 1215196087837981991, guid: 750715c8c0729448e827b9d6b22e68f5, type: 3}
+  minJellyDistance: 50
+  maxJellyDistance: 100
+  jellySolidChance: 0.4
   generateProps: 1
   propPrefabs:
   - {fileID: 1215196087837981991, guid: 998f151a33f294ab5b6ed3488762b037, type: 3}
