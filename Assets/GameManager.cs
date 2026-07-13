@@ -274,7 +274,12 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f; 
         Application.targetFrameRate = 60;
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+        int activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+        
+        if (SceneTransitionManager.instance != null) 
+            SceneTransitionManager.instance.LoadScene(activeScene);
+        else 
+            UnityEngine.SceneManagement.SceneManager.LoadScene(activeScene);
     }
 
     public void ToggleMute()
@@ -352,13 +357,21 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f; 
         Application.targetFrameRate = 60; 
-        UnityEngine.SceneManagement.SceneManager.LoadScene(1); 
+        
+        if (SceneTransitionManager.instance != null) 
+            SceneTransitionManager.instance.LoadScene(1);
+        else 
+            UnityEngine.SceneManagement.SceneManager.LoadScene(1); 
     }
 
     public void ReturnToMainMenu()
     {
         Time.timeScale = 1f; 
         Application.targetFrameRate = 60; 
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0); 
+        
+        if (SceneTransitionManager.instance != null) 
+            SceneTransitionManager.instance.LoadScene(0);
+        else 
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0); 
     }
 }

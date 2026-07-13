@@ -159,6 +159,9 @@ public class MainMenuManager : MonoBehaviour
     // --- LOAD NEXT SCENE ---
     public void GoToGarage()
     {
-        SceneManager.LoadScene(1);
+        if (SceneTransitionManager.instance != null) 
+            SceneTransitionManager.instance.LoadScene(1);
+        else 
+            SceneManager.LoadScene(1); // Failsafe
     }
 }

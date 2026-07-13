@@ -198,13 +198,18 @@ public class GarageManager : MonoBehaviour
 
     public void StartGame()
     {
-        // Change this from 1 to 2, because GameScene is now Scene index 2!
-        SceneManager.LoadScene(2);
+        if (SceneTransitionManager.instance != null) 
+            SceneTransitionManager.instance.LoadScene(2);
+        else 
+            SceneManager.LoadScene(2);
     }
 
     // --- NEW: Go Back to Main Menu ---
     public void ReturnToMainMenu()
     {
-        SceneManager.LoadScene(0); 
+        if (SceneTransitionManager.instance != null) 
+            SceneTransitionManager.instance.LoadScene(0);
+        else 
+            SceneManager.LoadScene(0); 
     }
 }
