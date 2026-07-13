@@ -10,6 +10,7 @@ public class GarageManager : MonoBehaviour
 
     [Header("UI - Bank")]
     public TextMeshProUGUI totalCoinsText;
+    public TextMeshProUGUI totalGemsText; // --- NEW: Link the purple Gem text here ---
 
     [Header("UI - Levels (Displays: 'Lv 3 / Max 5')")]
     public TextMeshProUGUI engineLevelText;
@@ -26,7 +27,7 @@ public class GarageManager : MonoBehaviour
     [Header("UI - Nitro")]
     public TextMeshProUGUI nitroAmountText;
     public TextMeshProUGUI nitroCostText;
-    public int nitroCost = 250; 
+    public int nitroCost = 2; // --- CHANGED: Now costs 2 Gems instead of 250 Coins ---
 
     // Max Purchased Levels
     private int maxEngine, maxSus, maxTire, maxFuel;
@@ -161,11 +162,12 @@ public class GarageManager : MonoBehaviour
 
     public void BuyNitro()
     {
-        int totalCoins = PlayerPrefs.GetInt("SavedCoins", 0);
-        if (totalCoins >= nitroCost)
+        // --- CHANGED: Read from SavedGems instead of SavedCoins ---
+        int totalGems = PlayerPrefs.GetInt("SavedGems", 0);
+        if (totalGems >= nitroCost)
         {
-            totalCoins -= nitroCost;
-            PlayerPrefs.SetInt("SavedCoins", totalCoins);
+            totalGems -= nitroCost;
+            PlayerPrefs.SetInt("SavedGems", totalGems);
             nitroAmount++;
             PlayerPrefs.SetInt("NitroAmount", nitroAmount);
             PlayerPrefs.Save();
@@ -176,6 +178,7 @@ public class GarageManager : MonoBehaviour
     void UpdateAllUI()
     {
         if (totalCoinsText != null) totalCoinsText.text = PlayerPrefs.GetInt("SavedCoins", 0).ToString();
+        if (totalGemsText != null) totalGemsText.text = PlayerPrefs.GetInt("SavedGems", 0).ToString(); // --- NEW ---
 
         // Update Levels to show "Equipped / Max Purchased"
         if (engineLevelText != null) engineLevelText.text = "Lv " + eqEngine + " / " + maxEngine;
@@ -193,7 +196,7 @@ public class GarageManager : MonoBehaviour
         }
 
         if (nitroAmountText != null) nitroAmountText.text = "Owned: " + nitroAmount;
-        if (nitroCostText != null) nitroCostText.text = nitroCost.ToString();
+        if (nitroCostText != null) nitroCostText.text = nitroCost.ToString() + " GEMS"; // --- NEW: Clarify currency ---
     }
 
     public void StartGame()

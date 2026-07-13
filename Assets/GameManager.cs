@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Game Stats")]
     public int totalCoins = 0;
+    public int totalGems = 0; // --- NEW ---
     public float distanceTraveled = 0f;
     public int highestDistance = 0;
     public bool isGameOver = false;
@@ -28,6 +29,7 @@ public class GameManager : MonoBehaviour
 
     [Header("UI References")]
     public TextMeshProUGUI coinText; 
+    public TextMeshProUGUI gemText; // --- NEW: Drag your Game Scene Gem Text here ---
     public TextMeshProUGUI distanceText; 
     public TextMeshProUGUI highScoreText; 
     public GameObject gameOverPanel; 
@@ -61,6 +63,7 @@ public class GameManager : MonoBehaviour
 
     // --- NEW: STAT TRACKING FOR GAME OVER SCREEN ---
     [HideInInspector] public int totalCoinsThisRun = 0;
+    [HideInInspector] public int totalGemsThisRun = 0; // --- NEW ---
     [HideInInspector] public int runFlips = 0;
     [HideInInspector] public float runAirTime = 0f;
     [HideInInspector] public int runNitrosUsed = 0;
@@ -104,11 +107,13 @@ public class GameManager : MonoBehaviour
         }
 
         totalCoins = PlayerPrefs.GetInt("SavedCoins", 0);
+        totalGems = PlayerPrefs.GetInt("SavedGems", 0); // --- NEW ---
         
         highestDistance = PlayerPrefs.GetInt("HighestDistance_Map_" + currentMapIndex, 0);
         maxMilestoneLevel = PlayerPrefs.GetInt("MaxMilestone_Map_" + currentMapIndex, 0);
         
         UpdateCoinUI(); 
+        UpdateGemUI(); // --- NEW ---
         UpdateNitroUI(PlayerPrefs.GetInt("NitroAmount", 0));
         
         if (highScoreText != null) highScoreText.text = "Best: " + highestDistance.ToString() + "m";
@@ -339,9 +344,24 @@ public class GameManager : MonoBehaviour
         UpdateCoinUI();
     }
 
+    // --- NEW METHOD ---
+    public void AddGems(int amount)
+    {
+        totalGems += amount;
+        totalGemsThisRun += amount;
+        UpdateGemUI();
+        
+        if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
+    }
+
     void UpdateCoinUI()
     {
         if (coinText != null) coinText.text = totalCoins.ToString();
+    }
+
+    void UpdateGemUI()
+    {
+        if (gemText != null) gemText.text = totalGems.ToString();
     }
 
     public void UpdateNitroUI(int count)
@@ -356,6 +376,7 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
 
         PlayerPrefs.SetInt("SavedCoins", totalCoins);
+        PlayerPrefs.SetInt("SavedGems", totalGems); // --- NEW: Save the gems! ---
         PlayerPrefs.SetInt("HighestDistance_Map_" + currentMapIndex, highestDistance);
         PlayerPrefs.Save();
 

@@ -2301,7 +2301,7 @@ GameObject:
   - component: {fileID: 1159139752}
   - component: {fileID: 1159139751}
   m_Layer: 5
-  m_Name: TotalGems text
+  m_Name: TotalGemsText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2919,7 +2919,7 @@ GameObject:
   - component: {fileID: 1451584719}
   - component: {fileID: 1451584720}
   m_Layer: 5
-  m_Name: TotalCoins text
+  m_Name: TotalCoinsText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3704,7 +3704,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 250
+  m_text: 2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 61b004875e17f4cb1b20480ec1d28cf0, type: 2}
   m_sharedMaterial: {fileID: 2968896527493028392, guid: 61b004875e17f4cb1b20480ec1d28cf0, type: 2}
@@ -3738,7 +3738,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 17
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 4
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -3800,8 +3800,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -164, y: 59}
-  m_SizeDelta: {x: 100, y: 50}
+  m_AnchoredPosition: {x: -280, y: 59}
+  m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1965714028
 GameObject:
@@ -4216,6 +4216,7 @@ MonoBehaviour:
   - {fileID: 8374513663811443938, guid: b0a73f12ac72a4ada8d07f151dfcf2a1, type: 3}
   - {fileID: 8374513663811443938, guid: 0b0bbf9b40a04490682ed8cccab4dd1f, type: 3}
   totalCoinsText: {fileID: 1451584720}
+  totalGemsText: {fileID: 1159139751}
   engineLevelText: {fileID: 369181974}
   suspensionLevelText: {fileID: 2007000125}
   tiresLevelText: {fileID: 592887290}
@@ -4226,7 +4227,7 @@ MonoBehaviour:
   fuelCostText: {fileID: 148828523}
   nitroAmountText: {fileID: 1887940115}
   nitroCostText: {fileID: 1946836703}
-  nitroCost: 250
+  nitroCost: 1
 --- !u!4 &2040579149
 Transform:
   m_ObjectHideFlags: 0
@@ -4383,6 +4384,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 54658322}
+  - {fileID: 2040579149}
   - {fileID: 2025344014}
   - {fileID: 79343009}
-  - {fileID: 2040579149}

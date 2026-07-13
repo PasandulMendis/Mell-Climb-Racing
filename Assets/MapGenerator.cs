@@ -25,6 +25,15 @@ public class MapGenerator : MonoBehaviour
     public GameObject coinPrefab;
     public GameObject fuelPrefab;
 
+    [Header("Premium Currency (Gems)")]
+    public GameObject gemPrefab;
+    [Tooltip("Minimum distance between gem spawns")]
+    public float minGemDistance = 300f;
+    [Tooltip("Maximum distance between gem spawns. Increase to make gems rarer!")]
+    public float maxGemDistance = 600f;
+    [Tooltip("Height above the dirt. 1.0 is exactly where coins sit.")]
+    public float gemHeightOffset = 1.0f; 
+
     [Header("Destructible Terrain & Bridges")]
     public bool generateBridges = false; 
     public GameObject ropeBridgePrefab;
@@ -81,7 +90,8 @@ public class MapGenerator : MonoBehaviour
     private float oldestChunkStartX = 0f;
 
     private float nextCoinX = 10f; 
-    private float nextFuelX = 50f;  
+    private float nextFuelX = 50f;
+    private float nextGemX = 300f;
     private int coinsLeftInGroup = 5; 
     
     private float nextBridgeX = 100f;
@@ -102,6 +112,9 @@ public class MapGenerator : MonoBehaviour
         Random.InitState(seed);
         nextSpawnX = 0f;
         oldestChunkStartX = 0f;
+
+        float rawNextGem = minGemDistance + (Mathf.PerlinNoise(seed + 9, seed) * (maxGemDistance - minGemDistance));
+        nextGemX = Mathf.Round(rawNextGem / pointSpacing) * pointSpacing;
 
         float rawNextBridge = 100f + (Mathf.PerlinNoise(seed, seed) * 50f);
         nextBridgeX = Mathf.Round(rawNextBridge / pointSpacing) * pointSpacing;
@@ -463,6 +476,18 @@ public class MapGenerator : MonoBehaviour
         {
             if (fuelPrefab != null) Instantiate(fuelPrefab, groundPosition + new Vector3(0, 1.5f, 0), Quaternion.identity, chunkParent);
             nextFuelX += 80f + (Mathf.PerlinNoise(groundPosition.x * 0.1f, seed) * 40f); 
+        }
+        else if (gemPrefab != null && groundPosition.x >= nextGemX)
+        {
+            // --- NEW: Spawn the Gem HIGH UP in the air (requires jumping or nitro!) ---
+            float heightOffset = 6f + (Mathf.PerlinNoise(groundPosition.x * 0.15f, seed) * 4f); // Floats 6 to 10 units high
+            Instantiate(gemPrefab, groundPosition + new Vector3(0, gemHeightOffset, 0), Quaternion.identity, chunkParent);
+            
+            float noiseVal = Mathf.PerlinNoise(groundPosition.x * 0.37f, seed + 12f);
+            float addedDistance = Mathf.Lerp(minGemDistance, maxGemDistance, noiseVal);
+            
+            // Gems are rare! Spawn one every 300 to 500 meters
+            nextGemX += 300f + (Mathf.PerlinNoise(groundPosition.x * 0.3f, seed) * 200f); 
         }
         else if (groundPosition.x >= nextCoinX)
         {
