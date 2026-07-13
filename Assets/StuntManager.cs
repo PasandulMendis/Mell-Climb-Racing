@@ -29,6 +29,9 @@ public class StuntManager : MonoBehaviour
     // Called automatically by the CarController when the tires touch the ground!
     public void ProcessAirTime(float airTime, Vector3 carPosition)
     {
+        // NEW: Always track the air time globally for the Game Over Screen!
+        if (GameManager.instance != null) GameManager.instance.runAirTime += airTime;
+
         if (airTime >= minimumAirTime)
         {
             // Calculate reward: e.g., 2.5s * 50 = 125 coins
@@ -45,6 +48,9 @@ public class StuntManager : MonoBehaviour
     // Called automatically by the CarController mid-air the exact moment a 360 rotation completes!
     public void ProcessFlip(string flipType, int flipsInOneJump, Vector3 carPosition)
     {
+        // NEW: Track flip counts globally!
+        if (GameManager.instance != null) GameManager.instance.runFlips += flipsInOneJump;
+
         // Reward scales up for Double, Triple flips!
         int reward = Mathf.FloorToInt(baseFlipReward * flipsInOneJump * (flipsInOneJump > 1 ? multiFlipMultiplier : 1f));
         

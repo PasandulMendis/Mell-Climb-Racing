@@ -29,12 +29,14 @@ public class CarHealth : MonoBehaviour
         // TRIGGER ANGRY/SAD MEME (Stays forever until restart)
         if (MemeManager.instance != null)
         {
-            // NEW: Pass 'true' for forceOverride, and 'true' for isGameOver!
             MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry, true, true);
         }
 
-        // Tell the Game Manager the game is over!
-        GameManager.instance.GameOver();
+        // Tell the Game Manager the game is over and pass the reason!
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.GameOver("NECK SNAPPED!");
+        }
 
         // Optional: Disable driving when dead
         CarController controller = GetComponentInParent<CarController>();

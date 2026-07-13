@@ -59,6 +59,13 @@ public class GameManager : MonoBehaviour
     
     public float milestoneVisibleRange = 200f;
 
+    // --- NEW: STAT TRACKING FOR GAME OVER SCREEN ---
+    [HideInInspector] public int totalCoinsThisRun = 0;
+    [HideInInspector] public int runFlips = 0;
+    [HideInInspector] public float runAirTime = 0f;
+    [HideInInspector] public int runNitrosUsed = 0;
+    // -----------------------------------------------
+
     private int maxMilestoneLevel = 0; 
     private int nextMilestoneDistance = 200;
     private float popupTimer = 0f;
@@ -328,6 +335,7 @@ public class GameManager : MonoBehaviour
     public void AddCoins(int amount)
     {
         totalCoins += amount;
+        totalCoinsThisRun += amount; // Track coins earned SPECIFICALLY this run!
         UpdateCoinUI();
     }
 
@@ -341,16 +349,26 @@ public class GameManager : MonoBehaviour
         if (nitroCountText != null) nitroCountText.text = "Nitro: " + count.ToString();
     }
 
-    public void GameOver()
+    // UPDATED: Now accepts the reason for dying!
+    public void GameOver(string deathReason)
     {
         if (isGameOver) return;
         isGameOver = true;
 
-        if (gameOverPanel != null) gameOverPanel.SetActive(true);
-
         PlayerPrefs.SetInt("SavedCoins", totalCoins);
         PlayerPrefs.SetInt("HighestDistance_Map_" + currentMapIndex, highestDistance);
         PlayerPrefs.Save();
+
+        // Check if we have the new cinematic manager!
+        if (GameOverManager.instance != null)
+        {
+            GameOverManager.instance.StartSequence(deathReason);
+        }
+        else if (gameOverPanel != null) 
+        {
+            // Fallback to old behavior if you haven't set up the new script yet
+            gameOverPanel.SetActive(true);
+        }
     }
     
     public void ReturnToMenu()

@@ -109,7 +109,8 @@ public class FuelSystem : MonoBehaviour
 
         if (GameManager.instance != null)
         {
-            GameManager.instance.GameOver();
+            // NEW: Pass the reason!
+            GameManager.instance.GameOver("OUT OF GAS!");
         }
     }
 }
