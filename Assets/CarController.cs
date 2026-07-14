@@ -97,6 +97,10 @@ public class CarController : MonoBehaviour
     private float currentAirTime = 0f;
     private int flipsThisJump = 0;
 
+    // --- NEW: Hype Meter ---
+    private float hypeProgress = 0f;
+    private bool hasFreeNitro = false;
+
     void Start()
     {
         WheelJoint2D[] allJoints = GetComponents<WheelJoint2D>();
@@ -348,18 +352,36 @@ public class CarController : MonoBehaviour
 
     public void TryActivateNitro()
     {
-        if (currentNitro > 0 && !isNitroActive)
+        if (isNitroActive) return; // Prevent double-clicking
+
+        if (hasFreeNitro)
         {
-            ActivateNitro();
+            // --- USE THE FREE NITRO ---
+            hasFreeNitro = false;
+            hypeProgress = 0f; // Reset the meter
+            if (GameManager.instance != null) GameManager.instance.UpdateHypeUI(0f);
+            
+            ActivateNitro(true); // True = Free (Don't consume inventory)
+        }
+        else if (currentNitro > 0)
+        {
+            // --- USE A PURCHASED NITRO ---
+            ActivateNitro(false); // False = Purchased
         }
     }
 
-    void ActivateNitro()
+    void ActivateNitro(bool isFree)
     {
         isNitroActive = true;
-        currentNitro--; 
-        PlayerPrefs.SetInt("NitroAmount", currentNitro); 
-        PlayerPrefs.Save();
+        
+        // Only deduct from inventory if it wasn't a free stunt nitro!
+        if (!isFree)
+        {
+            currentNitro--; 
+            PlayerPrefs.SetInt("NitroAmount", currentNitro); 
+            PlayerPrefs.Save();
+        }
+
         nitroTimer = nitroDuration;
 
         // NEW: Track nitro usage!
@@ -367,6 +389,25 @@ public class CarController : MonoBehaviour
 
         if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
         if (GameManager.instance != null) GameManager.instance.UpdateNitroUI(currentNitro);
+    }
+
+    public void AddHype(float amount)
+    {
+        if (hasFreeNitro) return; // Stop filling if it's already full and waiting to be used!
+
+        hypeProgress += amount;
+        
+        // Use 0.99f as a safety net against floating-point math rounding errors
+        if (hypeProgress >= 0.99f) 
+        {
+            hypeProgress = 1f;
+            hasFreeNitro = true;
+        }
+
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.UpdateHypeUI(hypeProgress);
+        }
     }
 
     void DeactivateNitro()
@@ -493,6 +534,8 @@ public class CarController : MonoBehaviour
             if (Mathf.Abs(totalAirRotation) >= 360f)
             {
                 flipsThisJump++;
+                AddHype(0.2f); // --- NEW: Add 20% to Hype Meter per flip! ---
+
                 string flipType = totalAirRotation > 0 ? "Backflip" : "Frontflip";
                 
                 // Talk to the new StuntManager if it exists!

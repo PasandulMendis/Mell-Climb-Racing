@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro; 
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -34,6 +35,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI highScoreText; 
     public GameObject gameOverPanel; 
     public TextMeshProUGUI nitroCountText; 
+    [Tooltip("The Green Nitro image set to 'Filled'")]
+    public Image hypeNitroFillImage; // --- NEW ---
 
     [Header("Dashboard UI")]
     public RectTransform revNeedle; // The rotating needle image
@@ -115,6 +118,7 @@ public class GameManager : MonoBehaviour
         UpdateCoinUI(); 
         UpdateGemUI(); // --- NEW ---
         UpdateNitroUI(PlayerPrefs.GetInt("NitroAmount", 0));
+        UpdateHypeUI(0f); // --- NEW: Start hype meter at 0% ---
         
         if (highScoreText != null) highScoreText.text = "Best: " + highestDistance.ToString() + "m";
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
@@ -367,6 +371,14 @@ public class GameManager : MonoBehaviour
     public void UpdateNitroUI(int count)
     {
         if (nitroCountText != null) nitroCountText.text = "Nitro: " + count.ToString();
+    }
+
+    public void UpdateHypeUI(float fillPercent)
+    {
+        if (hypeNitroFillImage != null)
+        {
+            hypeNitroFillImage.fillAmount = fillPercent;
+        }
     }
 
     // UPDATED: Now accepts the reason for dying!
