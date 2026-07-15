@@ -1,12 +1,14 @@
 using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(Collider2D))]
+// Removed [RequireComponent] so you can easily swap Box for Polygon Collider without Unity yelling at you!
 public class BouncyHazard : MonoBehaviour
 {
     [Header("Bounce Physics")]
     [Tooltip("The minimum upward force applied, even if you roll onto it slowly.")]
     public float baseBounceForce = 15f;
+    [Tooltip("Forward boost to prevent getting stuck bouncing straight up and down!")]
+    public float forwardBounceForce = 10f;
     [Tooltip("Multiplier for how much extra bounce you get based on how fast you fall onto it.")]
     public float fallingVelocityMultiplier = 1.5f;
     [Tooltip("Maximum total upward force to prevent launching the car out of the game bounds.")]
@@ -56,16 +58,21 @@ public class BouncyHazard : MonoBehaviour
                 float downwardSpeed = Mathf.Max(0f, -collision.relativeVelocity.y);
                 
                 // Combine base force with velocity multiplier
-                float totalForce = baseBounceForce + (downwardSpeed * fallingVelocityMultiplier);
-                totalForce = Mathf.Clamp(totalForce, baseBounceForce, maxBounceForce);
+                float totalUpwardForce = baseBounceForce + (downwardSpeed * fallingVelocityMultiplier);
+                totalUpwardForce = Mathf.Clamp(totalUpwardForce, baseBounceForce, maxBounceForce);
 
-                // 2. Apply the explosive upward force!
+                // Figure out which direction the car is currently moving so we push them the right way!
+                float directionX = (rb.linearVelocity.x < -0.1f) ? -1f : 1f;
+
+                // 2. Apply the explosive upward AND forward force!
                 // We reset their vertical velocity first so gravity doesn't fight the bounce
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
                 
+                Vector2 finalForce = new Vector2(directionX * forwardBounceForce, totalUpwardForce);
+                
                 // We use ForceMode2D.Impulse for an instant, explosive launch!
                 // We multiply by rb.mass so heavy trucks and light bikes bounce equally well!
-                rb.AddForce(Vector2.up * totalForce * rb.mass, ForceMode2D.Impulse);
+                rb.AddForce(finalForce * rb.mass, ForceMode2D.Impulse);
 
                 // 3. Play the AAA Visuals and Audio
                 if (bounceParticles != null) bounceParticles.Play();

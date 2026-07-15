@@ -78,12 +78,16 @@ public class Gem : MonoBehaviour
     {
         if (isFlyingToUI) return; 
 
-        if (other.CompareTag("Player") || other.GetComponentInParent<CarController>() != null) 
+        // --- FIXED: Only check for the CarController! Ignore the "Player" tag so livestock can't steal gems! ---
+        if (other.GetComponentInParent<CarController>() != null) 
         {
             if (gemCollider != null) gemCollider.enabled = false;
             
             isMagnetized = false;
             isFlyingToUI = true;
+
+            // --- NEW FIX: Parent to camera so it never gets left behind at high speeds! ---
+            if (mainCam != null) transform.SetParent(mainCam.transform, true);
         }
     }
 

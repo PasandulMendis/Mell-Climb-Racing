@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1618981065495509087}
-  - component: {fileID: 3336066225909921812}
+  - component: {fileID: -3062720439273241032}
   m_Layer: 0
   m_Name: MapGenerator-Village
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3336066225909921812
+--- !u!114 &-3062720439273241032
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,63 +41,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 8208565040995769957}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1084b39d10038495f8fe2db019a03a2e, type: 3}
+  m_Script: {fileID: 11500000, guid: 1416aab1668aa48e9a30878b1ef64c6f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
+  m_EditorClassIdentifier: Assembly-CSharp::VillageMap
   seed: 12345
   chunksToSpawnAhead: 3
   chunkWidth: 20
   destroyDistanceBehind: 60
-  terrainDepth: 1
-  pointSpacing: 2
-  baseAmplitude: 5
-  maxAmplitude: 25
-  difficultyScaling: 0.02
-  noiseFrequency: 0.05
-  secondaryNoiseFrequency: 0.2
-  secondaryAmplitude: 1
+  terrainDepth: 2
   blankChunkPrefab: {fileID: 2503069242505576877, guid: 1a41ed39a7dae4b47a390be90b337059, type: 3}
-  coinPrefab: {fileID: 8561688181454407625, guid: e4874a4bc2f634f6482ae386c3bab6be, type: 3}
+  pointSpacing: 0.5
+  baseAmplitude: 3
+  maxAmplitude: 25
+  difficultyScaling: 0.015
+  noiseFrequency: 0.03
+  secondaryNoiseFrequency: 0.19
+  secondaryAmplitude: 1
+  coin5Prefab: {fileID: 3433777762193160581, guid: 59a21b2f944fd4aa196107fcd9fab215, type: 3}
+  coin10Prefab: {fileID: 7891165457619460463, guid: 2ce6e76f47f024af2814e1855b0e109f, type: 3}
+  coin25Prefab: {fileID: 7891165457619460463, guid: 3dd6e8776bcf948b99a119888b34e74e, type: 3}
+  coinSpacing: 1.5
+  silverCoinDistance: 1500
+  goldCoinDistance: 3000
+  tier1GroupSize: 5
+  tier2GroupSize: 8
+  tier3GroupSize: 10
   fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
   gemPrefab: {fileID: 8692838261110679811, guid: 851d75133791d4189a76d7be025f92c9, type: 3}
   minGemDistance: 200
   maxGemDistance: 400
   gemHeightOffset: 1
-  generateBridges: 1
-  ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
-  minBridgeGapWidth: 4
-  maxBridgeGapWidth: 8
-  gorgeDepth: 10
-  expectedPlankWidth: 1
-  bridgeYOffset: -0.1
-  generateWaterPools: 1
-  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
-  mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
-  mudProbability: 0.2
-  minWaterWidth: 4
-  maxWaterWidth: 16
-  waterDepth: 1
-  waterLevelOffset: 0
-  waterSortingOrder: 4
-  generateScatterObstacles: 1
-  scatterPrefabs:
-  - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
-  minScatterDistance: 200
-  maxScatterDistance: 300
-  generateBouncyHazards: 1
-  bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
-  minBounceDistance: 200
-  maxBounceDistance: 300
-  generateJellyObstacles: 1
-  jellyObstaclePrefabs:
-  - {fileID: 1215196087837981991, guid: dc746bdc8e6da4604b88c820a50fad1a, type: 3}
-  - {fileID: 1215196087837981991, guid: b3c0ccbcb12e74926ac44fdc25b7dd48, type: 3}
-  - {fileID: 1215196087837981991, guid: 469c8b2cf011742398088c1ae1dc57e3, type: 3}
-  - {fileID: 1215196087837981991, guid: 555499488f9ae4e3186c598cbefaf037, type: 3}
-  - {fileID: 1215196087837981991, guid: 750715c8c0729448e827b9d6b22e68f5, type: 3}
-  minJellyDistance: 50
-  maxJellyDistance: 100
-  jellySolidChance: 0.4
   generateProps: 1
   propPrefabs:
   - {fileID: 1215196087837981991, guid: 998f151a33f294ab5b6ed3488762b037, type: 3}
@@ -124,6 +97,64 @@ MonoBehaviour:
   - {fileID: 1215196087837981991, guid: 0eee6149bc06b41eb87673ec979e1285, type: 3}
   - {fileID: 1215196087837981991, guid: a0b4a846121b24d86b375799f26bf566, type: 3}
   propCheckInterval: 5
-  propSpawnProbability: 0.55
-  propYOffset: 0
+  propSpawnProbability: 0.6
+  propYOffset: -0.1
   propTerrainAlignment: 0.8
+  generateBridges: 1
+  ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
+  minBridgeGapWidth: 4
+  maxBridgeGapWidth: 8
+  gorgeDepth: 10
+  expectedPlankWidth: 1
+  bridgeYOffset: -0.1
+  generateWaterPools: 1
+  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
+  mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
+  mudProbability: 0.1
+  minWaterWidth: 4
+  maxWaterWidth: 16
+  waterDepth: 1
+  waterLevelOffset: 0
+  waterSortingOrder: 4
+  generateScatterObstacles: 1
+  scatterPrefabs:
+  - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
+  minScatterDistance: 100
+  maxScatterDistance: 200
+  generateBouncyHazards: 1
+  bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
+  minBounceDistance: 300
+  maxBounceDistance: 500
+  bouncyYOffset: 0.1
+  generateJellyObstacles: 0
+  jellyObstaclePrefabs:
+  - {fileID: 1215196087837981991, guid: dc746bdc8e6da4604b88c820a50fad1a, type: 3}
+  - {fileID: 1215196087837981991, guid: b3c0ccbcb12e74926ac44fdc25b7dd48, type: 3}
+  - {fileID: 1215196087837981991, guid: 469c8b2cf011742398088c1ae1dc57e3, type: 3}
+  - {fileID: 1215196087837981991, guid: 555499488f9ae4e3186c598cbefaf037, type: 3}
+  - {fileID: 1215196087837981991, guid: 750715c8c0729448e827b9d6b22e68f5, type: 3}
+  minJellyDistance: 200
+  maxJellyDistance: 400
+  jellySolidChance: 0.1
+  jellyYOffset: 0
+  generateWindmills: 1
+  windmillPrefab: {fileID: 5446958757691359039, guid: 72a76f12c947d4f779c2642bc2e09443, type: 3}
+  minWindmillDistance: 400
+  maxWindmillDistance: 700
+  windmillYOffset: 3.5
+  windmillZOffset: 0
+  generateLivestock: 1
+  livestockPrefab: {fileID: 454805881608379379, guid: 9881c7981c6f74253b6c276f11274ae2, type: 3}
+  minLivestockDistance: 300
+  maxLivestockDistance: 400
+  generateScarecrows: 1
+  scarecrowPrefab: {fileID: 4540079145125503209, guid: bbb25b120cb3641d4a9a8f5f21dbbbf5, type: 3}
+  minScarecrowDistance: 200
+  maxScarecrowDistance: 300
+  scarecrowYOffset: 0.9
+  generateBalloons: 1
+  balloonPrefab: {fileID: 7013871750572693374, guid: 9f16abe958afb462ca6a8fb723635d70, type: 3}
+  minBalloonDistance: 300
+  maxBalloonDistance: 500
+  minBalloonHeight: 8
+  maxBalloonHeight: 12

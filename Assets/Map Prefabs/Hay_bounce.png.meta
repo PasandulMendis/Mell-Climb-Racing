@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e4dbedcc79bdb4e029526e7ba4883ce1
+guid: 39e62a89f568645f99bf042c12aa705d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1241066360188183051
-    second: "\u2014Pngtree\u2014cartoon orange elastic trampoline clipart_6031102_0"
+      213: 256841724289809799
+    second: Hay_bounce_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 300
+  spritePixelsToUnits: 150
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u2014Pngtree\u2014cartoon orange elastic trampoline clipart_6031102_0"
+      name: Hay_bounce_0
       rect:
         serializedVersion: 2
-        x: 135
-        y: 349
-        width: 923
-        height: 463
+        x: 0
+        y: 0
+        width: 500
+        height: 128
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5fddb4a88b8d6cee0800000000000000
-      internalID: -1241066360188183051
+      spriteID: 78dfacbff2c709300800000000000000
+      internalID: 256841724289809799
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\u2014Pngtree\u2014cartoon orange elastic trampoline clipart_6031102_0": -1241066360188183051
+      Hay_bounce_0: 256841724289809799
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

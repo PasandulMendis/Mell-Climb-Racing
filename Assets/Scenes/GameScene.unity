@@ -867,7 +867,6 @@ MonoBehaviour:
   tallySpeed: 0.5
   uiElementsToSlideUp:
   - {fileID: 875421131}
-  - {fileID: 1835146124}
   - {fileID: 825174081}
   - {fileID: 1842530537}
   - {fileID: 1378787598}
@@ -876,10 +875,13 @@ MonoBehaviour:
   - {fileID: 1230537474}
   - {fileID: 1546751074}
   - {fileID: 1661165376}
+  - {fileID: 776853797}
+  - {fileID: 393033355}
   uiElementsToSlideDown:
   - {fileID: 1429397449}
   - {fileID: 1192917474}
   - {fileID: 1210946786}
+  - {fileID: 1835146124}
   slideDistance: 1000
 --- !u!4 &265771382
 Transform:
@@ -943,8 +945,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294930555
-  m_fontColor: {r: 0.48424006, g: 0.43867922, b: 1, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2320,7 +2322,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -822, y: 259}
+  m_AnchoredPosition: {x: -848, y: 426}
   m_SizeDelta: {x: 150, y: 140}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &875421132
@@ -5599,8 +5601,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294179468
-  m_fontColor: {r: 0.5507298, g: 0.9811321, b: 0.9531072, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5686,7 +5688,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 86, y: -108}
+  m_AnchoredPosition: {x: 453, y: -985}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1836070363
