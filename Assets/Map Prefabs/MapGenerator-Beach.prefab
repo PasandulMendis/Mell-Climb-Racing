@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1618981065495509087}
-  - component: {fileID: 3336066225909921812}
+  - component: {fileID: -1922379732884562501}
   m_Layer: 0
   m_Name: MapGenerator-Beach
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3336066225909921812
+--- !u!114 &-1922379732884562501
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,63 +41,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 8208565040995769957}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1084b39d10038495f8fe2db019a03a2e, type: 3}
+  m_Script: {fileID: 11500000, guid: 68e7df0ee941b48638fe19ebae4ab672, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
+  m_EditorClassIdentifier: Assembly-CSharp::BeachMap
   seed: 2211
   chunksToSpawnAhead: 3
   chunkWidth: 20
   destroyDistanceBehind: 60
   terrainDepth: 1
-  pointSpacing: 2
+  blankChunkPrefab: {fileID: 2503069242505576877, guid: fdfd0f85ff57c4d5e940d6368c59d996, type: 3}
+  pointSpacing: 1
   baseAmplitude: 5
   maxAmplitude: 25
-  difficultyScaling: 0.0175
+  difficultyScaling: 0.006
   noiseFrequency: 0.05
-  secondaryNoiseFrequency: 0.175
+  secondaryNoiseFrequency: 0.2
   secondaryAmplitude: 1
-  blankChunkPrefab: {fileID: 2503069242505576877, guid: fdfd0f85ff57c4d5e940d6368c59d996, type: 3}
-  coinPrefab: {fileID: 8561688181454407625, guid: e4874a4bc2f634f6482ae386c3bab6be, type: 3}
-  fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
+  coin5Prefab: {fileID: 3433777762193160581, guid: 59a21b2f944fd4aa196107fcd9fab215, type: 3}
+  coin10Prefab: {fileID: 7891165457619460463, guid: 2ce6e76f47f024af2814e1855b0e109f, type: 3}
+  coin25Prefab: {fileID: 7891165457619460463, guid: 3dd6e8776bcf948b99a119888b34e74e, type: 3}
+  coinSpacing: 1
+  silverCoinDistance: 1500
+  goldCoinDistance: 3000
+  tier1GroupSize: 5
+  tier2GroupSize: 8
+  tier3GroupSize: 10
+  fuelPrefab: {fileID: 7883096931010308211, guid: d0c516118089b45018a0f54a2e177299, type: 3}
   gemPrefab: {fileID: 8692838261110679811, guid: 851d75133791d4189a76d7be025f92c9, type: 3}
-  minGemDistance: 150
-  maxGemDistance: 300
+  minGemDistance: 300
+  maxGemDistance: 500
   gemHeightOffset: 1
-  generateBridges: 0
-  ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
-  minBridgeGapWidth: 4
-  maxBridgeGapWidth: 8
-  gorgeDepth: 10
-  expectedPlankWidth: 1
-  bridgeYOffset: -0.1
-  generateWaterPools: 1
-  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
-  mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
-  mudProbability: 0
-  minWaterWidth: 4
-  maxWaterWidth: 16
-  waterDepth: 1
-  waterLevelOffset: 0
-  waterSortingOrder: 4
-  generateScatterObstacles: 0
-  scatterPrefabs:
-  - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
-  minScatterDistance: 200
-  maxScatterDistance: 300
-  generateBouncyHazards: 1
-  bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
-  minBounceDistance: 600
-  maxBounceDistance: 800
-  generateJellyObstacles: 1
-  jellyObstaclePrefabs:
-  - {fileID: 1215196087837981991, guid: e8fbe3d2c246749d6848937b7af7983c, type: 3}
-  - {fileID: 1215196087837981991, guid: b6663b614bb0f4ae596e068e5c6201e4, type: 3}
-  - {fileID: 1215196087837981991, guid: be085ead0e4864edaa9106a87396f594, type: 3}
-  - {fileID: 1215196087837981991, guid: 68701d71c5842475f990e0c3199d7cb5, type: 3}
-  - {fileID: 1215196087837981991, guid: caa98ef8ecf764cb5ae5787ee3fe51e3, type: 3}
-  minJellyDistance: 50
-  maxJellyDistance: 250
-  jellySolidChance: 0.6
   generateProps: 1
   propPrefabs:
   - {fileID: 1215196087837981991, guid: 1a3e02b3159274d498ac9f2fd5d977f5, type: 3}
@@ -126,3 +99,34 @@ MonoBehaviour:
   propSpawnProbability: 0.6
   propYOffset: 0
   propTerrainAlignment: 0.7
+  generateFluids: 1
+  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
+  sandDunePrefab: {fileID: 8163008081576812170, guid: 9291c836748eb4306a0a145cf9e1778c, type: 3}
+  sandDuneChance: 0.1
+  minWaterWidth: 5
+  maxWaterWidth: 10
+  waterDepth: 1
+  waterLevelOffset: 0
+  waterSortingOrder: 4
+  generateBuoys: 0
+  buoyPrefab: {fileID: 3250197907437683191, guid: a2c5301bc4acb43fe87e26be53593929, type: 3}
+  generateBouncyHazards: 1
+  bouncyHazardPrefab: {fileID: 8528793906568397152, guid: b95011aec594a449894de1c9bfff2f40, type: 3}
+  minBounceDistance: 250
+  maxBounceDistance: 450
+  bouncyYOffset: 0
+  generateBeachBalls: 1
+  beachBallPrefab: {fileID: 8469514753024041681, guid: e64d03e92b0364158841145a9bfba552, type: 3}
+  minBallDistance: 250
+  maxBallDistance: 500
+  maxBallScale: 2
+  generateSeagulls: 1
+  seagullPrefab: {fileID: 2135442089159442557, guid: 62872b4e236bd401daf490dd992b0366, type: 3}
+  minGullDistance: 300
+  maxGullDistance: 600
+  minGullHeight: 10
+  maxGullHeight: 15
+  generateCoconuts: 1
+  coconutPrefab: {fileID: 1868501557836327376, guid: 539e109ca4e294cee8d4d70a5b013026, type: 3}
+  minCoconutDistance: 200
+  maxCoconutDistance: 500

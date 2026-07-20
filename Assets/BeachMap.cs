@@ -1,0 +1,216 @@
+using UnityEngine;
+using UnityEngine.U2D; 
+using System.Collections.Generic;
+
+public class BeachMap : MapGenerator
+{
+    [Header("--- BEACH SPECIFIC FEATURES ---")]
+    
+    [Header("Fluid Hazards (Water & Sand Dunes)")]
+    public bool generateFluids = true;
+    public GameObject waterPoolPrefab;
+    public GameObject sandDunePrefab; 
+    [Tooltip("50% chance for Water, 50% for Sand Dunes")]
+    [Range(0f, 1f)] public float sandDuneChance = 0.5f;
+    public float minWaterWidth = 15f;
+    public float maxWaterWidth = 40f;
+    public float waterDepth = 8f;
+    public float waterLevelOffset = -2f;
+    public int waterSortingOrder = 3;
+    
+    [Header("Buoys (Water Only)")]
+    public bool generateBuoys = true;
+    public GameObject buoyPrefab;
+
+    [Header("Bouncy Hazards (Umbrellas/Tires)")]
+    public bool generateBouncyHazards = true;
+    public GameObject bouncyHazardPrefab;
+    public float minBounceDistance = 200f;
+    public float maxBounceDistance = 400f;
+    public float bouncyYOffset = 0.5f;
+
+    [Header("Giant Beach Balls")]
+    public bool generateBeachBalls = true;
+    public GameObject beachBallPrefab;
+    public float minBallDistance = 200f;
+    public float maxBallDistance = 450f;
+    [Tooltip("How big the beach balls can get late-game!")]
+    public float maxBallScale = 4f;
+
+    [Header("Seagull Flocks (Sky Trolls)")]
+    public bool generateSeagulls = true;
+    public GameObject seagullPrefab;
+    public float minGullDistance = 300f;
+    public float maxGullDistance = 700f;
+    [Tooltip("Minimum height above the ground the flock spawns")]
+    public float minGullHeight = 25f;
+    [Tooltip("Maximum height above the ground the flock spawns")]
+    public float maxGullHeight = 40f;
+
+    [Header("Coconut Piles")]
+    public bool generateCoconuts = true;
+    public GameObject coconutPrefab;
+    public float minCoconutDistance = 200f;
+    public float maxCoconutDistance = 500f;
+    
+    // Internal trackers
+    private float nextFluidX;
+    private float currentFluidWidth;
+    private bool isBuildingFluid = false;
+    
+    private float nextBounceX; 
+    private float nextBallX;
+    private float nextGullX;
+    private float nextCoconutX;
+    
+    private System.Random runRNG;
+
+    protected override void InitializeMap()
+    {
+        runRNG = new System.Random(seed);
+
+        // First Fluid (Water/Sand)
+        float rawNextFluid = 250f + (Mathf.PerlinNoise(seed + 1, seed) * 100f);
+        nextFluidX = Mathf.Round(rawNextFluid / pointSpacing) * pointSpacing;
+        currentFluidWidth = Mathf.Round(Mathf.Lerp(minWaterWidth, maxWaterWidth, 0.5f) / pointSpacing) * pointSpacing;
+
+        nextBounceX = Mathf.Round((minBounceDistance + (Mathf.PerlinNoise(seed + 2, seed) * 50f)) / pointSpacing) * pointSpacing;
+        nextBallX = Mathf.Round((minBallDistance + (Mathf.PerlinNoise(seed + 3, seed) * 50f)) / pointSpacing) * pointSpacing;
+        nextGullX = Mathf.Round((minGullDistance + (Mathf.PerlinNoise(seed + 4, seed) * 50f)) / pointSpacing) * pointSpacing;
+        nextCoconutX = Mathf.Round((minCoconutDistance + (Mathf.PerlinNoise(seed + 5, seed) * 50f)) / pointSpacing) * pointSpacing;
+    }
+
+    protected override bool ProcessTerrainSpline(float globalX, float localX, float originalY, ref float finalY, Spline spline, List<Vector2> physicsPoints, ref int pointIndex, int i, int numSurfacePoints, Transform chunkParent, out bool isHazardZone)
+    {
+        isHazardZone = false;
+
+        // --- FLUID LOGIC (Water or Sand Dunes) ---
+        bool inFluidZone = generateFluids && globalX >= nextFluidX && globalX <= nextFluidX + currentFluidWidth;
+        if (inFluidZone)
+        {
+            isHazardZone = true;
+            if (!isBuildingFluid)
+            {
+                isBuildingFluid = true;
+                float startY = GetRawTerrainY(nextFluidX);
+                float endY = GetRawTerrainY(nextFluidX + currentFluidWidth);
+                float midY = (startY + endY) / 2f; 
+                
+                // FIX: Dynamic padding! Tiny puddles get tiny overlaps so they don't bleed out of the ground
+                float edgePadding = Mathf.Clamp(currentFluidWidth * 0.2f, 4f, 15f);
+                float paddedVisualWidth = currentFluidWidth + edgePadding;
+                float paddedVisualDepth = (waterDepth * 2f) + 20f;
+                
+                float surfaceY = midY + waterLevelOffset;
+                float centerOffsetY = surfaceY - (paddedVisualDepth / 2f);
+                Vector2 centerPos = new Vector2(nextFluidX + currentFluidWidth / 2f, centerOffsetY);
+                
+                // 50% chance for Sand Dune, 50% chance for Water!
+                bool isSandDune = (Mathf.PerlinNoise(nextFluidX * 0.1f, seed) < sandDuneChance);
+                
+                GameObject prefabToUse = isSandDune ? sandDunePrefab : waterPoolPrefab;
+                if (prefabToUse != null)
+                {
+                    GameObject fluid = Instantiate(prefabToUse, new Vector3(centerPos.x, centerPos.y, 0f), Quaternion.identity, chunkParent);
+                    
+                    MeshRenderer mr = fluid.GetComponent<MeshRenderer>();
+                    if (mr != null) mr.sortingOrder = waterSortingOrder;
+
+                    DynamicWater2D fluidScript = fluid.GetComponent<DynamicWater2D>();
+                    if (fluidScript != null) fluidScript.GenerateWater(paddedVisualWidth, paddedVisualDepth, currentFluidWidth);
+                    else fluid.transform.localScale = new Vector3(paddedVisualWidth, paddedVisualDepth, 1f);
+
+                    // Spawn a Buoy ONLY if it's water!
+                    if (!isSandDune && generateBuoys && buoyPrefab != null)
+                    {
+                        Instantiate(buoyPrefab, new Vector3(centerPos.x, surfaceY + 1f, 0f), Quaternion.identity, chunkParent);
+                    }
+                }
+            }
+            
+            float dipPercent = (globalX - nextFluidX) / currentFluidWidth;
+            float dipAmount = Mathf.Sin(dipPercent * Mathf.PI) * waterDepth;
+            finalY -= dipAmount; 
+            return false; 
+        }
+        else if (globalX > nextFluidX + currentFluidWidth && isBuildingFluid)
+        {
+            isBuildingFluid = false;
+            nextFluidX = Mathf.Round((nextFluidX + 250f + (Mathf.PerlinNoise(globalX * 0.2f, seed) * 150f)) / pointSpacing) * pointSpacing;
+            currentFluidWidth = Mathf.Round(Mathf.Lerp(minWaterWidth, maxWaterWidth, Mathf.PerlinNoise(nextFluidX, seed)) / pointSpacing) * pointSpacing;
+        }
+
+        return false;
+    }
+
+    protected override bool ProcessHazards(float globalX, float originalY, int i, int numSurfacePoints, Transform chunkParent)
+    {
+        if (i >= numSurfacePoints) return false;
+
+        // 1. SEAGULL FLOCKS (Sky)
+        if (generateSeagulls && Mathf.Abs(globalX - nextGullX) < 0.01f)
+        {
+            if (seagullPrefab != null)
+            {
+                // Start with 1 seagull at 0m, 2 at 1000m, 3 at 2000m, capping at 10!
+                int flockSize = Mathf.Clamp(1 + Mathf.FloorToInt(globalX / 1000f), 1, 10);
+                float skyHeight = originalY + Mathf.Lerp(minGullHeight, maxGullHeight, Mathf.PerlinNoise(globalX, seed));
+                
+                for (int g = 0; g < flockSize; g++)
+                {
+                    Vector3 skyPos = new Vector3(globalX + Random.Range(-5f, 15f), skyHeight + (g * 1.5f), 0f);
+                    Instantiate(seagullPrefab, skyPos, Quaternion.identity, chunkParent);
+                }
+            }
+            nextGullX = Mathf.Round((nextGullX + Mathf.Lerp(minGullDistance, maxGullDistance, Mathf.PerlinNoise(globalX * 0.8f, seed))) / pointSpacing) * pointSpacing;
+        }
+
+        // 2. GIANT BEACH BALLS
+        if (generateBeachBalls && Mathf.Abs(globalX - nextBallX) < 0.01f)
+        {
+            if (beachBallPrefab != null)
+            {
+                float ballScale = Random.Range(1f, maxBallScale);
+                GameObject ball = Instantiate(beachBallPrefab, new Vector3(globalX, originalY + (ballScale * 0.5f) + 1f, 0f), Quaternion.identity, chunkParent);
+                ball.transform.localScale = Vector3.one * ballScale;
+            }
+            nextBallX = Mathf.Round((nextBallX + Mathf.Lerp(minBallDistance, maxBallDistance, Mathf.PerlinNoise(globalX * 0.5f, seed))) / pointSpacing) * pointSpacing;
+            return true;
+        }
+
+        // 3. COCONUT PILES
+        if (generateCoconuts && Mathf.Abs(globalX - nextCoconutX) < 0.01f)
+        {
+            if (coconutPrefab != null)
+            {
+                int rows = 3;
+                float spacing = 1.0f;
+                
+                for (int r = 0; r < rows; r++)
+                {
+                    int coconutsInRow = rows - r;
+                    for (int c = 0; c < coconutsInRow; c++)
+                    {
+                        float startX = globalX - ((coconutsInRow - 1) * spacing * 0.5f);
+                        float posX = startX + (c * spacing);
+                        float posY = originalY + 1.5f + (r * spacing * 0.85f); 
+
+                        Instantiate(coconutPrefab, new Vector3(posX, posY, 0f), Quaternion.identity, chunkParent);
+                    }
+                }
+            }
+            nextCoconutX = Mathf.Round((nextCoconutX + Mathf.Lerp(minCoconutDistance, maxCoconutDistance, Mathf.PerlinNoise(globalX * 0.75f, seed))) / pointSpacing) * pointSpacing;
+            return true;
+        }
+
+        // 4. BOUNCY UMBRELLAS
+        if (generateBouncyHazards && Mathf.Abs(globalX - nextBounceX) < 0.01f)
+        {
+            if (bouncyHazardPrefab != null) Instantiate(bouncyHazardPrefab, new Vector3(globalX, originalY + bouncyYOffset, 0f), Quaternion.identity, chunkParent);
+            nextBounceX = Mathf.Round((nextBounceX + Mathf.Lerp(minBounceDistance, maxBounceDistance, Mathf.PerlinNoise(globalX * 0.4f, seed))) / pointSpacing) * pointSpacing;
+            return true;
+        }
+
+        return false; 
+    }
+}

@@ -101,7 +101,6 @@ public class VillageMap : MapGenerator
     {
         runRNG = new System.Random(seed);
 
-        // Pre-calculate first spawn points using seed
         float rawNextBridge = 100f + (Mathf.PerlinNoise(seed, seed) * 50f);
         nextBridgeX = Mathf.Round(rawNextBridge / pointSpacing) * pointSpacing;
         float rawGap = Mathf.Lerp(minBridgeGapWidth, maxBridgeGapWidth, Mathf.PerlinNoise(nextBridgeX, seed));
@@ -112,7 +111,6 @@ public class VillageMap : MapGenerator
         float rawWaterWidth = Mathf.Lerp(minWaterWidth, maxWaterWidth, Mathf.PerlinNoise(nextWaterX, seed));
         currentWaterWidth = Mathf.Round(rawWaterWidth / pointSpacing) * pointSpacing;
 
-        // FIXED: Now using your dynamic Inspector Minimums instead of hardcoded numbers!
         float rawNextScatter = minScatterDistance + (Mathf.PerlinNoise(seed + 2, seed) * 50f);
         nextScatterX = Mathf.Round(rawNextScatter / pointSpacing) * pointSpacing;
 
@@ -151,8 +149,11 @@ public class VillageMap : MapGenerator
                 float endY = GetRawTerrainY(nextWaterX + currentWaterWidth);
                 float midY = (startY + endY) / 2f; 
                 
-                float paddedVisualWidth = currentWaterWidth + 15f;
+                // FIX: Dynamic padding!
+                float edgePadding = Mathf.Clamp(currentWaterWidth * 0.2f, 4f, 15f);
+                float paddedVisualWidth = currentWaterWidth + edgePadding;
                 float paddedVisualDepth = (waterDepth * 2f) + 20f; 
+                
                 float surfaceY = midY + waterLevelOffset;
                 float centerOffsetY = surfaceY - (paddedVisualDepth / 2f);
                 
@@ -248,12 +249,10 @@ public class VillageMap : MapGenerator
         {
             if (balloonPrefab != null)
             {
-                // Spawn high in the sky
                 float skyHeight = originalY + Mathf.Lerp(minBalloonHeight, maxBalloonHeight, Mathf.PerlinNoise(globalX, seed));
                 Instantiate(balloonPrefab, new Vector3(globalX, skyHeight, 0f), Quaternion.identity, chunkParent);
             }
             nextBalloonX = Mathf.Round((nextBalloonX + Mathf.Lerp(minBalloonDistance, maxBalloonDistance, Mathf.PerlinNoise(globalX * 0.9f, seed))) / pointSpacing) * pointSpacing;
-            // Notice we do NOT return true here, because balloons are in the sky! Ground hazards can still spawn below them!
         }
 
         bool isScarecrowPoint = generateScarecrows && Mathf.Abs(globalX - nextScarecrowX) < 0.01f;
@@ -264,20 +263,17 @@ public class VillageMap : MapGenerator
             return true;
         }
 
-        // NEW: Windmills!
         bool isWindmillPoint = generateWindmills && Mathf.Abs(globalX - nextWindmillX) < 0.01f;
         if (isWindmillPoint)
         {
             if (windmillPrefab != null)
             {
-                // Spawn it slightly in the background using your custom Z offset, and UP using the Y offset!
                 Instantiate(windmillPrefab, new Vector3(globalX, originalY + windmillYOffset, windmillZOffset), Quaternion.identity, chunkParent);
             }
             nextWindmillX = Mathf.Round((nextWindmillX + Mathf.Lerp(minWindmillDistance, maxWindmillDistance, Mathf.PerlinNoise(globalX * 0.7f, seed))) / pointSpacing) * pointSpacing;
             return true;
         }
 
-        // NEW: Runaway Livestock!
         bool isLivestockPoint = generateLivestock && Mathf.Abs(globalX - nextLivestockX) < 0.01f;
         if (isLivestockPoint)
         {

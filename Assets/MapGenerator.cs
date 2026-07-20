@@ -177,9 +177,18 @@ public class MapGenerator : MonoBehaviour
             }
             
             // 4. BASE ENVIRONMENT PROPS (Trees in background)
-            if (generateProps && globalX >= nextPropX && i < numSurfacePoints && !isHazardZone)
+            if (generateProps && globalX >= nextPropX && i < numSurfacePoints)
             {
-                SpawnEnvironmentProps(new Vector3(globalX, originalY, 0f), newChunk.transform);
+                if (!isHazardZone)
+                {
+                    SpawnEnvironmentProps(new Vector3(globalX, originalY, 0f), newChunk.transform);
+                }
+                else
+                {
+                    // FIX: Even if blocked by a tunnel/lake, the prop distance tracker must keep advancing! 
+                    // This prevents all the skipped props from spawning in a massive clump at the tunnel exit.
+                    nextPropX += propCheckInterval;
+                }
             }
         }
 
@@ -201,7 +210,8 @@ public class MapGenerator : MonoBehaviour
         nextSpawnX += chunkWidth;
     }
 
-    void SpawnPickups(Vector3 groundPosition, Transform chunkParent)
+    // FIX: Changed from private to 'protected virtual' so SnowMap can manually call this inside tunnels!
+    protected virtual void SpawnPickups(Vector3 groundPosition, Transform chunkParent)
     {
         if (groundPosition.x >= nextFuelX)
         {
@@ -210,17 +220,14 @@ public class MapGenerator : MonoBehaviour
         }
         else if (gemPrefab != null && groundPosition.x >= nextGemX)
         {
-            // --- FIXED: Gems back on the ground! (Uses gemHeightOffset from Inspector) ---
             Instantiate(gemPrefab, groundPosition + new Vector3(0, gemHeightOffset, 0), Quaternion.identity, chunkParent);
             
-            // Respects the Min and Max gem distance settings from the inspector!
             float noiseVal = Mathf.PerlinNoise(groundPosition.x * 0.37f, seed + 12f);
             float addedDistance = Mathf.Lerp(minGemDistance, maxGemDistance, noiseVal);
             nextGemX += addedDistance; 
         }
         else if (groundPosition.x >= nextCoinX)
         {
-            // --- NEW: FULLY CUSTOMIZABLE COIN SCALING ---
             GameObject coinToSpawn = coin5Prefab;
             if (groundPosition.x >= goldCoinDistance) coinToSpawn = coin25Prefab;
             else if (groundPosition.x >= silverCoinDistance) coinToSpawn = coin10Prefab;
@@ -236,18 +243,16 @@ public class MapGenerator : MonoBehaviour
             {
                 nextCoinX += 15f + (Mathf.PerlinNoise(groundPosition.x * 0.2f, seed) * 20f);
                 
-                // Determine next group size based on custom inspector distances!
                 int currentBaseSize = tier1GroupSize;
                 if (groundPosition.x >= goldCoinDistance) currentBaseSize = tier3GroupSize;
                 else if (groundPosition.x >= silverCoinDistance) currentBaseSize = tier2GroupSize;
                 
-                // Add a tiny bit of Perlin randomness (+0 to 3) to the group size so it feels organic
                 coinsLeftInGroup = currentBaseSize + Mathf.FloorToInt(Mathf.PerlinNoise(groundPosition.x * 0.3f, seed) * 3);
             }
         }
     }
 
-    void SpawnEnvironmentProps(Vector3 groundPosition, Transform chunkParent)
+    protected virtual void SpawnEnvironmentProps(Vector3 groundPosition, Transform chunkParent)
     {
         if (propPrefabs != null && propPrefabs.Length > 0)
         {

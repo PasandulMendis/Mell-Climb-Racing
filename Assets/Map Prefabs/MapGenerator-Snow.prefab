@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1618981065495509087}
-  - component: {fileID: 3336066225909921812}
+  - component: {fileID: 3140776579777389039}
   m_Layer: 0
   m_Name: MapGenerator-Snow
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3336066225909921812
+--- !u!114 &3140776579777389039
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,49 +41,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 8208565040995769957}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1084b39d10038495f8fe2db019a03a2e, type: 3}
+  m_Script: {fileID: 11500000, guid: 69ce417ac0fda4b32b60d48f4a05b25d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
-  seed: 3142
+  m_EditorClassIdentifier: Assembly-CSharp::SnowMap
+  seed: 4321
   chunksToSpawnAhead: 3
   chunkWidth: 20
-  destroyDistanceBehind: 60
+  destroyDistanceBehind: 50
   terrainDepth: 1
-  pointSpacing: 2
+  blankChunkPrefab: {fileID: 2503069242505576877, guid: eb037fc69c2a24f2e891c4c262d46fa6, type: 3}
+  pointSpacing: 1
   baseAmplitude: 5
   maxAmplitude: 25
-  difficultyScaling: 0.02
-  noiseFrequency: 0.05
-  secondaryNoiseFrequency: 0.2
+  difficultyScaling: 0.015
+  noiseFrequency: 0.03
+  secondaryNoiseFrequency: 0.18
   secondaryAmplitude: 1
-  blankChunkPrefab: {fileID: 2503069242505576877, guid: eb037fc69c2a24f2e891c4c262d46fa6, type: 3}
-  coinPrefab: {fileID: 8561688181454407625, guid: e4874a4bc2f634f6482ae386c3bab6be, type: 3}
+  coin5Prefab: {fileID: 3433777762193160581, guid: 59a21b2f944fd4aa196107fcd9fab215, type: 3}
+  coin10Prefab: {fileID: 7891165457619460463, guid: 2ce6e76f47f024af2814e1855b0e109f, type: 3}
+  coin25Prefab: {fileID: 7891165457619460463, guid: 3dd6e8776bcf948b99a119888b34e74e, type: 3}
+  coinSpacing: 1
+  silverCoinDistance: 1000
+  goldCoinDistance: 2000
+  tier1GroupSize: 5
+  tier2GroupSize: 8
+  tier3GroupSize: 12
   fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
-  generateBridges: 1
-  ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
-  minBridgeGapWidth: 4
-  maxBridgeGapWidth: 8
-  gorgeDepth: 10
-  expectedPlankWidth: 1
-  bridgeYOffset: -0.1
-  generateWaterPools: 1
-  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
-  mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
-  mudProbability: 0.2
-  minWaterWidth: 4
-  maxWaterWidth: 16
-  waterDepth: 1
-  waterLevelOffset: 0
-  waterSortingOrder: 4
-  generateScatterObstacles: 1
-  scatterPrefabs:
-  - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
-  minScatterDistance: 200
-  maxScatterDistance: 300
-  generateBouncyHazards: 1
-  bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
-  minBounceDistance: 200
-  maxBounceDistance: 300
+  gemPrefab: {fileID: 8692838261110679811, guid: 851d75133791d4189a76d7be025f92c9, type: 3}
+  minGemDistance: 800
+  maxGemDistance: 1300
+  gemHeightOffset: 1
   generateProps: 1
   propPrefabs:
   - {fileID: 1215196087837981991, guid: 3de3de1ae2a6241f09858f2ff44e950a, type: 3}
@@ -96,7 +83,45 @@ MonoBehaviour:
   - {fileID: 1215196087837981991, guid: 6fc88f2b9e71140f0bac9f379cb02f37, type: 3}
   - {fileID: 1215196087837981991, guid: 7dca7fc3e92254fbd95099f45eee4bc7, type: 3}
   - {fileID: 1215196087837981991, guid: 0031b0326a4c448849a251bda8213589, type: 3}
-  propCheckInterval: 4
+  propCheckInterval: 5
   propSpawnProbability: 0.5
   propYOffset: 0
   propTerrainAlignment: 0.7
+  generateLakes: 1
+  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
+  frozenLakePrefab: {fileID: 8163008081576812170, guid: 82f3d524bbe9a4ff1a8a7a26b76ab33b, type: 3}
+  minLakeDistance: 200
+  maxLakeDistance: 450
+  minLakeWidth: 6
+  maxLakeWidth: 12
+  lakeDepth: 1.1
+  waterLevelOffset: 0
+  waterSortingOrder: 4
+  generateTunnels: 1
+  ceilingChunkPrefab: {fileID: 2503069242505576877, guid: 6fc30962f5f194c199f1f66455996601, type: 3}
+  iciclePrefab: {fileID: 4778738247051308678, guid: 1a29457753a404c87a5a773a9ef373d8, type: 3}
+  minTunnelDistance: 700
+  maxTunnelDistance: 1200
+  minTunnelLength: 100
+  maxTunnelLength: 150
+  minTunnelHeight: 6
+  maxTunnelHeight: 6
+  icicleSpawnChance: 0.4
+  icicleYOffset: -1
+  generateSnowmen: 1
+  snowmanPrefab: {fileID: 9141305696767876709, guid: 378a7443332294fb0b20fb9da29f5ef7, type: 3}
+  minSnowmanDistance: 250
+  maxSnowmanDistance: 600
+  snowmanYOffset: 2
+  generateGiantSnowballs: 1
+  giantSnowballPrefab: {fileID: 3147441054659126348, guid: c6bfe5dadda984fc58e296b52ab02489, type: 3}
+  minSnowballDistance: 200
+  maxSnowballDistance: 500
+  snowballYOffset: 3
+  generateIcePyramids: 1
+  iceBlockPrefab: {fileID: 8257311918469748673, guid: c9214c8d44c30416b8a8c5c816e225b8, type: 3}
+  minIcePyramidDistance: 150
+  maxIcePyramidDistance: 300
+  pyramidBaseWidth: 6
+  blockWidth: 1
+  blockHeight: 1

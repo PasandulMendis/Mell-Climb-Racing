@@ -174,7 +174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WindmillBlade
   rotationSpeed: 20
-  recoveryStrength: 2
+  recoveryStrength: 1
   randomStartAngle: 1
   bladeMass: 2
   swatSound: {fileID: 0}

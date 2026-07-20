@@ -74,7 +74,6 @@ MonoBehaviour:
   generateProps: 1
   propPrefabs:
   - {fileID: 1215196087837981991, guid: 998f151a33f294ab5b6ed3488762b037, type: 3}
-  - {fileID: 1215196087837981991, guid: c5b2a9c2f76b348239ab56054e8fa8f6, type: 3}
   - {fileID: 1215196087837981991, guid: 4f4104ce4caf04a7da87c0c9eff50276, type: 3}
   - {fileID: 1215196087837981991, guid: 2cb071f1730a240fa974e8bb8afc9537, type: 3}
   - {fileID: 1215196087837981991, guid: 89f84f0df94ee44d7a8089a8891bbd77, type: 3}
@@ -111,8 +110,8 @@ MonoBehaviour:
   waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
   mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
   mudProbability: 0.1
-  minWaterWidth: 4
-  maxWaterWidth: 16
+  minWaterWidth: 6
+  maxWaterWidth: 12
   waterDepth: 1
   waterLevelOffset: 0
   waterSortingOrder: 4
@@ -126,7 +125,7 @@ MonoBehaviour:
   minBounceDistance: 300
   maxBounceDistance: 500
   bouncyYOffset: 0.1
-  generateJellyObstacles: 0
+  generateJellyObstacles: 1
   jellyObstaclePrefabs:
   - {fileID: 1215196087837981991, guid: dc746bdc8e6da4604b88c820a50fad1a, type: 3}
   - {fileID: 1215196087837981991, guid: b3c0ccbcb12e74926ac44fdc25b7dd48, type: 3}
