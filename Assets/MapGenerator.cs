@@ -206,6 +206,8 @@ public class MapGenerator : MonoBehaviour
         }
         
         edgeCol.SetPoints(physicsPoints);
+         // NEW: Let child maps know a chunk finished generating so they can style the ground!
+        OnChunkGenerated(newChunk);
         activeChunks.Add(newChunk);
         nextSpawnX += chunkWidth;
     }
@@ -275,6 +277,9 @@ public class MapGenerator : MonoBehaviour
                 
                 prop.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(0f, terrainAngle, propTerrainAlignment));
                 if (Mathf.PerlinNoise(groundPosition.x * 9.9f, seed + 8.8f) > 0.5f) prop.transform.localScale = new Vector3(-prop.transform.localScale.x, prop.transform.localScale.y, prop.transform.localScale.z);
+
+                // NEW: Let child maps know a prop was spawned so they can modify it (like tinting!)
+                OnEnvironmentPropSpawned(prop);
             }
         }
         nextPropX += propCheckInterval;
@@ -286,4 +291,7 @@ public class MapGenerator : MonoBehaviour
     protected virtual void InitializeMap() { }
     protected virtual bool ProcessTerrainSpline(float globalX, float localX, float originalY, ref float finalY, Spline spline, List<Vector2> physicsPoints, ref int pointIndex, int i, int numSurfacePoints, Transform chunkParent, out bool isHazardZone) { isHazardZone = false; return false; }
     protected virtual bool ProcessHazards(float globalX, float originalY, int i, int numSurfacePoints, Transform chunkParent) { return false; }
+    protected virtual void OnEnvironmentPropSpawned(GameObject prop) { }
+    protected virtual void OnChunkGenerated(GameObject chunk) { }
+
 }

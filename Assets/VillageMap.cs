@@ -4,8 +4,44 @@ using System.Collections.Generic;
 
 public class VillageMap : MapGenerator
 {
+    public enum TimeOfDay { Dawn, Morning, Noon, Dusk, Night }
+
+    [System.Serializable]
+    public class TimeColors
+    {
+        [Tooltip("Changes the Sky background color")]
+        public Color skyColor;
+        [Tooltip("Multiplies the sprite color to match the lighting")]
+        public Color propTint;
+
+        public TimeColors(Color sky, Color prop)
+        {
+            skyColor = sky;
+            propTint = prop;
+        }
+    }
+
     [Header("--- VILLAGE SPECIFIC FEATURES ---")]
     
+    [Header("Static Time of Day Settings")]
+    public bool enableStaticTime = true;
+    [Tooltip("If true, picks a random time. If false, uses the specific time below.")]
+    public bool randomizeTime = true;
+    public TimeOfDay specificTimeOfDay = TimeOfDay.Noon;
+
+    [Header("Color Grading / Intensity")]
+    [Tooltip("Drag your unique white Sky background sprite here!")]
+    public SpriteRenderer skyBackgroundRenderer; 
+    
+    public TimeColors dawnColors = new TimeColors(new Color(0.9f, 0.6f, 0.5f), new Color(0.8f, 0.7f, 0.7f));
+    public TimeColors morningColors = new TimeColors(new Color(0.6f, 0.8f, 1.0f), Color.white);
+    public TimeColors noonColors = new TimeColors(new Color(0.4f, 0.7f, 1.0f), Color.white);
+    public TimeColors duskColors = new TimeColors(new Color(0.7f, 0.4f, 0.6f), new Color(0.7f, 0.5f, 0.6f));
+    public TimeColors nightColors = new TimeColors(new Color(0.1f, 0.1f, 0.2f), new Color(0.3f, 0.3f, 0.5f));
+
+    private Color propTint = Color.white;
+    private bool hasTintedCar = false;
+
     [Header("Destructible Bridges")]
     public bool generateBridges = true; 
     public GameObject ropeBridgePrefab;
@@ -82,7 +118,6 @@ public class VillageMap : MapGenerator
     public float minBalloonHeight = 25f;
     public float maxBalloonHeight = 40f;
 
-    // Internal trackers
     private float nextBridgeX;
     private float currentBridgeGapWidth;
     private float nextWaterX;
@@ -97,9 +132,114 @@ public class VillageMap : MapGenerator
     private float nextBalloonX;
     private System.Random runRNG;
 
+    void LateUpdate()
+    {
+        // We use LateUpdate to wait for the GameManager to finish spawning the player car
+        if (enableStaticTime && !hasTintedCar && playerCar != null)
+        {
+            hasTintedCar = true;
+            TintObject(playerCar.gameObject);
+        }
+
+        // Glue the Sky Sprite to the Camera!
+        if (skyBackgroundRenderer != null && Camera.main != null)
+        {
+            Vector3 camPos = Camera.main.transform.position;
+            // Copy X and Y from the camera, but keep the original Z depth so it stays way in the background!
+            skyBackgroundRenderer.transform.position = new Vector3(camPos.x, camPos.y, skyBackgroundRenderer.transform.position.z);
+        }
+    }
+
+    void SetupTimeOfDay()
+    {
+        TimeOfDay runTime = specificTimeOfDay;
+        if (randomizeTime)
+        {
+            // FIX: Using system clock ticks for true randomness instead of UnityEngine.Random
+            // which gets locked to the map generation seed by the base MapGenerator class!
+            System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
+            runTime = (TimeOfDay)trueTimeRNG.Next(0, 5); 
+        }
+
+        Color skyColor = Color.white;
+
+        // Configure the Vibe for the run using Inspector settings
+        switch (runTime)
+        {
+            case TimeOfDay.Dawn:
+                skyColor = dawnColors.skyColor;
+                propTint = dawnColors.propTint;
+                break;
+            case TimeOfDay.Morning:
+                skyColor = morningColors.skyColor;
+                propTint = morningColors.propTint;
+                break;
+            case TimeOfDay.Noon:
+                skyColor = noonColors.skyColor;
+                propTint = noonColors.propTint;
+                break;
+            case TimeOfDay.Dusk:
+                skyColor = duskColors.skyColor;
+                propTint = duskColors.propTint;
+                break;
+            case TimeOfDay.Night:
+                skyColor = nightColors.skyColor;
+                propTint = nightColors.propTint;
+                break;
+        }
+
+        // Change the main camera skybox color as a fallback
+        if (Camera.main != null)
+        {
+            Camera.main.backgroundColor = skyColor;
+        }
+
+        // Tint the specific Sky Background Sprite
+        if (skyBackgroundRenderer != null)
+        {
+            skyBackgroundRenderer.color = skyColor;
+        }
+
+        Debug.Log("Village Map started at: " + runTime.ToString());
+    }
+
+    void TintObject(GameObject obj)
+    {
+        if (propTint == Color.white) return; // Save math if it's normal daylight!
+
+        SpriteRenderer[] renderers = obj.GetComponentsInChildren<SpriteRenderer>();
+        foreach (SpriteRenderer sr in renderers)
+        {
+            sr.color *= propTint;
+        }
+    }
+
+    // NEW: Automatically tint base environment props (like background trees) as they spawn!
+    protected override void OnEnvironmentPropSpawned(GameObject prop)
+    {
+        TintObject(prop);
+    }
+
+    // NEW: Tint the ground/road but only at 50% intensity for realism!
+    protected override void OnChunkGenerated(GameObject chunk)
+    {
+        SpriteShapeRenderer ssr = chunk.GetComponent<SpriteShapeRenderer>();
+        if (ssr != null)
+        {
+            // Blend halfway between standard white and the time-of-day prop color
+            Color groundTint = Color.Lerp(Color.white, propTint, 0.75f);
+            ssr.color = groundTint;
+        }
+    }
+
     protected override void InitializeMap()
     {
         runRNG = new System.Random(seed);
+
+        if (enableStaticTime)
+        {
+            SetupTimeOfDay();
+        }
 
         float rawNextBridge = 100f + (Mathf.PerlinNoise(seed, seed) * 50f);
         nextBridgeX = Mathf.Round(rawNextBridge / pointSpacing) * pointSpacing;
@@ -250,7 +390,8 @@ public class VillageMap : MapGenerator
             if (balloonPrefab != null)
             {
                 float skyHeight = originalY + Mathf.Lerp(minBalloonHeight, maxBalloonHeight, Mathf.PerlinNoise(globalX, seed));
-                Instantiate(balloonPrefab, new Vector3(globalX, skyHeight, 0f), Quaternion.identity, chunkParent);
+                GameObject balloon = Instantiate(balloonPrefab, new Vector3(globalX, skyHeight, 0f), Quaternion.identity, chunkParent);
+                TintObject(balloon);
             }
             nextBalloonX = Mathf.Round((nextBalloonX + Mathf.Lerp(minBalloonDistance, maxBalloonDistance, Mathf.PerlinNoise(globalX * 0.9f, seed))) / pointSpacing) * pointSpacing;
         }
@@ -258,7 +399,11 @@ public class VillageMap : MapGenerator
         bool isScarecrowPoint = generateScarecrows && Mathf.Abs(globalX - nextScarecrowX) < 0.01f;
         if (isScarecrowPoint)
         {
-            if (scarecrowPrefab != null) Instantiate(scarecrowPrefab, new Vector3(globalX, originalY + scarecrowYOffset, 0f), Quaternion.identity, chunkParent);
+            if (scarecrowPrefab != null) 
+            {
+                GameObject scarecrow = Instantiate(scarecrowPrefab, new Vector3(globalX, originalY + scarecrowYOffset, 0f), Quaternion.identity, chunkParent);
+                TintObject(scarecrow);
+            }
             nextScarecrowX = Mathf.Round((nextScarecrowX + Mathf.Lerp(minScarecrowDistance, maxScarecrowDistance, Mathf.PerlinNoise(globalX * 0.95f, seed))) / pointSpacing) * pointSpacing;
             return true;
         }
@@ -268,7 +413,8 @@ public class VillageMap : MapGenerator
         {
             if (windmillPrefab != null)
             {
-                Instantiate(windmillPrefab, new Vector3(globalX, originalY + windmillYOffset, windmillZOffset), Quaternion.identity, chunkParent);
+                GameObject windmill = Instantiate(windmillPrefab, new Vector3(globalX, originalY + windmillYOffset, windmillZOffset), Quaternion.identity, chunkParent);
+                TintObject(windmill);
             }
             nextWindmillX = Mathf.Round((nextWindmillX + Mathf.Lerp(minWindmillDistance, maxWindmillDistance, Mathf.PerlinNoise(globalX * 0.7f, seed))) / pointSpacing) * pointSpacing;
             return true;
@@ -277,7 +423,11 @@ public class VillageMap : MapGenerator
         bool isLivestockPoint = generateLivestock && Mathf.Abs(globalX - nextLivestockX) < 0.01f;
         if (isLivestockPoint)
         {
-            if (livestockPrefab != null) Instantiate(livestockPrefab, new Vector3(globalX, originalY + 1.5f, 0f), Quaternion.identity, chunkParent);
+            if (livestockPrefab != null) 
+            {
+                GameObject livestock = Instantiate(livestockPrefab, new Vector3(globalX, originalY + 1.5f, 0f), Quaternion.identity, chunkParent);
+                TintObject(livestock);
+            }
             nextLivestockX = Mathf.Round((nextLivestockX + Mathf.Lerp(minLivestockDistance, maxLivestockDistance, Mathf.PerlinNoise(globalX * 0.8f, seed))) / pointSpacing) * pointSpacing;
             return true;
         }
@@ -285,7 +435,11 @@ public class VillageMap : MapGenerator
         bool isBouncePoint = generateBouncyHazards && Mathf.Abs(globalX - nextBounceX) < 0.01f;
         if (isBouncePoint)
         {
-            if (bouncyHazardPrefab != null) Instantiate(bouncyHazardPrefab, new Vector3(globalX, originalY + bouncyYOffset, 0f), Quaternion.identity, chunkParent);
+            if (bouncyHazardPrefab != null) 
+            {
+                GameObject bouncy = Instantiate(bouncyHazardPrefab, new Vector3(globalX, originalY + bouncyYOffset, 0f), Quaternion.identity, chunkParent);
+                TintObject(bouncy);
+            }
             nextBounceX = Mathf.Round((nextBounceX + Mathf.Lerp(minBounceDistance, maxBounceDistance, Mathf.PerlinNoise(globalX * 0.4f, seed))) / pointSpacing) * pointSpacing;
             return true;
         }
@@ -296,7 +450,8 @@ public class VillageMap : MapGenerator
             if (scatterPrefabs != null && scatterPrefabs.Length > 0)
             {
                 int pIdx = Mathf.Clamp(Mathf.FloorToInt(Mathf.PerlinNoise(globalX, seed) * scatterPrefabs.Length), 0, scatterPrefabs.Length - 1);
-                Instantiate(scatterPrefabs[pIdx], new Vector3(globalX, originalY + 1f, 0f), Quaternion.identity, chunkParent);
+                GameObject scatter = Instantiate(scatterPrefabs[pIdx], new Vector3(globalX, originalY + 1f, 0f), Quaternion.identity, chunkParent);
+                TintObject(scatter);
             }
             nextScatterX = Mathf.Round((nextScatterX + Mathf.Lerp(minScatterDistance, maxScatterDistance, Mathf.PerlinNoise(globalX * 0.3f, seed))) / pointSpacing) * pointSpacing;
             return true;
@@ -327,6 +482,8 @@ public class VillageMap : MapGenerator
                     if (col != null) Destroy(col);
                     jelly.transform.position += new Vector3(0f, 0f, 2f);
                 }
+
+                TintObject(jelly);
             }
             nextJellyX = Mathf.Round((nextJellyX + Mathf.Lerp(minJellyDistance, maxJellyDistance, Mathf.PerlinNoise(globalX * 0.6f, seed))) / pointSpacing) * pointSpacing;
             return true;
@@ -349,6 +506,8 @@ public class VillageMap : MapGenerator
                 endPos.y += bridgeYOffset;
                 bridgeScript.BuildBridge(startPos, endPos);
             }
+
+            TintObject(bridge);
         }
     }
 
@@ -366,9 +525,20 @@ public class VillageMap : MapGenerator
             if (fluidScript != null)
             {
                 fluid.transform.localScale = Vector3.one; 
+                
+                // NEW: Manually tint the water mesh colors before it generates the surface!
+                if (propTint != Color.white)
+                {
+                    fluidScript.surfaceColor *= propTint;
+                    fluidScript.depthColor *= propTint;
+                }
+
                 fluidScript.GenerateWater(visualWidth, visualDepth, physicsWidth);
             }
             else fluid.transform.localScale = new Vector3(visualWidth, visualDepth, 1f);
+
+            // Keep the standard TintObject in case there are bubbles/particle Sprites attached to the fluid
+            TintObject(fluid);
         }
     }
 }
