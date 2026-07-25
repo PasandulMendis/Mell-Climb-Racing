@@ -98,8 +98,10 @@ public class BeachMap : MapGenerator
     private float nextBallX;
     private float nextGullX;
     private float nextCoconutX;
-    
     private System.Random runRNG;
+    private bool isNightTime = false; // NEW: Track if it is currently night!
+
+
 
         void LateUpdate()
     {
@@ -107,7 +109,14 @@ public class BeachMap : MapGenerator
         {
             hasTintedCar = true;
             TintObject(playerCar.gameObject);
+        }          
+        // NEW: Turn on headlights if it's night!
+        CarController carScript = playerCar.GetComponent<CarController>();
+        if (carScript != null)
+        {
+            carScript.ToggleHeadlights(isNightTime);
         }
+
 
         if (skyBackgroundRenderer != null && Camera.main != null)
         {
@@ -121,9 +130,15 @@ public class BeachMap : MapGenerator
         TimeOfDay runTime = specificTimeOfDay;
         if (randomizeTime)
         {
-            System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
-            runTime = (TimeOfDay)trueTimeRNG.Next(0, 5); 
+        // FIX: Using system clock ticks for true randomness instead of UnityEngine.Random
+        // which gets locked to the map generation seed by the base MapGenerator class!
+        System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
+        runTime = (TimeOfDay)trueTimeRNG.Next(0, 5); 
+
         }
+
+        // Record if it is night time for the headlights!
+        isNightTime = (runTime == TimeOfDay.Night);
 
         Color skyColor = Color.white;
         switch (runTime)

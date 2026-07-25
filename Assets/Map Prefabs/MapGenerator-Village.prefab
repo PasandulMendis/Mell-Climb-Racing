@@ -160,8 +160,8 @@ MonoBehaviour:
   tier3GroupSize: 10
   fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
   gemPrefab: {fileID: 8692838261110679811, guid: 851d75133791d4189a76d7be025f92c9, type: 3}
-  minGemDistance: 200
-  maxGemDistance: 400
+  minGemDistance: 400
+  maxGemDistance: 1500
   gemHeightOffset: 1
   generateProps: 1
   propPrefabs:

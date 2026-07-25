@@ -136,14 +136,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69ce417ac0fda4b32b60d48f4a05b25d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SnowMap
-  seed: 4321
+  seed: 2313
   chunksToSpawnAhead: 3
   chunkWidth: 20
   destroyDistanceBehind: 50
   terrainDepth: 1
   blankChunkPrefab: {fileID: 2503069242505576877, guid: eb037fc69c2a24f2e891c4c262d46fa6, type: 3}
   pointSpacing: 1
-  baseAmplitude: 5
+  baseAmplitude: 4
   maxAmplitude: 25
   difficultyScaling: 0.015
   noiseFrequency: 0.03
@@ -177,7 +177,7 @@ MonoBehaviour:
   - {fileID: 1215196087837981991, guid: 0031b0326a4c448849a251bda8213589, type: 3}
   propCheckInterval: 5
   propSpawnProbability: 0.5
-  propYOffset: 0
+  propYOffset: -0.1
   propTerrainAlignment: 0.7
   enableStaticTime: 1
   randomizeTime: 1
@@ -221,18 +221,18 @@ MonoBehaviour:
   icicleYOffset: -1
   generateSnowmen: 1
   snowmanPrefab: {fileID: 9141305696767876709, guid: 378a7443332294fb0b20fb9da29f5ef7, type: 3}
-  minSnowmanDistance: 250
-  maxSnowmanDistance: 600
-  snowmanYOffset: 2
+  minSnowmanDistance: 200
+  maxSnowmanDistance: 500
+  snowmanYOffset: 1.2
   generateGiantSnowballs: 1
   giantSnowballPrefab: {fileID: 3147441054659126348, guid: c6bfe5dadda984fc58e296b52ab02489, type: 3}
-  minSnowballDistance: 200
-  maxSnowballDistance: 500
+  minSnowballDistance: 300
+  maxSnowballDistance: 600
   snowballYOffset: 3
   generateIcePyramids: 1
   iceBlockPrefab: {fileID: 8257311918469748673, guid: c9214c8d44c30416b8a8c5c816e225b8, type: 3}
   minIcePyramidDistance: 150
-  maxIcePyramidDistance: 300
+  maxIcePyramidDistance: 400
   pyramidBaseWidth: 6
   blockWidth: 1
   blockHeight: 1

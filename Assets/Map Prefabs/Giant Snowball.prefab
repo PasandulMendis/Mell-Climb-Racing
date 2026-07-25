@@ -171,7 +171,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GiantSnowball
   wakeUpDistance: 20
   initialPushForce: 1
-  maxScale: 3.5
-  growthRate: 0.1
-  massGrowthMultiplier: 1.1
+  maxScale: 4
+  growthRate: 0.2
+  massGrowthMultiplier: 1.05
   crunchSound: {fileID: 0}

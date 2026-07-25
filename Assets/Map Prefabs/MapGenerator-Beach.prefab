@@ -98,7 +98,7 @@ MonoBehaviour:
   - {fileID: 1215196087837981991, guid: a948b09c76c38415393a15c8a0070da1, type: 3}
   propCheckInterval: 5
   propSpawnProbability: 0.6
-  propYOffset: 0
+  propYOffset: -0.1
   propTerrainAlignment: 0.7
   enableStaticTime: 1
   randomizeTime: 1
@@ -119,7 +119,6 @@ MonoBehaviour:
   nightColors:
     skyColor: {r: 0.1, g: 0.1, b: 0.2, a: 1}
     propTint: {r: 0.3, g: 0.3, b: 0.5, a: 1}
-  fluidTintIntensity: 1.5
   generateFluids: 1
   waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
   sandDunePrefab: {fileID: 8163008081576812170, guid: 9291c836748eb4306a0a145cf9e1778c, type: 3}
