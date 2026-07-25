@@ -72,6 +72,10 @@ public class CarController : MonoBehaviour
     [Tooltip("Drag the UI Coin Icon RectTransform here so coins know where to fly!")]
     public RectTransform targetUIIcon;
 
+    [Header("Lighting")]
+    [Tooltip("Drag the parent object containing your headlight sprites here")]
+    public GameObject headlights;
+
     // Expose RPM for the UI Dashboard
     [HideInInspector] public float currentRPM = 0f;
 
@@ -197,6 +201,17 @@ public class CarController : MonoBehaviour
             {
                 Debug.LogWarning("CarController: Could not find 'CoinIcon' in the scene hierarchy!");
             }
+        }
+
+        // Ensure headlights are off by default when spawning in the garage or normal maps
+        ToggleHeadlights(false);
+    }
+
+    public void ToggleHeadlights(bool state)
+    {
+        if (headlights != null)
+        {
+            headlights.SetActive(state);
         }
     }
 

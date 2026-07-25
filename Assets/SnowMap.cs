@@ -4,6 +4,42 @@ using System.Collections.Generic;
 
 public class SnowMap : MapGenerator
 {
+    public enum TimeOfDay { Dawn, Morning, Noon, Dusk, Night }
+
+    [System.Serializable]
+    public class TimeColors
+    {
+        [Tooltip("Changes the Sky background color")]
+        public Color skyColor;
+        [Tooltip("Multiplies the sprite color to match the lighting")]
+        public Color propTint;
+
+        public TimeColors(Color sky, Color prop)
+        {
+            skyColor = sky;
+            propTint = prop;
+        }
+    }
+
+    [Header("--- TIME OF DAY SETTINGS ---")]
+    public bool enableStaticTime = true;
+    [Tooltip("If true, picks a random time. If false, uses the specific time below.")]
+    public bool randomizeTime = true;
+    public TimeOfDay specificTimeOfDay = TimeOfDay.Noon;
+
+    [Tooltip("Drag your unique white Sky background sprite here!")]
+    public SpriteRenderer skyBackgroundRenderer; 
+    
+    public TimeColors dawnColors = new TimeColors(new Color(0.9f, 0.6f, 0.5f), new Color(0.8f, 0.7f, 0.7f));
+    public TimeColors morningColors = new TimeColors(new Color(0.6f, 0.8f, 1.0f), Color.white);
+    public TimeColors noonColors = new TimeColors(new Color(0.4f, 0.7f, 1.0f), Color.white);
+    public TimeColors duskColors = new TimeColors(new Color(0.7f, 0.4f, 0.6f), new Color(0.7f, 0.5f, 0.6f));
+    public TimeColors nightColors = new TimeColors(new Color(0.1f, 0.1f, 0.2f), new Color(0.3f, 0.3f, 0.5f));
+
+    private Color propTint = Color.white;
+    private bool hasTintedCar = false;
+
+
     [Header("--- SNOW SPECIFIC FEATURES ---")]
     
     [Header("1. Frozen Lakes (Fluid Hazards)")]
@@ -107,9 +143,107 @@ public class SnowMap : MapGenerator
     
     private System.Random runRNG;
 
+    void LateUpdate()
+    {
+        if (enableStaticTime && !hasTintedCar && playerCar != null)
+        {
+            hasTintedCar = true;
+            TintObject(playerCar.gameObject);
+        }
+
+        if (skyBackgroundRenderer != null && Camera.main != null)
+        {
+            Vector3 camPos = Camera.main.transform.position;
+            skyBackgroundRenderer.transform.position = new Vector3(camPos.x, camPos.y, skyBackgroundRenderer.transform.position.z);
+        }
+
+        // FIX: Prevent the cave ceiling from visually disappearing/flickering!
+        // Unity culls SpriteShapeRenderers that are dynamically built because their bounds stay at 0.
+        // We force a massive bounding box on the active ceiling so it always renders on camera.
+        if (currentCeilingObj != null)
+        {
+            SpriteShapeRenderer ceilingSSR = currentCeilingObj.GetComponent<SpriteShapeRenderer>();
+            if (ceilingSSR != null)
+            {
+                ceilingSSR.SetLocalAABB(new Bounds(Vector3.zero, new Vector3(100000f, 10000f, 10000f)));
+            }
+        }
+
+    }
+
+    void SetupTimeOfDay()
+    {
+        TimeOfDay runTime = specificTimeOfDay;
+        if (randomizeTime)
+        {
+            System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
+            runTime = (TimeOfDay)trueTimeRNG.Next(0, 5); 
+        }
+
+        Color skyColor = Color.white;
+        switch (runTime)
+        {
+            case TimeOfDay.Dawn: skyColor = dawnColors.skyColor; propTint = dawnColors.propTint; break;
+            case TimeOfDay.Morning: skyColor = morningColors.skyColor; propTint = morningColors.propTint; break;
+            case TimeOfDay.Noon: skyColor = noonColors.skyColor; propTint = noonColors.propTint; break;
+            case TimeOfDay.Dusk: skyColor = duskColors.skyColor; propTint = duskColors.propTint; break;
+            case TimeOfDay.Night: skyColor = nightColors.skyColor; propTint = nightColors.propTint; break;
+        }
+
+        if (Camera.main != null) Camera.main.backgroundColor = skyColor;
+        if (skyBackgroundRenderer != null) skyBackgroundRenderer.color = skyColor;
+        
+        Debug.Log("Snow Map started at: " + runTime.ToString());
+    }
+
+    void TintObject(GameObject obj)
+    {
+        if (propTint == Color.white) return; 
+        SpriteRenderer[] renderers = obj.GetComponentsInChildren<SpriteRenderer>();
+        foreach (SpriteRenderer sr in renderers) sr.color *= propTint;
+
+        // 2. FIX: Tint SpriteShapes (Frozen Lake surface, Ice Pyramids, etc)
+        SpriteShapeRenderer[] shapeRenderers = obj.GetComponentsInChildren<SpriteShapeRenderer>();
+        foreach (SpriteShapeRenderer ssr in shapeRenderers) 
+        {
+            ssr.color *= propTint;
+        }
+
+        // 3. FIX: Tint Frozen Lakes directly! 
+        // We modify the iceColor variable before Start() runs and builds the mesh.
+        FrozenLake[] lakes = obj.GetComponentsInChildren<FrozenLake>();
+        foreach (FrozenLake lake in lakes)
+        {
+            lake.iceColor *= propTint;
+        }
+
+
+    }
+
+    protected override void OnEnvironmentPropSpawned(GameObject prop)
+    {
+        TintObject(prop);
+    }
+
+    protected override void OnChunkGenerated(GameObject chunk)
+    {
+        SpriteShapeRenderer ssr = chunk.GetComponent<SpriteShapeRenderer>();
+        if (ssr != null)
+        {
+            Color groundTint = Color.Lerp(Color.white, propTint, 0.75f);
+            ssr.color = groundTint;
+        }
+    }
+
+
     protected override void InitializeMap()
     {
         runRNG = new System.Random(seed);
+
+        if (enableStaticTime)
+        {
+            SetupTimeOfDay();
+        }
 
         // Init Lakes
         float rawNextLake = minLakeDistance + (Mathf.PerlinNoise(seed + 1, seed) * (maxLakeDistance - minLakeDistance));
@@ -219,7 +353,8 @@ public class SnowMap : MapGenerator
                 if (iciclePrefab != null && Random.value < icicleSpawnChance)
                 {
                     // FIXED: Added icicleYOffset to prevent the icicle from spawning inside the solid ceiling collider!
-                    Instantiate(iciclePrefab, new Vector3(globalX, ceilingY + icicleYOffset, 0f), Quaternion.identity, chunkParent);
+                    GameObject icicle = Instantiate(iciclePrefab, new Vector3(globalX, ceilingY + icicleYOffset, 0f), Quaternion.identity, chunkParent);
+                    TintObject(icicle);
                 }
 
                 // Cap off the ceiling if the chunk ends OR the tunnel ends!
@@ -279,8 +414,21 @@ public class SnowMap : MapGenerator
                     if (mr != null) mr.sortingOrder = waterSortingOrder;
                     
                     DynamicWater2D fluidScript = fluid.GetComponent<DynamicWater2D>();
-                    if (fluidScript != null) fluidScript.GenerateWater(paddedVisualWidth, paddedVisualDepth, currentLakeWidth);
+                    if (fluidScript != null)
+                    {
+                        if (propTint != Color.white)
+                        {
+                            // FIXED: Added a stronger lerp for the liquid water underneath the ice!
+                            Color fluidFinalTint = Color.LerpUnclamped(Color.white, propTint, 1.2f);
+                            fluidScript.surfaceColor *= fluidFinalTint;
+                            fluidScript.depthColor *= fluidFinalTint;
+
+                        }
+                        fluidScript.GenerateWater(paddedVisualWidth, paddedVisualDepth, currentLakeWidth);
+                    }
                     else fluid.transform.localScale = new Vector3(paddedVisualWidth, paddedVisualDepth, 1f);
+
+                    TintObject(fluid);
                 }
 
                 // 2. Spawn the solid ice sheet on top of the water!
@@ -289,6 +437,7 @@ public class SnowMap : MapGenerator
                     Vector3 icePos = new Vector3(nextLakeX + (currentLakeWidth / 2f), surfaceY, 0f);
                     GameObject iceSheet = Instantiate(frozenLakePrefab, icePos, Quaternion.identity, chunkParent);
                     iceSheet.transform.localScale = new Vector3(currentLakeWidth, 1f, 1f);
+                    TintObject(iceSheet);
 
                     // Link the water to the ice, and turn the water off!
                     FrozenLake iceScript = iceSheet.GetComponent<FrozenLake>();
@@ -330,7 +479,8 @@ public class SnowMap : MapGenerator
         if (generateGiantSnowballs && giantSnowballPrefab != null && globalX >= nextSnowballX)
         {
             Vector3 spawnPos = new Vector3(globalX, originalY + snowballYOffset, 0f);
-            Instantiate(giantSnowballPrefab, spawnPos, Quaternion.identity, chunkParent);
+            GameObject snowball = Instantiate(giantSnowballPrefab, spawnPos, Quaternion.identity, chunkParent);
+            TintObject(snowball);
 
             float nextDist = Mathf.Lerp(minSnowballDistance, maxSnowballDistance, Mathf.PerlinNoise(globalX * 0.1f, seed + 4));
             nextSnowballX = Mathf.Round((globalX + nextDist) / pointSpacing) * pointSpacing;
@@ -350,6 +500,7 @@ public class SnowMap : MapGenerator
             float terrainAngle = Mathf.Atan2((yAhead - yBehind), 0.2f) * Mathf.Rad2Deg;
             
             GameObject snowman = Instantiate(snowmanPrefab, spawnPos, Quaternion.Euler(0f, 0f, terrainAngle), chunkParent);
+            TintObject(snowman);
 
             float nextDist = Mathf.Lerp(minSnowmanDistance, maxSnowmanDistance, Mathf.PerlinNoise(globalX * 0.2f, seed + 5));
             nextSnowmanX = Mathf.Round((globalX + nextDist) / pointSpacing) * pointSpacing;
@@ -382,7 +533,8 @@ public class SnowMap : MapGenerator
                 Vector3 spawnPos = new Vector3(spawnX, currentY, 0f);
                 
                 // FIXED: Removed 'chunkParent' so it is no longer tied to the deleting terrain!
-                Instantiate(iceBlockPrefab, spawnPos, Quaternion.identity); 
+                GameObject iceBlock = Instantiate(iceBlockPrefab, spawnPos, Quaternion.identity);
+                TintObject(iceBlock);
             }
             
             currentY += blockHeight; 
@@ -445,7 +597,11 @@ public class SnowMap : MapGenerator
         {
             Bounds localBounds = new Bounds(currentCeilingSpline.GetPosition(0), Vector3.zero);
             for (int k = 1; k < currentCeilingSpline.GetPointCount(); k++) localBounds.Encapsulate(currentCeilingSpline.GetPosition(k));
-            if (ssc.spriteShapeRenderer != null) ssc.spriteShapeRenderer.SetLocalAABB(localBounds);
+            if (ssc.spriteShapeRenderer != null)
+            {
+                Color groundTint = Color.Lerp(Color.white, propTint, 0.75f);
+                ssc.spriteShapeRenderer.color = groundTint;
+            }
         }
 
         EdgeCollider2D col = currentCeilingObj.GetComponent<EdgeCollider2D>();

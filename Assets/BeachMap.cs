@@ -4,6 +4,42 @@ using System.Collections.Generic;
 
 public class BeachMap : MapGenerator
 {
+        public enum TimeOfDay { Dawn, Morning, Noon, Dusk, Night }
+
+    [System.Serializable]
+    public class TimeColors
+    {
+        [Tooltip("Changes the Sky background color")]
+        public Color skyColor;
+        [Tooltip("Multiplies the sprite color to match the lighting")]
+        public Color propTint;
+
+        public TimeColors(Color sky, Color prop)
+        {
+            skyColor = sky;
+            propTint = prop;
+        }
+    }
+
+    [Header("--- TIME OF DAY SETTINGS ---")]
+    public bool enableStaticTime = true;
+    [Tooltip("If true, picks a random time. If false, uses the specific time below.")]
+    public bool randomizeTime = true;
+    public TimeOfDay specificTimeOfDay = TimeOfDay.Noon;
+
+    [Tooltip("Drag your unique white Sky background sprite here!")]
+    public SpriteRenderer skyBackgroundRenderer; 
+    
+    public TimeColors dawnColors = new TimeColors(new Color(0.9f, 0.6f, 0.5f), new Color(0.8f, 0.7f, 0.7f));
+    public TimeColors morningColors = new TimeColors(new Color(0.6f, 0.8f, 1.0f), Color.white);
+    public TimeColors noonColors = new TimeColors(new Color(0.4f, 0.7f, 1.0f), Color.white);
+    public TimeColors duskColors = new TimeColors(new Color(0.7f, 0.4f, 0.6f), new Color(0.7f, 0.5f, 0.6f));
+    public TimeColors nightColors = new TimeColors(new Color(0.1f, 0.1f, 0.2f), new Color(0.3f, 0.3f, 0.5f));
+
+    private Color propTint = Color.white;
+    private bool hasTintedCar = false;
+
+
     [Header("--- BEACH SPECIFIC FEATURES ---")]
     
     [Header("Fluid Hazards (Water & Sand Dunes)")]
@@ -65,9 +101,78 @@ public class BeachMap : MapGenerator
     
     private System.Random runRNG;
 
+        void LateUpdate()
+    {
+        if (enableStaticTime && !hasTintedCar && playerCar != null)
+        {
+            hasTintedCar = true;
+            TintObject(playerCar.gameObject);
+        }
+
+        if (skyBackgroundRenderer != null && Camera.main != null)
+        {
+            Vector3 camPos = Camera.main.transform.position;
+            skyBackgroundRenderer.transform.position = new Vector3(camPos.x, camPos.y, skyBackgroundRenderer.transform.position.z);
+        }
+    }
+
+    void SetupTimeOfDay()
+    {
+        TimeOfDay runTime = specificTimeOfDay;
+        if (randomizeTime)
+        {
+            System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
+            runTime = (TimeOfDay)trueTimeRNG.Next(0, 5); 
+        }
+
+        Color skyColor = Color.white;
+        switch (runTime)
+        {
+            case TimeOfDay.Dawn: skyColor = dawnColors.skyColor; propTint = dawnColors.propTint; break;
+            case TimeOfDay.Morning: skyColor = morningColors.skyColor; propTint = morningColors.propTint; break;
+            case TimeOfDay.Noon: skyColor = noonColors.skyColor; propTint = noonColors.propTint; break;
+            case TimeOfDay.Dusk: skyColor = duskColors.skyColor; propTint = duskColors.propTint; break;
+            case TimeOfDay.Night: skyColor = nightColors.skyColor; propTint = nightColors.propTint; break;
+        }
+
+        if (Camera.main != null) Camera.main.backgroundColor = skyColor;
+        if (skyBackgroundRenderer != null) skyBackgroundRenderer.color = skyColor;
+        
+        Debug.Log("Beach Map started at: " + runTime.ToString());
+    }
+
+    void TintObject(GameObject obj)
+    {
+        if (propTint == Color.white) return; 
+        SpriteRenderer[] renderers = obj.GetComponentsInChildren<SpriteRenderer>();
+        foreach (SpriteRenderer sr in renderers) sr.color *= propTint;
+    }
+
+    protected override void OnEnvironmentPropSpawned(GameObject prop)
+    {
+        TintObject(prop);
+    }
+
+    protected override void OnChunkGenerated(GameObject chunk)
+    {
+        SpriteShapeRenderer ssr = chunk.GetComponent<SpriteShapeRenderer>();
+        if (ssr != null)
+        {
+            Color groundTint = Color.Lerp(Color.white, propTint, 0.75f);
+            ssr.color = groundTint;
+        }
+    }
+
+
+
     protected override void InitializeMap()
     {
         runRNG = new System.Random(seed);
+
+                if (enableStaticTime)
+        {
+            SetupTimeOfDay();
+        }
 
         // First Fluid (Water/Sand)
         float rawNextFluid = 250f + (Mathf.PerlinNoise(seed + 1, seed) * 100f);
@@ -117,13 +222,25 @@ public class BeachMap : MapGenerator
                     if (mr != null) mr.sortingOrder = waterSortingOrder;
 
                     DynamicWater2D fluidScript = fluid.GetComponent<DynamicWater2D>();
-                    if (fluidScript != null) fluidScript.GenerateWater(paddedVisualWidth, paddedVisualDepth, currentFluidWidth);
+                    if (fluidScript != null)
+                    {
+                        if (propTint != Color.white)
+                        {
+                            fluidScript.surfaceColor *= propTint;
+                            fluidScript.depthColor *= propTint;
+                        }
+                        fluidScript.GenerateWater(paddedVisualWidth, paddedVisualDepth, currentFluidWidth);
+                    }
                     else fluid.transform.localScale = new Vector3(paddedVisualWidth, paddedVisualDepth, 1f);
+
+                    TintObject(fluid);
 
                     // Spawn a Buoy ONLY if it's water!
                     if (!isSandDune && generateBuoys && buoyPrefab != null)
                     {
-                        Instantiate(buoyPrefab, new Vector3(centerPos.x, surfaceY + 1f, 0f), Quaternion.identity, chunkParent);
+                        GameObject buoy = Instantiate(buoyPrefab, new Vector3(centerPos.x, surfaceY + 1f, 0f), Quaternion.identity, chunkParent);
+                        TintObject(buoy);
+
                     }
                 }
             }
@@ -159,7 +276,9 @@ public class BeachMap : MapGenerator
                 for (int g = 0; g < flockSize; g++)
                 {
                     Vector3 skyPos = new Vector3(globalX + Random.Range(-5f, 15f), skyHeight + (g * 1.5f), 0f);
-                    Instantiate(seagullPrefab, skyPos, Quaternion.identity, chunkParent);
+                    GameObject seagull = Instantiate(seagullPrefab, skyPos, Quaternion.identity, chunkParent);
+                    TintObject(seagull);
+
                 }
             }
             nextGullX = Mathf.Round((nextGullX + Mathf.Lerp(minGullDistance, maxGullDistance, Mathf.PerlinNoise(globalX * 0.8f, seed))) / pointSpacing) * pointSpacing;
@@ -173,6 +292,8 @@ public class BeachMap : MapGenerator
                 float ballScale = Random.Range(1f, maxBallScale);
                 GameObject ball = Instantiate(beachBallPrefab, new Vector3(globalX, originalY + (ballScale * 0.5f) + 1f, 0f), Quaternion.identity, chunkParent);
                 ball.transform.localScale = Vector3.one * ballScale;
+                TintObject(ball);
+
             }
             nextBallX = Mathf.Round((nextBallX + Mathf.Lerp(minBallDistance, maxBallDistance, Mathf.PerlinNoise(globalX * 0.5f, seed))) / pointSpacing) * pointSpacing;
             return true;
@@ -194,8 +315,9 @@ public class BeachMap : MapGenerator
                         float startX = globalX - ((coconutsInRow - 1) * spacing * 0.5f);
                         float posX = startX + (c * spacing);
                         float posY = originalY + 1.5f + (r * spacing * 0.85f); 
+                        GameObject coconut = Instantiate(coconutPrefab, new Vector3(posX, posY, 0f), Quaternion.identity, chunkParent);
+                        TintObject(coconut);
 
-                        Instantiate(coconutPrefab, new Vector3(posX, posY, 0f), Quaternion.identity, chunkParent);
                     }
                 }
             }
@@ -206,7 +328,11 @@ public class BeachMap : MapGenerator
         // 4. BOUNCY UMBRELLAS
         if (generateBouncyHazards && Mathf.Abs(globalX - nextBounceX) < 0.01f)
         {
-            if (bouncyHazardPrefab != null) Instantiate(bouncyHazardPrefab, new Vector3(globalX, originalY + bouncyYOffset, 0f), Quaternion.identity, chunkParent);
+            if (bouncyHazardPrefab != null)
+            {
+                GameObject umbrella = Instantiate(bouncyHazardPrefab, new Vector3(globalX, originalY + bouncyYOffset, 0f), Quaternion.identity, chunkParent);
+                TintObject(umbrella);
+            }
             nextBounceX = Mathf.Round((nextBounceX + Mathf.Lerp(minBounceDistance, maxBounceDistance, Mathf.PerlinNoise(globalX * 0.4f, seed))) / pointSpacing) * pointSpacing;
             return true;
         }

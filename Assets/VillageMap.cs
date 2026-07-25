@@ -132,6 +132,8 @@ public class VillageMap : MapGenerator
     private float nextBalloonX;
     private System.Random runRNG;
 
+    private bool isNightTime = false; // NEW: Track if it is currently night!
+
     void LateUpdate()
     {
         // We use LateUpdate to wait for the GameManager to finish spawning the player car
@@ -139,6 +141,13 @@ public class VillageMap : MapGenerator
         {
             hasTintedCar = true;
             TintObject(playerCar.gameObject);
+            
+            // NEW: Turn on headlights if it's night!
+            CarController carScript = playerCar.GetComponent<CarController>();
+            if (carScript != null)
+            {
+                carScript.ToggleHeadlights(isNightTime);
+            }
         }
 
         // Glue the Sky Sprite to the Camera!
@@ -160,6 +169,9 @@ public class VillageMap : MapGenerator
             System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
             runTime = (TimeOfDay)trueTimeRNG.Next(0, 5); 
         }
+        
+        // Record if it is night time for the headlights!
+        isNightTime = (runTime == TimeOfDay.Night);
 
         Color skyColor = Color.white;
 
@@ -220,7 +232,7 @@ public class VillageMap : MapGenerator
         TintObject(prop);
     }
 
-    // NEW: Tint the ground/road but only at 50% intensity for realism!
+    // NEW: Tint the ground/road but only at 75% intensity for realism!
     protected override void OnChunkGenerated(GameObject chunk)
     {
         SpriteShapeRenderer ssr = chunk.GetComponent<SpriteShapeRenderer>();

@@ -43,6 +43,8 @@ public class GarageManager : MonoBehaviour
 
     void Start()
     {
+        Application.targetFrameRate = 60;
+        
         carID = PlayerPrefs.GetInt("SelectedCar", 0);
 
         // --- NEW: Calculate limits dynamically from the assigned prefabs ---

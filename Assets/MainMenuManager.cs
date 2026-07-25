@@ -31,6 +31,8 @@ public class MainMenuManager : MonoBehaviour
 
     void Start()
     {
+        Application.targetFrameRate = 60;
+        
         // Unlock the first car and map by default!
         PlayerPrefs.SetInt("CarUnlocked_0", 1); 
         PlayerPrefs.SetInt("MapUnlocked_0", 1);

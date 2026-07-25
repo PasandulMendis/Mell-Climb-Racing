@@ -50,8 +50,8 @@ MonoBehaviour:
   iceColor: {r: 0.6650944, g: 0.9162736, b: 1, a: 0.8666667}
   iceThickness: 1.5
   iceFriction: 0.05
-  shatterThreshold: 20
-  massShatterThreshold: 40
+  shatterThreshold: 10
+  massShatterThreshold: 20
   shatterParticles: {fileID: 0}
   shatterSound: {fileID: 0}
   creakSound: {fileID: 0}
