@@ -41,6 +41,7 @@ public class VillageMap : MapGenerator
 
     private Color propTint = Color.white;
     private bool hasTintedCar = false;
+    private TimeOfDay activeTimeOfDay; // Tracks what time it is so we can turn on headlights!
 
     [Header("Destructible Bridges")]
     public bool generateBridges = true; 
@@ -132,29 +133,24 @@ public class VillageMap : MapGenerator
     private float nextBalloonX;
     private System.Random runRNG;
 
-    private bool isNightTime = false; // NEW: Track if it is currently night!
-
     void LateUpdate()
     {
-        // We use LateUpdate to wait for the GameManager to finish spawning the player car
         if (enableStaticTime && !hasTintedCar && playerCar != null)
         {
             hasTintedCar = true;
             TintObject(playerCar.gameObject);
-            
-            // NEW: Turn on headlights if it's night!
-            CarController carScript = playerCar.GetComponent<CarController>();
-            if (carScript != null)
+
+            // --- TURN ON HEADLIGHTS IF IT IS NIGHT TIME ---
+            if (activeTimeOfDay == TimeOfDay.Night)
             {
-                carScript.ToggleHeadlights(isNightTime);
+                CarController cc = playerCar.GetComponent<CarController>();
+                if (cc != null) cc.ToggleHeadlights(true);
             }
         }
 
-        // Glue the Sky Sprite to the Camera!
         if (skyBackgroundRenderer != null && Camera.main != null)
         {
             Vector3 camPos = Camera.main.transform.position;
-            // Copy X and Y from the camera, but keep the original Z depth so it stays way in the background!
             skyBackgroundRenderer.transform.position = new Vector3(camPos.x, camPos.y, skyBackgroundRenderer.transform.position.z);
         }
     }
@@ -164,18 +160,13 @@ public class VillageMap : MapGenerator
         TimeOfDay runTime = specificTimeOfDay;
         if (randomizeTime)
         {
-            // FIX: Using system clock ticks for true randomness instead of UnityEngine.Random
-            // which gets locked to the map generation seed by the base MapGenerator class!
             System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
             runTime = (TimeOfDay)trueTimeRNG.Next(0, 5); 
         }
-        
-        // Record if it is night time for the headlights!
-        isNightTime = (runTime == TimeOfDay.Night);
 
+        activeTimeOfDay = runTime;
         Color skyColor = Color.white;
 
-        // Configure the Vibe for the run using Inspector settings
         switch (runTime)
         {
             case TimeOfDay.Dawn:
@@ -200,13 +191,11 @@ public class VillageMap : MapGenerator
                 break;
         }
 
-        // Change the main camera skybox color as a fallback
         if (Camera.main != null)
         {
             Camera.main.backgroundColor = skyColor;
         }
 
-        // Tint the specific Sky Background Sprite
         if (skyBackgroundRenderer != null)
         {
             skyBackgroundRenderer.color = skyColor;
@@ -217,7 +206,7 @@ public class VillageMap : MapGenerator
 
     void TintObject(GameObject obj)
     {
-        if (propTint == Color.white) return; // Save math if it's normal daylight!
+        if (propTint == Color.white) return;
 
         SpriteRenderer[] renderers = obj.GetComponentsInChildren<SpriteRenderer>();
         foreach (SpriteRenderer sr in renderers)
@@ -226,20 +215,17 @@ public class VillageMap : MapGenerator
         }
     }
 
-    // NEW: Automatically tint base environment props (like background trees) as they spawn!
     protected override void OnEnvironmentPropSpawned(GameObject prop)
     {
         TintObject(prop);
     }
 
-    // NEW: Tint the ground/road but only at 75% intensity for realism!
     protected override void OnChunkGenerated(GameObject chunk)
     {
         SpriteShapeRenderer ssr = chunk.GetComponent<SpriteShapeRenderer>();
         if (ssr != null)
         {
-            // Blend halfway between standard white and the time-of-day prop color
-            Color groundTint = Color.Lerp(Color.white, propTint, 0.75f);
+            Color groundTint = Color.Lerp(Color.white, propTint, 0.5f);
             ssr.color = groundTint;
         }
     }
@@ -301,7 +287,6 @@ public class VillageMap : MapGenerator
                 float endY = GetRawTerrainY(nextWaterX + currentWaterWidth);
                 float midY = (startY + endY) / 2f; 
                 
-                // FIX: Dynamic padding!
                 float edgePadding = Mathf.Clamp(currentWaterWidth * 0.2f, 4f, 15f);
                 float paddedVisualWidth = currentWaterWidth + edgePadding;
                 float paddedVisualDepth = (waterDepth * 2f) + 20f; 
@@ -538,7 +523,6 @@ public class VillageMap : MapGenerator
             {
                 fluid.transform.localScale = Vector3.one; 
                 
-                // NEW: Manually tint the water mesh colors before it generates the surface!
                 if (propTint != Color.white)
                 {
                     fluidScript.surfaceColor *= propTint;
@@ -549,7 +533,6 @@ public class VillageMap : MapGenerator
             }
             else fluid.transform.localScale = new Vector3(visualWidth, visualDepth, 1f);
 
-            // Keep the standard TintObject in case there are bubbles/particle Sprites attached to the fluid
             TintObject(fluid);
         }
     }

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1618981065495509087}
-  - component: {fileID: 3336066225909921812}
+  - component: {fileID: 5770568016981269002}
   m_Layer: 0
   m_Name: MapGenerator-Desert
   m_TagString: Untagged
@@ -26,13 +26,13 @@ Transform:
   m_GameObject: {fileID: 8208565040995769957}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 15.56053, y: 0.12489, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3336066225909921812
+--- !u!114 &5770568016981269002
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,64 +41,46 @@ MonoBehaviour:
   m_GameObject: {fileID: 8208565040995769957}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1084b39d10038495f8fe2db019a03a2e, type: 3}
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
-  seed: 1254
-  chunksToSpawnAhead: 3
-  chunkWidth: 20
-  destroyDistanceBehind: 60
-  terrainDepth: 1
-  pointSpacing: 2
-  baseAmplitude: 5
-  maxAmplitude: 25
-  difficultyScaling: 0.02
-  noiseFrequency: 0.05
-  secondaryNoiseFrequency: 0.2
-  secondaryAmplitude: 1
-  blankChunkPrefab: {fileID: 2503069242505576877, guid: a6d24c9f3afe147ecaa1653fde8fae3b, type: 3}
-  coinPrefab: {fileID: 8561688181454407625, guid: e4874a4bc2f634f6482ae386c3bab6be, type: 3}
-  fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
-  generateBridges: 1
-  ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
-  minBridgeGapWidth: 4
-  maxBridgeGapWidth: 8
-  gorgeDepth: 10
-  expectedPlankWidth: 1
-  bridgeYOffset: -0.1
-  generateWaterPools: 1
-  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
-  mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
-  mudProbability: 0.2
-  minWaterWidth: 4
-  maxWaterWidth: 16
-  waterDepth: 1
-  waterLevelOffset: 0
-  waterSortingOrder: 4
-  generateScatterObstacles: 1
-  scatterPrefabs:
-  - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
-  minScatterDistance: 200
-  maxScatterDistance: 300
-  generateBouncyHazards: 1
-  bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
-  minBounceDistance: 200
-  maxBounceDistance: 300
-  generateProps: 1
-  propPrefabs:
-  - {fileID: 1215196087837981991, guid: 019ca537817984573b72f1331bbb4217, type: 3}
-  - {fileID: 1215196087837981991, guid: 4c9df4896981241b1bdbb42fd0a26df7, type: 3}
-  - {fileID: 1215196087837981991, guid: e9cef96bfa38a4e04be603c9fe5a48e5, type: 3}
-  - {fileID: 1215196087837981991, guid: 347bafa140f6348b9b74b368a247cb68, type: 3}
-  - {fileID: 1215196087837981991, guid: 0b6435881a9d14e7b99bc073b837854c, type: 3}
-  - {fileID: 1215196087837981991, guid: 4db6b77a6a7d542d7ba2b7b6d962800a, type: 3}
-  - {fileID: 1215196087837981991, guid: f4f3e2f682a344ad5b99e366e40af8ac, type: 3}
-  - {fileID: 1215196087837981991, guid: a7ccc239fd3a347d0b185ad12fde1b8d, type: 3}
-  - {fileID: 1215196087837981991, guid: ad471efd7f747435ca90d3e631c2aa84, type: 3}
-  - {fileID: 1215196087837981991, guid: c60131e98fc3c4535bf4146ec85bba23, type: 3}
-  - {fileID: 1215196087837981991, guid: 0077620f007684b02b6cc5a6d92e7729, type: 3}
-  - {fileID: 1215196087837981991, guid: 72d7143815d534efcba0310d2e59e5d0, type: 3}
-  propCheckInterval: 4
-  propSpawnProbability: 0.5
-  propYOffset: 0
-  propTerrainAlignment: 0.7
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
+  m_ComponentVersion: 2
+  m_LightType: 4
+  m_BlendStyleIndex: 0
+  m_FalloffIntensity: 0.5
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 1
+  m_LightVolumeIntensity: 1
+  m_LightVolumeEnabled: 0
+  m_ApplyToSortingLayers: 00000000
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowsEnabled: 1
+  m_ShadowIntensity: 0.75
+  m_ShadowSoftness: 0.3
+  m_ShadowSoftnessFalloffIntensity: 0.5
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_LocalBounds:
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 0
+  m_PointLightOuterRadius: 1
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 0.5
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath:
+  - {x: -0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: 0.5, z: 0}
+  - {x: -0.5, y: 0.5, z: 0}

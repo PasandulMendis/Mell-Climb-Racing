@@ -122,6 +122,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8813417419645514786}
+  - {fileID: 3878257559120315995}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-3062720439273241032
@@ -191,25 +192,26 @@ MonoBehaviour:
   propSpawnProbability: 0.6
   propYOffset: -0.1
   propTerrainAlignment: 0.8
+  globalSunLight: {fileID: 7840998910839124782}
   enableStaticTime: 1
   randomizeTime: 1
   specificTimeOfDay: 0
   skyBackgroundRenderer: {fileID: 4705067604519369960}
   dawnColors:
     skyColor: {r: 0.9528302, g: 0.7526495, b: 0.68765575, a: 1}
-    propTint: {r: 0.8, g: 0.7, b: 0.7, a: 1}
+    sunLightColor: {r: 0.8, g: 0.7, b: 0.7, a: 1}
   morningColors:
     skyColor: {r: 0.990566, g: 0.9579849, b: 0.7896493, a: 1}
-    propTint: {r: 1, g: 0.96360296, b: 0.8632076, a: 1}
+    sunLightColor: {r: 1, g: 1, b: 1, a: 1}
   noonColors:
     skyColor: {r: 1, g: 1, b: 1, a: 1}
-    propTint: {r: 1, g: 1, b: 1, a: 1}
+    sunLightColor: {r: 1, g: 1, b: 1, a: 1}
   duskColors:
     skyColor: {r: 0.745283, g: 0.48162156, b: 0.6585522, a: 1}
-    propTint: {r: 0.7, g: 0.5, b: 0.6, a: 1}
+    sunLightColor: {r: 0.7, g: 0.5, b: 0.6, a: 1}
   nightColors:
     skyColor: {r: 0.1, g: 0.1, b: 0.2, a: 1}
-    propTint: {r: 0.3, g: 0.3, b: 0.5, a: 1}
+    sunLightColor: {r: 0.3, g: 0.3, b: 0.5, a: 1}
   generateBridges: 1
   ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
   minBridgeGapWidth: 4
@@ -268,3 +270,88 @@ MonoBehaviour:
   maxBalloonDistance: 500
   minBalloonHeight: 8
   maxBalloonHeight: 12
+--- !u!1001 &1890711164432311800
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1618981065495509087}
+    m_Modifications:
+    - target: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.00000014901161
+      objectReference: {fileID: 0}
+    - target: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8569775313331951318, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_Color.b
+      value: 0.2924528
+      objectReference: {fileID: 0}
+    - target: {fileID: 8569775313331951318, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_Color.g
+      value: 0.2924528
+      objectReference: {fileID: 0}
+    - target: {fileID: 8569775313331951318, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_Color.r
+      value: 0.2924528
+      objectReference: {fileID: 0}
+    - target: {fileID: 8672580109906369325, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+      propertyPath: m_Name
+      value: Global Light 2D
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+--- !u!4 &3878257559120315995 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+  m_PrefabInstance: {fileID: 1890711164432311800}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7840998910839124782 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8569775313331951318, guid: 559857f2088304907b6d87402bcf9108, type: 3}
+  m_PrefabInstance: {fileID: 1890711164432311800}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
