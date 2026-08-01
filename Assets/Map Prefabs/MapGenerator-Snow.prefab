@@ -152,9 +152,9 @@ MonoBehaviour:
   coin5Prefab: {fileID: 3433777762193160581, guid: 59a21b2f944fd4aa196107fcd9fab215, type: 3}
   coin10Prefab: {fileID: 7891165457619460463, guid: 2ce6e76f47f024af2814e1855b0e109f, type: 3}
   coin25Prefab: {fileID: 7891165457619460463, guid: 3dd6e8776bcf948b99a119888b34e74e, type: 3}
-  coinSpacing: 1
-  silverCoinDistance: 1000
-  goldCoinDistance: 2000
+  coinSpacing: 1.5
+  silverCoinDistance: 2000
+  goldCoinDistance: 4000
   tier1GroupSize: 5
   tier2GroupSize: 8
   tier3GroupSize: 12

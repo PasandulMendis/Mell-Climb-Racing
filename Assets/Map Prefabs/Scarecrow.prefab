@@ -229,7 +229,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scarecrow
   hatTransform: {fileID: 7930173595651201298}
-  requiredSpeed: 12
+  requiredSpeed: 10
   triggerDistance: 2
   upwardSpeed: 3
   windSwayAmount: 3

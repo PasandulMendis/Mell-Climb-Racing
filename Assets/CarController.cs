@@ -76,7 +76,16 @@ public class CarController : MonoBehaviour
     [Tooltip("Drag the parent object containing your headlight sprites here")]
     public GameObject headlights;
 
-    // Expose RPM for the UI Dashboard
+    [Header("NEW: Tire Popping (Bear Traps)")]
+    public Sprite flatTireSprite;
+    [Tooltip("How much smaller the tire gets when popped (e.g. 0.75 = 75% of original size)")]
+    public float flatTireScale = 0.75f;
+    [Tooltip("Friction of a popped tire (0.1 = very slippery)")]
+    public float flatTireFriction = 0.1f;
+    
+    private bool backTirePopped = false;
+    private bool frontTirePopped = false;
+
     [HideInInspector] public float currentRPM = 0f;
 
     private int currentNitro;
@@ -84,24 +93,20 @@ public class CarController : MonoBehaviour
     private float nitroTimer = 0f;
 
     private float movementInput;
-    private float rpmCap = 1f; // Ratio of current speed vs absolute max speed
+    private float rpmCap = 1f;
 
-    // Physical ground contact tracking
     private WheelContact backContact;
     private WheelContact frontContact;
     private bool backGrounded = false;
     private bool frontGrounded = false;
 
-    // Stunt State Tracking
     private float totalAirRotation = 0f;
     private float lastZRotation = 0f;
     private bool wasAirborneLastFrame = false;
     
-    // --- NEW: Stunt Counters ---
     private float currentAirTime = 0f;
     private int flipsThisJump = 0;
 
-    // --- NEW: Hype Meter ---
     private float hypeProgress = 0f;
     private bool hasFreeNitro = false;
 
@@ -114,7 +119,6 @@ public class CarController : MonoBehaviour
             frontWheel = allJoints[1];
         }
 
-        // --- Auto-Setup Ground Contact Scripts ---
         if (backWheel != null && backWheel.connectedBody != null)
         {
             backContact = backWheel.connectedBody.gameObject.GetComponent<WheelContact>();
@@ -142,9 +146,8 @@ public class CarController : MonoBehaviour
         {
             speed = engineSpeedLevels[engIdx];
             
-            // --- NEW: Calculate the RPM Limit Ratio based on upgrades! ---
             float absoluteMaxSpeed = engineSpeedLevels[engineSpeedLevels.Length - 1];
-            rpmCap = speed / absoluteMaxSpeed; // e.g., Level 1 = 1500 / 2300 = ~0.65 (65%)
+            rpmCap = speed / absoluteMaxSpeed;
         }
         
         if (fuelCapacityLevels.Length > 0) maxFuel = fuelCapacityLevels[fuelIdx];
@@ -189,7 +192,6 @@ public class CarController : MonoBehaviour
 
         currentNitro = PlayerPrefs.GetInt("NitroAmount", 0);
 
-        // --- THE GENIUS UI FIX ---
         if (targetUIIcon == null)
         {
             GameObject foundIcon = GameObject.Find("CoinIcon");
@@ -203,7 +205,6 @@ public class CarController : MonoBehaviour
             }
         }
 
-        // Ensure headlights are off by default when spawning in the garage or normal maps
         ToggleHeadlights(false);
     }
 
@@ -256,25 +257,22 @@ public class CarController : MonoBehaviour
 
     void HandleAudioAndEffects()
     {
-        // --- DASHBOARD RPM CALCULATION (Engine Load & Fake Gears) ---
         float targetRPM = 0.1f; // Engine idle
 
         if (hasFuel)
         {
             if (isNitroActive)
             {
-                targetRPM = 1.0f * rpmCap; // Nitro pushes engine to its upgrade cap
+                targetRPM = 1.0f * rpmCap;
             }
             else if (movementInput > 0)
             {
                 if (!backGrounded)
                 {
-                    // Engine freely revs to max (limited by upgrades) when in the air!
                     targetRPM = 1.0f * rpmCap; 
                 }
                 else
                 {
-                    // Simulate gears: divide speed into chunks of 10. 
                     float speedMagnitude = carRigidbody.linearVelocity.magnitude;
                     float gearSize = 10f; 
                     float gearProgress = (speedMagnitude % gearSize) / gearSize;
@@ -284,26 +282,21 @@ public class CarController : MonoBehaviour
             }
             else if (movementInput < 0)
             {
-                targetRPM = 0.5f * rpmCap; // Rev slightly when reversing/braking
+                targetRPM = 0.5f * rpmCap;
             }
         }
         
-        // Apply smooth needle movement
         float lerpSpeed = (movementInput > 0 && !backGrounded) ? 15f : 8f;
         currentRPM = Mathf.Lerp(currentRPM, targetRPM, Time.deltaTime * lerpSpeed);
 
-        // --- ENGINE AUDIO ---
         if (engineAudioSource != null)
         {
             if (hasFuel && (GameManager.instance == null || !GameManager.instance.isGameOver))
             {
-                // Tie the audio pitch directly to the RPM needle for realistic gear shifting sounds!
                 float targetPitch = Mathf.Lerp(minPitch, maxPitch, currentRPM);
 
-                // --- REV LIMITER AUDIO BOUNCE ---
                 if (currentRPM >= revLimiterThreshold && movementInput > 0)
                 {
-                    // Rapidly drop the pitch to simulate an engine bouncing off the limiter
                     if (Mathf.PingPong(Time.time * revLimiterBounceSpeed, 1f) > 0.5f)
                     {
                         targetPitch -= revLimiterPitchDrop; 
@@ -318,7 +311,6 @@ public class CarController : MonoBehaviour
             }
         }
 
-        // --- EXHAUST SMOKE ---
         if (exhaustParticleSystem != null)
         {
             var emission = exhaustParticleSystem.emission;
@@ -367,21 +359,19 @@ public class CarController : MonoBehaviour
 
     public void TryActivateNitro()
     {
-        if (isNitroActive) return; // Prevent double-clicking
+        if (isNitroActive) return;
 
         if (hasFreeNitro)
         {
-            // --- USE THE FREE NITRO ---
             hasFreeNitro = false;
-            hypeProgress = 0f; // Reset the meter
+            hypeProgress = 0f;
             if (GameManager.instance != null) GameManager.instance.UpdateHypeUI(0f);
             
-            ActivateNitro(true); // True = Free (Don't consume inventory)
+            ActivateNitro(true);
         }
         else if (currentNitro > 0)
         {
-            // --- USE A PURCHASED NITRO ---
-            ActivateNitro(false); // False = Purchased
+            ActivateNitro(false);
         }
     }
 
@@ -389,7 +379,6 @@ public class CarController : MonoBehaviour
     {
         isNitroActive = true;
         
-        // Only deduct from inventory if it wasn't a free stunt nitro!
         if (!isFree)
         {
             currentNitro--; 
@@ -399,7 +388,6 @@ public class CarController : MonoBehaviour
 
         nitroTimer = nitroDuration;
 
-        // NEW: Track nitro usage!
         if (GameManager.instance != null) GameManager.instance.runNitrosUsed++;
 
         if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
@@ -408,11 +396,10 @@ public class CarController : MonoBehaviour
 
     public void AddHype(float amount)
     {
-        if (hasFreeNitro) return; // Stop filling if it's already full and waiting to be used!
+        if (hasFreeNitro) return;
 
         hypeProgress += amount;
         
-        // Use 0.99f as a safety net against floating-point math rounding errors
         if (hypeProgress >= 0.99f) 
         {
             hypeProgress = 1f;
@@ -432,10 +419,8 @@ public class CarController : MonoBehaviour
 
     void CheckCoinMagnet()
     {
-        // Only run the magnet logic if a UI target has been set!
         if (targetUIIcon == null) return;
 
-        // Draw an invisible circle around the car and grab everything inside it
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, magnetRadius);
         foreach (var hit in hitColliders)
         {
@@ -450,7 +435,6 @@ public class CarController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 1. Gather physics-based ground state from the wheel colliders directly
         backGrounded = backContact != null ? backContact.CheckGrounded() : false;
         frontGrounded = frontContact != null ? frontContact.CheckGrounded() : false;
 
@@ -461,10 +445,8 @@ public class CarController : MonoBehaviour
             return;
         }
 
-        // Both wheels must be fully off the ground for stunt progression and flips
         bool isAirborne = !backGrounded && !frontGrounded;
 
-        // Balancing control is enabled as long as at least ONE wheel is off the ground
         bool canRotate = !backGrounded || !frontGrounded;
 
         if (movementInput != 0)
@@ -507,7 +489,6 @@ public class CarController : MonoBehaviour
             }
         }
 
-        // Apply balancing torque when tilting conditions are met
         if (canRotate)
         {
             float flipTorque = movementInput * rotationSpeed * airRotationMultiplier * carRigidbody.mass * 50f;
@@ -528,7 +509,6 @@ public class CarController : MonoBehaviour
     {
         if (isAirborne)
         {
-            // Just lifted off the ground this exact frame!
             if (!wasAirborneLastFrame)
             {
                 totalAirRotation = 0f;
@@ -537,7 +517,6 @@ public class CarController : MonoBehaviour
                 flipsThisJump = 0;
             }
 
-            // Increment our air timer
             currentAirTime += Time.deltaTime;
 
             float currentZ = transform.eulerAngles.z;
@@ -545,7 +524,6 @@ public class CarController : MonoBehaviour
             totalAirRotation += deltaZ;
             lastZRotation = currentZ;
 
-            // Did we complete a full 360?
             if (Mathf.Abs(totalAirRotation) >= 360f)
             {
                 flipsThisJump++;
@@ -553,25 +531,21 @@ public class CarController : MonoBehaviour
 
                 string flipType = totalAirRotation > 0 ? "Backflip" : "Frontflip";
                 
-                // Talk to the new StuntManager if it exists!
                 if (StuntManager.instance != null)
                 {
                     StuntManager.instance.ProcessFlip(flipType, flipsThisJump, transform.position);
                 }
                 else 
                 {
-                    // Fallback to old basic reward if manager is missing
                     if (GameManager.instance != null) GameManager.instance.AddCoins(flipCoinBonus);
                     if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
                 }
 
-                // Reset rotation tracker for the *next* flip in this jump
                 totalAirRotation -= Mathf.Sign(totalAirRotation) * 360f;
             }
         }
         else
         {
-            // Just landed on the ground this exact frame!
             if (wasAirborneLastFrame)
             {
                 if (StuntManager.instance != null)
@@ -605,18 +579,61 @@ public class CarController : MonoBehaviour
 
         if (!hitGround && MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared);
     }
+
+    // --- NEW: TIRE POPPING LOGIC ---
+    public bool PopTire(GameObject tireObject)
+    {
+        bool isBackWheel = (backWheel != null && tireObject == backWheel.connectedBody.gameObject);
+        bool isFrontWheel = (frontWheel != null && tireObject == frontWheel.connectedBody.gameObject);
+
+        bool poppedThisFrame = false;
+
+        if (isBackWheel && !backTirePopped)
+        {
+            backTirePopped = true;
+            ApplyFlatTire(backWheel.connectedBody.gameObject);
+            poppedThisFrame = true;
+        }
+        else if (isFrontWheel && !frontTirePopped)
+        {
+            frontTirePopped = true;
+            ApplyFlatTire(frontWheel.connectedBody.gameObject);
+            poppedThisFrame = true;
+        }
+
+        if (poppedThisFrame)
+        {
+            if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry, true, false);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void ApplyFlatTire(GameObject wheelObj)
+    {
+        SpriteRenderer sr = wheelObj.GetComponent<SpriteRenderer>();
+        if (sr != null && flatTireSprite != null) sr.sprite = flatTireSprite;
+
+        CircleCollider2D col = wheelObj.GetComponent<CircleCollider2D>();
+        if (col != null) col.radius *= flatTireScale;
+
+        if (col != null)
+        {
+            PhysicsMaterial2D flatMat = new PhysicsMaterial2D("FlatTire");
+            flatMat.friction = flatTireFriction;
+            flatMat.bounciness = 0f;
+            col.sharedMaterial = flatMat;
+        }
+    }
 }
 
-// --- CRITICAL HELPER COMPONENT FOR BULLETPROOF GROUND DETECTION ---
-// (Make sure you don't miss copying this part at the very bottom!)
 public class WheelContact : MonoBehaviour
 {
     private bool touchedThisFrame = false;
 
-    // Fired by Unity's physics system when a physical wheel collider is touching anything
     void OnCollisionStay2D(Collision2D collision)
     {
-        // Ignore colliders on the player's chassis or child components (like the car's own frame)
         if (!collision.collider.CompareTag("Player") && !collision.collider.transform.IsChildOf(transform.root))
         {
             touchedThisFrame = true;
@@ -626,7 +643,7 @@ public class WheelContact : MonoBehaviour
     public bool CheckGrounded()
     {
         bool wasGrounded = touchedThisFrame;
-        touchedThisFrame = false; // Reset for next FixedUpdate cycle
+        touchedThisFrame = false;
         return wasGrounded;
     }
 }

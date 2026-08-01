@@ -169,6 +169,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2d552ced4a224bf5907453fc3e21089, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RunawayLivestock
-  wakeUpDistance: 30
+  wakeUpDistance: 20
   rollTorque: 30
   animalSound: {fileID: 0}

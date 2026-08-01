@@ -532,7 +532,6 @@ public class VillageMap : MapGenerator
                 fluidScript.GenerateWater(visualWidth, visualDepth, physicsWidth);
             }
             else fluid.transform.localScale = new Vector3(visualWidth, visualDepth, 1f);
-
             TintObject(fluid);
         }
     }

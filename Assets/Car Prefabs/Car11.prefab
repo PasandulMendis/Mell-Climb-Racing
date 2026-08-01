@@ -15652,6 +15652,9 @@ MonoBehaviour:
   magnetRadius: 0
   targetUIIcon: {fileID: 0}
   headlights: {fileID: 2440860835194561389}
+  flatTireSprite: {fileID: 671675061935861785, guid: dca611a4332d44438b169f853494564e, type: 3}
+  flatTireScale: 0.35
+  flatTireFriction: 0.1
   currentRPM: 0
 --- !u!114 &7891034384017083176
 MonoBehaviour:

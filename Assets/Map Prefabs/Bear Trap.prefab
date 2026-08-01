@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1748256950286759179
+--- !u!1 &1342699097232318103
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,24 +8,24 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4589859260946509928}
-  - component: {fileID: 103783216509587457}
-  - component: {fileID: 8671174346268904298}
-  - component: {fileID: 3966351010355339842}
+  - component: {fileID: 163438443402203450}
+  - component: {fileID: 8812805840950982720}
+  - component: {fileID: 1985684980939744817}
+  - component: {fileID: 9155266777130953786}
   m_Layer: 0
-  m_Name: Hay_bounce 1
+  m_Name: Bear Trap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4589859260946509928
+--- !u!4 &163438443402203450
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1748256950286759179}
+  m_GameObject: {fileID: 1342699097232318103}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -34,14 +34,14 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &103783216509587457
+--- !u!212 &8812805840950982720
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1748256950286759179}
+  m_GameObject: {fileID: 1342699097232318103}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -83,23 +83,38 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 256841724289809799, guid: 39e62a89f568645f99bf042c12aa705d, type: 3}
+  m_Sprite: {fileID: 8202510871784493195, guid: a2d98b24e900346698980c22385889b4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 4.615, y: 2.315}
+  m_Size: {x: 2.5, y: 1.58}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!60 &8671174346268904298
-PolygonCollider2D:
+--- !u!114 &1985684980939744817
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1748256950286759179}
+  m_GameObject: {fileID: 1342699097232318103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac224923db5864d3dbf59617ce902ce0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BearTrap
+  closedTrapSprite: {fileID: 7789954382014379053, guid: d8f677e50b1d74da3bb5bd18164d0ba8, type: 3}
+  snapSound: {fileID: 0}
+  tirePopSound: {fileID: 8300000, guid: a9f0e4e188e2e44f2b81142fd8e028b0, type: 3}
+--- !u!61 &9155266777130953786
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1342699097232318103}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -131,46 +146,11 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.3333333, y: 0.85333335}
-    newSize: {x: 4.615, y: 2.315}
+    oldSize: {x: 0.8333333, y: 0.52666664}
+    newSize: {x: 2.5, y: 1.58}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 1.1779374, y: -0.37459517}
-      - {x: 1.6967816, y: -0.34194314}
-      - {x: 1.5684601, y: -0.18961984}
-      - {x: 0.92104673, y: 0.15722793}
-      - {x: 0.58774483, y: 0.31411397}
-      - {x: 0.16764715, y: 0.39060768}
-      - {x: -0.40250152, y: 0.35453928}
-      - {x: -0.6190211, y: 0.29355362}
-      - {x: -0.90234333, y: 0.17436558}
-      - {x: -1.2076164, y: 0.039994642}
-      - {x: -1.4359406, y: -0.15186837}
-      - {x: -1.6519208, y: -0.28702003}
-      - {x: -1.5783688, y: -0.35970652}
-      - {x: -1.2727437, y: -0.4027437}
-  m_UseDelaunayMesh: 1
---- !u!114 &3966351010355339842
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1748256950286759179}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a7619e721ca0415ebf550c85b836fda, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BouncyHazard
-  baseBounceForce: 10
-  forwardBounceForce: 5
-  fallingVelocityMultiplier: 1
-  maxBounceForce: 20
-  bounceSound: {fileID: 0}
-  bounceParticles: {fileID: 0}
-  squishAmount: 0.5
-  squishSpeed: 15
+  m_Size: {x: 0.8333333, y: 0.52666664}
+  m_EdgeRadius: 0

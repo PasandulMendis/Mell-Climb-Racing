@@ -133,17 +133,17 @@ MonoBehaviour:
   generateBouncyHazards: 1
   bouncyHazardPrefab: {fileID: 8528793906568397152, guid: b95011aec594a449894de1c9bfff2f40, type: 3}
   minBounceDistance: 250
-  maxBounceDistance: 450
-  bouncyYOffset: 0
+  maxBounceDistance: 400
+  bouncyYOffset: 0.15
   generateBeachBalls: 1
   beachBallPrefab: {fileID: 8469514753024041681, guid: e64d03e92b0364158841145a9bfba552, type: 3}
-  minBallDistance: 250
-  maxBallDistance: 500
-  maxBallScale: 2
+  minBallDistance: 300
+  maxBallDistance: 600
+  maxBallScale: 1.5
   generateSeagulls: 1
   seagullPrefab: {fileID: 2135442089159442557, guid: 62872b4e236bd401daf490dd992b0366, type: 3}
   minGullDistance: 300
-  maxGullDistance: 600
+  maxGullDistance: 700
   minGullHeight: 10
   maxGullHeight: 15
   generateCoconuts: 1

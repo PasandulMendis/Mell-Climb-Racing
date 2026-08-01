@@ -192,26 +192,25 @@ MonoBehaviour:
   propSpawnProbability: 0.6
   propYOffset: -0.1
   propTerrainAlignment: 0.8
-  globalSunLight: {fileID: 7840998910839124782}
   enableStaticTime: 1
   randomizeTime: 1
   specificTimeOfDay: 0
   skyBackgroundRenderer: {fileID: 4705067604519369960}
   dawnColors:
     skyColor: {r: 0.9528302, g: 0.7526495, b: 0.68765575, a: 1}
-    sunLightColor: {r: 0.8, g: 0.7, b: 0.7, a: 1}
+    propTint: {r: 0.8, g: 0.7, b: 0.7, a: 1}
   morningColors:
     skyColor: {r: 0.990566, g: 0.9579849, b: 0.7896493, a: 1}
-    sunLightColor: {r: 1, g: 1, b: 1, a: 1}
+    propTint: {r: 1, g: 1, b: 1, a: 1}
   noonColors:
     skyColor: {r: 1, g: 1, b: 1, a: 1}
-    sunLightColor: {r: 1, g: 1, b: 1, a: 1}
+    propTint: {r: 1, g: 1, b: 1, a: 1}
   duskColors:
     skyColor: {r: 0.745283, g: 0.48162156, b: 0.6585522, a: 1}
-    sunLightColor: {r: 0.7, g: 0.5, b: 0.6, a: 1}
+    propTint: {r: 0.7, g: 0.5, b: 0.6, a: 1}
   nightColors:
     skyColor: {r: 0.1, g: 0.1, b: 0.2, a: 1}
-    sunLightColor: {r: 0.3, g: 0.3, b: 0.5, a: 1}
+    propTint: {r: 0.3, g: 0.3, b: 0.5, a: 1}
   generateBridges: 1
   ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
   minBridgeGapWidth: 4
@@ -235,9 +234,9 @@ MonoBehaviour:
   maxScatterDistance: 200
   generateBouncyHazards: 1
   bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
-  minBounceDistance: 300
-  maxBounceDistance: 500
-  bouncyYOffset: 0.1
+  minBounceDistance: 100
+  maxBounceDistance: 200
+  bouncyYOffset: 0
   generateJellyObstacles: 1
   jellyObstaclePrefabs:
   - {fileID: 1215196087837981991, guid: dc746bdc8e6da4604b88c820a50fad1a, type: 3}
@@ -344,14 +343,3 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3454104211741828003, guid: 559857f2088304907b6d87402bcf9108, type: 3}
   m_PrefabInstance: {fileID: 1890711164432311800}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7840998910839124782 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8569775313331951318, guid: 559857f2088304907b6d87402bcf9108, type: 3}
-  m_PrefabInstance: {fileID: 1890711164432311800}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
