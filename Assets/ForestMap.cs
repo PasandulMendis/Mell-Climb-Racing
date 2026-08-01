@@ -82,6 +82,13 @@ public class ForestMap : MapGenerator
     [Tooltip("Adjust to bury the trap slightly into the dirt so it's harder to see!")]
     public float trapYOffset = -0.2f;
 
+    [Header("NEW: Speed Shrooms (Boosters)")]
+    public bool generateSpeedShrooms = true;
+    public GameObject speedShroomPrefab;
+    public float minShroomDistance = 300f;
+    public float maxShroomDistance = 600f;
+    [Tooltip("Adjust if the mushroom needs to sit higher or lower on the ground")]
+    public float shroomYOffset = 0f;
 
     private float nextBridgeX;
     private float currentBridgeGapWidth;
@@ -90,6 +97,7 @@ public class ForestMap : MapGenerator
     private bool isBuildingWater = false;
     private float nextBounceX; 
     private float nextTrapX; 
+    private float nextShroomX; // Added state tracker for shrooms
     private System.Random runRNG;
 
     void LateUpdate()
@@ -213,6 +221,9 @@ public class ForestMap : MapGenerator
         float rawNextTrap = minTrapDistance + (Mathf.PerlinNoise(seed + 4, seed) * 50f);
         nextTrapX = Mathf.Round(rawNextTrap / pointSpacing) * pointSpacing;
 
+        // NEW: Initialize the first Speed Shroom position
+        float rawNextShroom = minShroomDistance + (Mathf.PerlinNoise(seed + 5, seed) * 100f);
+        nextShroomX = Mathf.Round(rawNextShroom / pointSpacing) * pointSpacing;
     }
 
     protected override bool ProcessTerrainSpline(float globalX, float localX, float originalY, ref float finalY, Spline spline, List<Vector2> physicsPoints, ref int pointIndex, int i, int numSurfacePoints, Transform chunkParent, out bool isHazardZone)
@@ -357,6 +368,43 @@ public class ForestMap : MapGenerator
                 TintObject(bouncy);
             }
             nextBounceX = Mathf.Round((nextBounceX + Mathf.Lerp(minBounceDistance, maxBounceDistance, Mathf.PerlinNoise(globalX * 0.4f, seed))) / pointSpacing) * pointSpacing;
+            return true;
+        }
+
+        // NEW: Check and place Speed Shrooms
+        bool isShroomPoint = generateSpeedShrooms && Mathf.Abs(globalX - nextShroomX) < 0.01f;
+        if (isShroomPoint)
+        {
+            if (speedShroomPrefab != null)
+            {
+                GameObject shroom = Instantiate(speedShroomPrefab, new Vector3(globalX, originalY + shroomYOffset, 0f), Quaternion.identity, chunkParent);
+                
+                SpeedShroom shroomScript = shroom.GetComponent<SpeedShroom>();
+                Color originalGlowColor = Color.white;
+
+                if (shroomScript != null)
+                {
+                    shroomScript.isActiveAtNight = (activeTimeOfDay == TimeOfDay.Night);
+                    
+                    // Save the original bright color of the glow sprite before we tint it
+                    if (shroomScript.glowRenderer != null)
+                    {
+                        originalGlowColor = shroomScript.glowRenderer.color;
+                    }
+                }
+
+                // ALWAYS tint the shroom so the base sprite matches the environment (day or night)
+                TintObject(shroom);
+
+                // If it is night, restore the glow sprite's original bright color so the glow isn't darkened!
+                if (activeTimeOfDay == TimeOfDay.Night && shroomScript != null && shroomScript.glowRenderer != null)
+                {
+                    shroomScript.glowRenderer.color = originalGlowColor;
+                }
+            }
+            
+            // Calculate when the next shroom should spawn based on perlin noise
+            nextShroomX = Mathf.Round((nextShroomX + Mathf.Lerp(minShroomDistance, maxShroomDistance, Mathf.PerlinNoise(globalX * 0.85f, seed))) / pointSpacing) * pointSpacing;
             return true;
         }
 

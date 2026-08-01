@@ -81,12 +81,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -100
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 5769939544311634750, guid: 8da72ce39f60e4d76bca748e4fe719ee, type: 3}
+  m_Sprite: {fileID: 5769939544311634750, guid: 45abf912dc20246b3a5e89bb40248442, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 19.2, y: 10.72}
+  m_Size: {x: 19.2, y: 11.31}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -142,10 +142,10 @@ MonoBehaviour:
   destroyDistanceBehind: 60
   terrainDepth: 2
   blankChunkPrefab: {fileID: 2503069242505576877, guid: 78bc2df6de1b3435d9f9adb7ad7fd37d, type: 3}
-  pointSpacing: 1
-  baseAmplitude: 4
-  maxAmplitude: 20
-  difficultyScaling: 0.02
+  pointSpacing: 0.5
+  baseAmplitude: 2
+  maxAmplitude: 10
+  difficultyScaling: 0.01
   noiseFrequency: 0.05
   secondaryNoiseFrequency: 0.2
   secondaryAmplitude: 1
@@ -234,10 +234,15 @@ MonoBehaviour:
   bouncyHazardPrefab: {fileID: 8528793906568397152, guid: c83465cc887074fc8a5777ae31a48302, type: 3}
   minBounceDistance: 200
   maxBounceDistance: 400
-  bouncyYOffset: 0.15
+  bouncyYOffset: 0.1
   alignBouncyToTerrain: 1
   generateBearTraps: 1
   bearTrapPrefab: {fileID: 1342699097232318103, guid: 4a773e86ef50541b4ba8b92339f5fc6f, type: 3}
-  minTrapDistance: 10
-  maxTrapDistance: 40
+  minTrapDistance: 400
+  maxTrapDistance: 900
   trapYOffset: 0.2
+  generateSpeedShrooms: 1
+  speedShroomPrefab: {fileID: 5018396568356853756, guid: e0c317d32207a443585c19cad6829825, type: 3}
+  minShroomDistance: 30
+  maxShroomDistance: 100
+  shroomYOffset: 1
