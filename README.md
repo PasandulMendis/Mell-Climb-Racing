@@ -6,13 +6,13 @@
 **Goal:** Create different interactive maps.
 
 ### Tasks
-- [] Village
-- [] Beach
-- [] Snow
-- [] Forest
-- [] Desert
-- [] CyberCity
-- [] Museum
+- [x] Village
+- [x] Beach
+- [x] Snow
+- [x] Forest
+- [ ] Desert
+- [ ] CyberCity
+- [ ] Museum
 
 ---
 
@@ -21,40 +21,40 @@
 
 ### Tasks
 - VillageMap
-              - [] Windmills
-              - [] Scarecrows
-              - [] Runaway Livestock (hay)
-              - [] Air Balloons
+  - [x] Windmills
+  - [x] Scarecrows
+  - [x] Runaway Livestock (hay)
+  - [x] Air Balloons
 - Beach
-              - [] Seagulls
-              - [] Coconut piles
-              - [] Giant Beachballs
-              - [] Bouys
+  - [x] Seagulls
+  - [x] Coconut piles
+  - [x] Giant Beachballs
+  - [x] Bouys
 - Snow
-              - [] Snowman
-              - [] Giant Snowballs
-              - [] Ice Block Pyramids
-              - [] Frozen Lakes
-              - [] Snow Tunnels
-- Foest
-              - [] SpeedShrooms
-              - [] Giant Seesaws
-              - [] Bee Hives
+  - [x] Snowman
+  - [x] Giant Snowballs
+  - [x] Ice Block Pyramids
+  - [x] Frozen Lakes
+  - [x] Snow Tunnels
+- Forest
+  - [x] SpeedShrooms
+  - [x] Giant Seesaws
+  - [x] Bee Hives
 - Desert
-              - [] (adding soon)
-              - [] (adding soon)
-              - [] (adding soon)
-              - [] (adding soon)
+  - [ ] (adding soon)
+  - [ ] (adding soon)
+  - [ ] (adding soon)
+  - [ ] (adding soon)
 - CyberCity
-              - [] (adding soon)
-              - [] (adding soon)
-              - [] (adding soon)
-              - [] (adding soon)
+  - [ ] (adding soon)
+  - [ ] (adding soon)
+  - [ ] (adding soon)
+  - [ ] (adding soon)
 - Museum
-              - [] (adding soon)
-              - [] (adding soon)
-              - [] (adding soon)
-              - [] (adding soon)
+  - [ ] (adding soon)
+  - [ ] (adding soon)
+  - [ ] (adding soon)
+  - [ ] (adding soon)
 
 ---
 
@@ -62,30 +62,32 @@
 **Goal:** Build the best Unique User interface
 
 ### Tasks
-[] Pause Menu
-[] Garage Menu
-[]Main Menu
-[] GameScreen Menu
+- [ ] Pause Menu
+- [ ] Garage Menu
+- [ ] Main Menu
+- [ ] GameScreen Menu
 
 ---
 
 ## Vehicles
 **Goal:** Add more Rides.
 
-[] Pickup Truck
-[] Mini
-[] Bus
-[] F1
-[] Monster. Truck
-[] Van
-[] Rocket Car
+### Tasks
+- [ ] Pickup Truck
+- [ ] Mini
+- [ ] Bus
+- [ ] F1
+- [ ] Monster Truck
+- [ ] Van
+- [ ] Rocket Car
 
+---
 
 ## Audio & Final Polish
-**Goal:** Make the game audio"
+**Goal:** Make the game audio polished.
 
 ### Tasks
-[] Add looping Engine sounds
-[] Add UI sounds
-[] Add Ambient music
-[] Add sound for each map feature
+- [ ] Add looping Engine sounds
+- [ ] Add UI sounds
+- [ ] Add Ambient music
+- [ ] Add sound for each map feature
