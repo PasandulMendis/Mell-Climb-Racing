@@ -246,3 +246,13 @@ MonoBehaviour:
   minShroomDistance: 30
   maxShroomDistance: 100
   shroomYOffset: 1
+  generateSeesaws: 1
+  seesawPrefab: {fileID: 3291331663529566121, guid: 19c974031be064555a708dcbd8ad04ca, type: 3}
+  minSeesawDistance: 300
+  maxSeesawDistance: 500
+  seesawYOffset: 1
+  generateBeeHives: 1
+  beeHivePrefab: {fileID: 5478303298373308550, guid: 67230305eef0f4e38a0d381a264a9a95, type: 3}
+  minHiveDistance: 200
+  maxHiveDistance: 400
+  hiveYOffset: 1

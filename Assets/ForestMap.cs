@@ -90,6 +90,23 @@ public class ForestMap : MapGenerator
     [Tooltip("Adjust if the mushroom needs to sit higher or lower on the ground")]
     public float shroomYOffset = 0f;
 
+    [Header("NEW: Giant Seesaws")]
+    public bool generateSeesaws = true;
+    public GameObject seesawPrefab;
+    public float minSeesawDistance = 350f;
+    public float maxSeesawDistance = 750f;
+    [Tooltip("Adjust to bury the rock base slightly into the dirt")]
+    public float seesawYOffset = -0.5f;
+
+    [Header("NEW: Bee Hives (Fuel Drain)")]
+    public bool generateBeeHives = true;
+    public GameObject beeHivePrefab;
+    public float minHiveDistance = 450f;
+    public float maxHiveDistance = 850f;
+    [Tooltip("Adjust to make the hive sit in the grass or float slightly above the road!")]
+    public float hiveYOffset = 0.2f;
+
+
     private float nextBridgeX;
     private float currentBridgeGapWidth;
     private float nextWaterX;
@@ -97,7 +114,9 @@ public class ForestMap : MapGenerator
     private bool isBuildingWater = false;
     private float nextBounceX; 
     private float nextTrapX; 
-    private float nextShroomX; // Added state tracker for shrooms
+    private float nextShroomX; 
+    private float nextSeesawX; 
+    private float nextHiveX; // Tracker for the Bee Hives
     private System.Random runRNG;
 
     void LateUpdate()
@@ -170,7 +189,8 @@ public class ForestMap : MapGenerator
         Debug.Log("Forest Map started at: " + runTime.ToString());
     }
 
-    void TintObject(GameObject obj)
+    // --- NEW: Changed to 'public' so BeeHives can access it when spawning bees mid-game! ---
+    public void TintObject(GameObject obj)
     {
         if (propTint == Color.white) return;
 
@@ -178,6 +198,13 @@ public class ForestMap : MapGenerator
         foreach (SpriteRenderer sr in renderers)
         {
             sr.color *= propTint;
+        }
+
+        // --- NEW: Also tint Sprite Shapes! (This fixes the Mud/Fluid hazards if they use Sprite Shapes) ---
+        SpriteShapeRenderer[] shapeRenderers = obj.GetComponentsInChildren<SpriteShapeRenderer>();
+        foreach (SpriteShapeRenderer ssr in shapeRenderers)
+        {
+            ssr.color *= propTint;
         }
     }
 
@@ -193,6 +220,16 @@ public class ForestMap : MapGenerator
         {
             Color groundTint = Color.Lerp(Color.white, propTint, 0.75f);
             ssr.color = groundTint;
+        }
+
+        int groundLayer = LayerMask.NameToLayer("Ground");
+        if (groundLayer != -1)
+        {
+            chunk.layer = groundLayer;
+            foreach (Transform child in chunk.transform)
+            {
+                child.gameObject.layer = groundLayer;
+            }
         }
     }
 
@@ -221,9 +258,15 @@ public class ForestMap : MapGenerator
         float rawNextTrap = minTrapDistance + (Mathf.PerlinNoise(seed + 4, seed) * 50f);
         nextTrapX = Mathf.Round(rawNextTrap / pointSpacing) * pointSpacing;
 
-        // NEW: Initialize the first Speed Shroom position
         float rawNextShroom = minShroomDistance + (Mathf.PerlinNoise(seed + 5, seed) * 100f);
         nextShroomX = Mathf.Round(rawNextShroom / pointSpacing) * pointSpacing;
+
+        float rawNextSeesaw = minSeesawDistance + (Mathf.PerlinNoise(seed + 6, seed) * 150f);
+        nextSeesawX = Mathf.Round(rawNextSeesaw / pointSpacing) * pointSpacing;
+
+        // Initialize the first Bee Hive position
+        float rawNextHive = minHiveDistance + (Mathf.PerlinNoise(seed + 7, seed) * 100f);
+        nextHiveX = Mathf.Round(rawNextHive / pointSpacing) * pointSpacing;
     }
 
     protected override bool ProcessTerrainSpline(float globalX, float localX, float originalY, ref float finalY, Spline spline, List<Vector2> physicsPoints, ref int pointIndex, int i, int numSurfacePoints, Transform chunkParent, out bool isHazardZone)
@@ -371,7 +414,6 @@ public class ForestMap : MapGenerator
             return true;
         }
 
-        // NEW: Check and place Speed Shrooms
         bool isShroomPoint = generateSpeedShrooms && Mathf.Abs(globalX - nextShroomX) < 0.01f;
         if (isShroomPoint)
         {
@@ -385,26 +427,46 @@ public class ForestMap : MapGenerator
                 if (shroomScript != null)
                 {
                     shroomScript.isActiveAtNight = (activeTimeOfDay == TimeOfDay.Night);
-                    
-                    // Save the original bright color of the glow sprite before we tint it
-                    if (shroomScript.glowRenderer != null)
-                    {
-                        originalGlowColor = shroomScript.glowRenderer.color;
-                    }
+                    if (shroomScript.glowRenderer != null) originalGlowColor = shroomScript.glowRenderer.color;
                 }
 
-                // ALWAYS tint the shroom so the base sprite matches the environment (day or night)
+                // Always tint the shroom so the base sprite gets dark!
                 TintObject(shroom);
 
-                // If it is night, restore the glow sprite's original bright color so the glow isn't darkened!
+                // If it is night time, instantly restore ONLY the glow sprite back to its full brightness!
                 if (activeTimeOfDay == TimeOfDay.Night && shroomScript != null && shroomScript.glowRenderer != null)
                 {
                     shroomScript.glowRenderer.color = originalGlowColor;
                 }
             }
             
-            // Calculate when the next shroom should spawn based on perlin noise
             nextShroomX = Mathf.Round((nextShroomX + Mathf.Lerp(minShroomDistance, maxShroomDistance, Mathf.PerlinNoise(globalX * 0.85f, seed))) / pointSpacing) * pointSpacing;
+            return true;
+        }
+
+        bool isSeesawPoint = generateSeesaws && Mathf.Abs(globalX - nextSeesawX) < 0.01f;
+        if (isSeesawPoint)
+        {
+            if (seesawPrefab != null)
+            {
+                GameObject seesaw = Instantiate(seesawPrefab, new Vector3(globalX, originalY + seesawYOffset, 0f), Quaternion.identity, chunkParent);
+                TintObject(seesaw);
+            }
+            nextSeesawX = Mathf.Round((nextSeesawX + Mathf.Lerp(minSeesawDistance, maxSeesawDistance, Mathf.PerlinNoise(globalX * 0.95f, seed))) / pointSpacing) * pointSpacing;
+            return true;
+        }
+
+        // NEW: Check and place Bee Hives
+        bool isHivePoint = generateBeeHives && Mathf.Abs(globalX - nextHiveX) < 0.01f;
+        if (isHivePoint)
+        {
+            if (beeHivePrefab != null)
+            {
+                GameObject hive = Instantiate(beeHivePrefab, new Vector3(globalX, originalY + hiveYOffset, 0f), Quaternion.identity, chunkParent);
+                TintObject(hive);
+            }
+            // Calculate when the next hive should spawn
+            nextHiveX = Mathf.Round((nextHiveX + Mathf.Lerp(minHiveDistance, maxHiveDistance, Mathf.PerlinNoise(globalX * 0.55f, seed))) / pointSpacing) * pointSpacing;
             return true;
         }
 
