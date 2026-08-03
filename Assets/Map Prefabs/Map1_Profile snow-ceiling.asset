@@ -17,8 +17,13 @@ MonoBehaviour:
     m_End: 161
     m_Order: 0
     m_Sprites: []
-  - m_Start: -89
-    m_End: 89
+  - m_Start: -90
+    m_End: 90
+    m_Order: 0
+    m_Sprites:
+    - {fileID: -39669918452363021, guid: 2f2a46d25c81948df9ade2fac2357231, type: 3}
+  - m_Start: 161
+    m_End: 270
     m_Order: 0
     m_Sprites:
     - {fileID: -39669918452363021, guid: 2f2a46d25c81948df9ade2fac2357231, type: 3}

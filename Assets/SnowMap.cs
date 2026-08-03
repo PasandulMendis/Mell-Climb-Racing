@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.U2D; 
 using System.Collections.Generic;
+using System.Linq; // Added for Reverse()
 
 public class SnowMap : MapGenerator
 {
@@ -47,9 +48,9 @@ public class SnowMap : MapGenerator
     public GameObject waterPoolPrefab;
     public GameObject frozenLakePrefab;
     [Tooltip("Minimum distance between lakes")]
-    public float minLakeDistance = 300f; // <-- NEW
+    public float minLakeDistance = 300f; 
     [Tooltip("Maximum distance between lakes")]
-    public float maxLakeDistance = 700f; // <-- NEW
+    public float maxLakeDistance = 700f; 
     public float minLakeWidth = 15f;
     public float maxLakeWidth = 40f;
     public float lakeDepth = 8f;
@@ -118,7 +119,6 @@ public class SnowMap : MapGenerator
 
     // Feature Trackers
     private float nextSnowballX;
-
     private float nextSnowmanX;
 
     // Fluid Trackers
@@ -139,9 +139,12 @@ public class SnowMap : MapGenerator
     private GameObject currentCeilingObj;
     private Spline currentCeilingSpline;
     private List<Vector2> ceilingPhysicsPoints;
-    private int ceilingPtIndex = 0;
+    
+    // NEW: We will store the points temporarily so we can reverse them later
+    private List<Vector2> tempCeilingPoints; 
+    
     private System.Random runRNG;
-    private bool isNightTime = false; // NEW: Track if it is currently night!
+    private bool isNightTime = false; 
 
 
     void LateUpdate()
@@ -151,7 +154,7 @@ public class SnowMap : MapGenerator
             hasTintedCar = true;
             TintObject(playerCar.gameObject);
         }
-        // NEW: Turn on headlights if it's night!
+        
         CarController carScript = playerCar.GetComponent<CarController>();
         if (carScript != null)
         {
@@ -164,9 +167,6 @@ public class SnowMap : MapGenerator
             skyBackgroundRenderer.transform.position = new Vector3(camPos.x, camPos.y, skyBackgroundRenderer.transform.position.z);
         }
 
-        // FIX: Prevent the cave ceiling from visually disappearing/flickering!
-        // Unity culls SpriteShapeRenderers that are dynamically built because their bounds stay at 0.
-        // We force a massive bounding box on the active ceiling so it always renders on camera.
         if (currentCeilingObj != null)
         {
             SpriteShapeRenderer ceilingSSR = currentCeilingObj.GetComponent<SpriteShapeRenderer>();
@@ -175,7 +175,6 @@ public class SnowMap : MapGenerator
                 ceilingSSR.SetLocalAABB(new Bounds(Vector3.zero, new Vector3(100000f, 10000f, 10000f)));
             }
         }
-
     }
 
     void SetupTimeOfDay()
@@ -183,15 +182,11 @@ public class SnowMap : MapGenerator
         TimeOfDay runTime = specificTimeOfDay;
         if (randomizeTime)
         {
-        // FIX: Using system clock ticks for true randomness instead of UnityEngine.Random
-        // which gets locked to the map generation seed by the base MapGenerator class!
-        System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
-        runTime = (TimeOfDay)trueTimeRNG.Next(0, 5);
+            System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
+            runTime = (TimeOfDay)trueTimeRNG.Next(0, 5);
         }
                 
-        // Record if it is night time for the headlights!
         isNightTime = (runTime == TimeOfDay.Night);
-
 
         Color skyColor = Color.white;
         switch (runTime)
@@ -215,22 +210,17 @@ public class SnowMap : MapGenerator
         SpriteRenderer[] renderers = obj.GetComponentsInChildren<SpriteRenderer>();
         foreach (SpriteRenderer sr in renderers) sr.color *= propTint;
 
-        // 2. FIX: Tint SpriteShapes (Frozen Lake surface, Ice Pyramids, etc)
         SpriteShapeRenderer[] shapeRenderers = obj.GetComponentsInChildren<SpriteShapeRenderer>();
         foreach (SpriteShapeRenderer ssr in shapeRenderers) 
         {
             ssr.color *= propTint;
         }
 
-        // 3. FIX: Tint Frozen Lakes directly! 
-        // We modify the iceColor variable before Start() runs and builds the mesh.
         FrozenLake[] lakes = obj.GetComponentsInChildren<FrozenLake>();
         foreach (FrozenLake lake in lakes)
         {
             lake.iceColor *= propTint;
         }
-
-
     }
 
     protected override void OnEnvironmentPropSpawned(GameObject prop)
@@ -247,7 +237,6 @@ public class SnowMap : MapGenerator
             ssr.color = groundTint;
         }
     }
-
 
     protected override void InitializeMap()
     {
@@ -268,15 +257,15 @@ public class SnowMap : MapGenerator
         nextTunnelX = Mathf.Round(rawNextTunnel / pointSpacing) * pointSpacing;
         currentTunnelLength = Mathf.Round(Random.Range(minTunnelLength, maxTunnelLength) / pointSpacing) * pointSpacing;
 
-        // --- NEW: Init Snowballs ---
+        // Init Snowballs 
         float rawNextSnowball = minSnowballDistance + (Mathf.PerlinNoise(seed + 3, seed) * (maxSnowballDistance - minSnowballDistance));
         nextSnowballX = Mathf.Round(rawNextSnowball / pointSpacing) * pointSpacing;
 
-        // --- NEW: Init Snowmen ---
+        // Init Snowmen 
         float rawNextSnowman = minSnowmanDistance + (Mathf.PerlinNoise(seed + 4, seed) * (maxSnowmanDistance - minSnowmanDistance));
         nextSnowmanX = Mathf.Round(rawNextSnowman / pointSpacing) * pointSpacing;
 
-        // --- NEW: Init Ice Pyramids ---
+        // Init Ice Pyramids 
         float rawNextPyramid = minIcePyramidDistance + (Mathf.PerlinNoise(seed + 5, seed) * (maxIcePyramidDistance - minIcePyramidDistance));
         nextIcePyramidX = Mathf.Round(rawNextPyramid / pointSpacing) * pointSpacing;
     }
@@ -296,10 +285,8 @@ public class SnowMap : MapGenerator
 
         if (isInTunnelZone)
         {
-            // Disable background trees and normal obstacles in the flat zone & tunnel
             isHazardZone = true; 
 
-            // 1. Capture the exact natural heights of the terrain 100m before AND after the tunnel
             if (!inFlatZone)
             {
                 inFlatZone = true;
@@ -307,17 +294,14 @@ public class SnowMap : MapGenerator
                 tunnelEndY = GetRawTerrainY(flatZoneEndX);
             }
 
-            // SmoothStep for a base curve instead of a strict linear ramp to prevent sharp V-shapes
             float progress = Mathf.InverseLerp(flatZoneStartX, flatZoneEndX, globalX);
             float smoothProgress = Mathf.SmoothStep(0f, 1f, progress);
             float baseTunnelY = Mathf.Lerp(tunnelStartY, tunnelEndY, smoothProgress);
 
-            // 3. Smoothly blend the natural Perlin noise into our smooth base.
             float blendIn = Mathf.InverseLerp(flatZoneStartX, flatZoneStartX + 100f, globalX);
             float blendOut = Mathf.InverseLerp(flatZoneEndX, flatZoneEndX - 100f, globalX);
             float smoothT = Mathf.SmoothStep(0f, 1f, Mathf.Min(blendIn, blendOut));
 
-            // 4. Add tiny bumps ONLY inside the tunnel, fading them in/out so they don't cause sharp cliff steps!
             float smallHills = 0f;
             bool isActuallyInsideTunnel = globalX >= nextTunnelX && globalX <= tunnelEndX;
             
@@ -330,17 +314,11 @@ public class SnowMap : MapGenerator
                 smallHills = Mathf.Sin((globalX - nextTunnelX) * 0.15f) * 1.5f * hillMultiplier; 
             }
 
-            // Apply the final perfectly smooth math
             finalY = Mathf.Lerp(originalY, baseTunnelY + smallHills, smoothT);
 
-            // MANUALLY SPAWN PICKUPS INSIDE TUNNEL
-            // Because we set isHazardZone = true (to block props), the base MapGenerator skips pickups here.
-            // We manually call SpawnPickups so coins/gems spawn normally riding along the new finalY smooth floor!
             if (i < numSurfacePoints)
             {
                 SpawnPickups(new Vector3(globalX, finalY, 0f), chunkParent);
-
-                // NEW: Manually check and spawn Ice Pyramids on the tunnel floor!
                 TrySpawnIcePyramid(globalX, finalY);
             }
 
@@ -349,36 +327,31 @@ public class SnowMap : MapGenerator
             // ==========================================
             if (isActuallyInsideTunnel && ceilingChunkPrefab != null)
             {
-                // Start a new ceiling chunk
                 if (!isBuildingCeiling)
                 {
                     isBuildingCeiling = true;
                     StartCeiling(chunkParent, localX);
                 }
 
-                // Calculate the erratic gap between floor and ceiling
                 float gap = Mathf.Lerp(minTunnelHeight, maxTunnelHeight, Mathf.PerlinNoise(globalX * 0.08f, seed));
                 float ceilingY = finalY + gap;
 
                 AddCeilingPoint(localX, ceilingY);
 
-                // Try spawning an icicle on this ceiling point!
                 if (iciclePrefab != null && Random.value < icicleSpawnChance)
                 {
-                    // FIXED: Added icicleYOffset to prevent the icicle from spawning inside the solid ceiling collider!
                     GameObject icicle = Instantiate(iciclePrefab, new Vector3(globalX, ceilingY + icicleYOffset, 0f), Quaternion.identity, chunkParent);
                     TintObject(icicle);
                 }
 
-                // Cap off the ceiling if the chunk ends OR the tunnel ends!
                 if (i == numSurfacePoints || globalX >= tunnelEndX - 0.01f)
                 {
-                    FinishCeiling(localX);
+                    FinishCeiling();
                     isBuildingCeiling = false;
                 }
             }
 
-            return false; // Let MapGenerator draw the floor point!
+            return false; 
         }
         else if (globalX > flatZoneEndX && inFlatZone)
         {
@@ -392,7 +365,6 @@ public class SnowMap : MapGenerator
         // ==========================================
         bool inLakeZone = generateLakes && globalX >= nextLakeX && globalX <= nextLakeX + currentLakeWidth;
         
-        // Prevent lakes from spawning inside tunnels
         if (inLakeZone && (globalX >= nextTunnelX - 200f && globalX <= nextTunnelX + currentTunnelLength + 200f))
         {
             nextLakeX = nextTunnelX + currentTunnelLength + 300f;
@@ -418,7 +390,6 @@ public class SnowMap : MapGenerator
                 
                 Vector2 centerPos = new Vector2(nextLakeX + currentLakeWidth / 2f, centerOffsetY);
                 
-                // 1. Spawn the liquid water pool
                 GameObject fluid = null; 
                 if (waterPoolPrefab != null)
                 {
@@ -431,11 +402,9 @@ public class SnowMap : MapGenerator
                     {
                         if (propTint != Color.white)
                         {
-                            // FIXED: Added a stronger lerp for the liquid water underneath the ice!
                             Color fluidFinalTint = Color.LerpUnclamped(Color.white, propTint, 1.2f);
                             fluidScript.surfaceColor *= fluidFinalTint;
                             fluidScript.depthColor *= fluidFinalTint;
-
                         }
                         fluidScript.GenerateWater(paddedVisualWidth, paddedVisualDepth, currentLakeWidth);
                     }
@@ -444,7 +413,6 @@ public class SnowMap : MapGenerator
                     TintObject(fluid);
                 }
 
-                // 2. Spawn the solid ice sheet on top of the water!
                 if (frozenLakePrefab != null)
                 {
                     Vector3 icePos = new Vector3(nextLakeX + (currentLakeWidth / 2f), surfaceY, 0f);
@@ -452,7 +420,6 @@ public class SnowMap : MapGenerator
                     iceSheet.transform.localScale = new Vector3(currentLakeWidth, 1f, 1f);
                     TintObject(iceSheet);
 
-                    // Link the water to the ice, and turn the water off!
                     FrozenLake iceScript = iceSheet.GetComponent<FrozenLake>();
                     if (iceScript != null && fluid != null)
                     {
@@ -471,7 +438,6 @@ public class SnowMap : MapGenerator
         {
             isBuildingLake = false;
             
-            // FIXED: Now uses your Min/Max variables instead of hardcoded numbers!
             float nextDist = Mathf.Lerp(minLakeDistance, maxLakeDistance, Mathf.PerlinNoise(globalX * 0.2f, seed + 10));
             nextLakeX = Mathf.Round((globalX + nextDist) / pointSpacing) * pointSpacing;
             
@@ -485,10 +451,8 @@ public class SnowMap : MapGenerator
     {
         if (i >= numSurfacePoints) return false;
 
-        // 3. Check for Ice Pyramids first
         if (TrySpawnIcePyramid(globalX, originalY)) return true;
 
-        // 1. Check for Giant Snowballs First (They take priority if both land on the same spot)
         if (generateGiantSnowballs && giantSnowballPrefab != null && globalX >= nextSnowballX)
         {
             Vector3 spawnPos = new Vector3(globalX, originalY + snowballYOffset, 0f);
@@ -498,16 +462,13 @@ public class SnowMap : MapGenerator
             float nextDist = Mathf.Lerp(minSnowballDistance, maxSnowballDistance, Mathf.PerlinNoise(globalX * 0.1f, seed + 4));
             nextSnowballX = Mathf.Round((globalX + nextDist) / pointSpacing) * pointSpacing;
 
-            return true; // Stop here so we don't spawn a snowman and a snowball stacked together!
+            return true; 
         }
 
-        // 2. Check for Snowmen
         if (generateSnowmen && snowmanPrefab != null && globalX >= nextSnowmanX)
         {
-            // Spawn the snowman flush with the terrain
             Vector3 spawnPos = new Vector3(globalX, originalY + snowmanYOffset, 0f);
             
-            // Optional: Tilt the snowman to match the hill slope
             float yAhead = GetRawTerrainY(globalX + 0.1f);
             float yBehind = GetRawTerrainY(globalX - 0.1f);
             float terrainAngle = Mathf.Atan2((yAhead - yBehind), 0.2f) * Mathf.Rad2Deg;
@@ -518,10 +479,8 @@ public class SnowMap : MapGenerator
             float nextDist = Mathf.Lerp(minSnowmanDistance, maxSnowmanDistance, Mathf.PerlinNoise(globalX * 0.2f, seed + 5));
             nextSnowmanX = Mathf.Round((globalX + nextDist) / pointSpacing) * pointSpacing;
 
-            return true; // Prevents coins from spawning inside the snowman
+            return true; 
         }
-
-        
 
         return false; 
     }
@@ -545,7 +504,6 @@ public class SnowMap : MapGenerator
                 float spawnX = startX + startXOffset + (col * blockWidth);
                 Vector3 spawnPos = new Vector3(spawnX, currentY, 0f);
                 
-                // FIXED: Removed 'chunkParent' so it is no longer tied to the deleting terrain!
                 GameObject iceBlock = Instantiate(iceBlockPrefab, spawnPos, Quaternion.identity);
                 TintObject(iceBlock);
             }
@@ -558,7 +516,6 @@ public class SnowMap : MapGenerator
     {
         if (generateIcePyramids && iceBlockPrefab != null && globalX >= nextIcePyramidX)
         {
-            // Call the spawn method (passing null for the chunkParent since we unparented them!)
             SpawnIcePyramid(globalX, groundY, null);
 
             float nextDist = Mathf.Lerp(minIcePyramidDistance, maxIcePyramidDistance, Mathf.PerlinNoise(globalX * 0.3f, seed + 6));
@@ -579,29 +536,57 @@ public class SnowMap : MapGenerator
 
         currentCeilingObj = Instantiate(ceilingChunkPrefab, chunkParent.position, Quaternion.identity, chunkParent);
         
+        // --- THE MAGIC FIX ---
+        // Your SpriteShape profile only has snow assigned to the "UP" normal (top half).
+        // By drawing left-to-right but flipping the object, the "UP" snow texture hangs downwards!
+        currentCeilingObj.transform.localScale = new Vector3(1f, -1f, 1f);
+        
         SpriteShapeController ssc = currentCeilingObj.GetComponent<SpriteShapeController>();
         currentCeilingSpline = ssc.spline;
-        currentCeilingSpline.Clear();
         
+        tempCeilingPoints = new List<Vector2>();
         ceilingPhysicsPoints = new List<Vector2>();
-
-        currentCeilingSpline.InsertPointAt(0, new Vector3(localX, 100f, 0f));
-        currentCeilingSpline.SetTangentMode(0, ShapeTangentMode.Linear);
-        ceilingPtIndex = 1;
     }
 
     void AddCeilingPoint(float localX, float ceilingY)
     {
-        currentCeilingSpline.InsertPointAt(ceilingPtIndex, new Vector3(localX, ceilingY, 0f));
-        currentCeilingSpline.SetTangentMode(ceilingPtIndex, ShapeTangentMode.Continuous);
-        ceilingPhysicsPoints.Add(new Vector2(localX, ceilingY));
-        ceilingPtIndex++;
+        // Because the object is flipped Y, we must invert the local Y coordinates
+        // so that they end up at the correct World Y positions!
+        float invertedY = -ceilingY;
+        
+        tempCeilingPoints.Add(new Vector2(localX, invertedY));
+        ceilingPhysicsPoints.Add(new Vector2(localX, invertedY));
     }
 
-    void FinishCeiling(float localX)
+    void FinishCeiling()
     {
-        currentCeilingSpline.InsertPointAt(ceilingPtIndex, new Vector3(localX, 100f, 0f));
-        currentCeilingSpline.SetTangentMode(ceilingPtIndex, ShapeTangentMode.Linear);
+        if (tempCeilingPoints == null || tempCeilingPoints.Count == 0) return;
+
+        currentCeilingSpline.Clear();
+
+        // Draw Left to Right normally so it uses the top arc of your SpriteShape Profile
+        float leftmostX = tempCeilingPoints[0].x;
+        float rightmostX = tempCeilingPoints[tempCeilingPoints.Count - 1].x;
+        
+        // Because scale Y is -1, -100 local becomes +100 World!
+        float ceilingTop = -100f; 
+
+        // 1. Start the spline top-left
+        currentCeilingSpline.InsertPointAt(0, new Vector3(leftmostX, ceilingTop, 0f));
+        currentCeilingSpline.SetTangentMode(0, ShapeTangentMode.Linear);
+        
+        // 2. Draw the actual surface points (Left to Right)
+        int splineIndex = 1;
+        foreach (Vector2 pt in tempCeilingPoints)
+        {
+            currentCeilingSpline.InsertPointAt(splineIndex, new Vector3(pt.x, pt.y, 0f));
+            currentCeilingSpline.SetTangentMode(splineIndex, ShapeTangentMode.Continuous);
+            splineIndex++;
+        }
+
+        // 3. Close the shape top-right
+        currentCeilingSpline.InsertPointAt(splineIndex, new Vector3(rightmostX, ceilingTop, 0f));
+        currentCeilingSpline.SetTangentMode(splineIndex, ShapeTangentMode.Linear);
 
         SpriteShapeController ssc = currentCeilingObj.GetComponent<SpriteShapeController>();
         ssc.RefreshSpriteShape();
@@ -617,8 +602,11 @@ public class SnowMap : MapGenerator
             }
         }
 
+        // Apply EdgeCollider (It uses the inverted local points, which the -1 scale flips to perfect World space!)
         EdgeCollider2D col = currentCeilingObj.GetComponent<EdgeCollider2D>();
         if (col == null) col = currentCeilingObj.AddComponent<EdgeCollider2D>();
         col.SetPoints(ceilingPhysicsPoints);
+        
+        tempCeilingPoints.Clear();
     }
 }

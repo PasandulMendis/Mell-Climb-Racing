@@ -211,8 +211,8 @@ MonoBehaviour:
   generateTunnels: 1
   ceilingChunkPrefab: {fileID: 2503069242505576877, guid: 6fc30962f5f194c199f1f66455996601, type: 3}
   iciclePrefab: {fileID: 4778738247051308678, guid: 1a29457753a404c87a5a773a9ef373d8, type: 3}
-  minTunnelDistance: 700
-  maxTunnelDistance: 1600
+  minTunnelDistance: 200
+  maxTunnelDistance: 300
   minTunnelLength: 100
   maxTunnelLength: 150
   minTunnelHeight: 6
