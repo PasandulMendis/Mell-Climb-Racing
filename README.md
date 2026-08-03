@@ -1,91 +1,91 @@
-# MELL CLIMB RACING - Step-by-Step Development Roadmap
+# MELL CLIMB RACING - Step-by-Step Development Roadmap Phase 2
 
 ---
 
-## Core Car Physics (The Foundation)
-**Goal:** Get a simple box (placeholder car) driving over a basic flat terrain.
+## Maps
+**Goal:** Create different interactive maps.
 
 ### Tasks
-- [x] Create the Unity 2D project.
-- [x] Set up a simple 2D car using `Rigidbody2D` and `WheelJoint2D`.
-- [x] Write the basic `CarController` script (Acceleration, Braking).
-- [x] Implement mid-air rotation (so the player can balance the car while jumping).
+- [] Village
+- [] Beach
+- [] Snow
+- [] Forest
+- [] Desert
+- [] CyberCity
+- [] Museum
 
 ---
 
-## Terrain & Environment
-**Goal:** Create hills for the car to climb and interact with.
+## Map Specific Features
+**Goal:** Make every map feels different.
 
 ### Tasks
-- [x] Introduce Unity's **SpriteShape**.
-- [x] Configure the ground physics materials so the car tires actually grip the hills.
-- [x] Set up a camera script that smoothly follows the car.
+- VillageMap
+              - [] Windmills
+              - [] Scarecrows
+              - [] Runaway Livestock (hay)
+              - [] Air Balloons
+- Beach
+              - [] Seagulls
+              - [] Coconut piles
+              - [] Giant Beachballs
+              - [] Bouys
+- Snow
+              - [] Snowman
+              - [] Giant Snowballs
+              - [] Ice Block Pyramids
+              - [] Frozen Lakes
+              - [] Snow Tunnels
+- Foest
+              - [] SpeedShrooms
+              - [] Giant Seesaws
+              - [] Bee Hives
+- Desert
+              - [] (adding soon)
+              - [] (adding soon)
+              - [] (adding soon)
+              - [] (adding soon)
+- CyberCity
+              - [] (adding soon)
+              - [] (adding soon)
+              - [] (adding soon)
+              - [] (adding soon)
+- Museum
+              - [] (adding soon)
+              - [] (adding soon)
+              - [] (adding soon)
+              - [] (adding soon)
 
 ---
 
-## Upgrades & Physics Logic
-**Goal:** Make the car feel different when upgraded.
+## UI
+**Goal:** Build the best Unique User interface
 
 ### Tasks
-- [x] Wire the `CarController` script to accept variable stats:
-  - **Engine:** Torque
-  - **Tires:** Grip / Friction
-  - **Suspension:** Spring stiffness
-  - **Fuel:** Capacity
-- [x] Test different preset values to ensure upgrades feel impactful.
+[] Pause Menu
+[] Garage Menu
+[]Main Menu
+[] GameScreen Menu
 
 ---
 
-## The Core Game Loop (Fuel, Pickups, & Death)
-**Goal:** Implement the actual gameplay rules.
+## Vehicles
+**Goal:** Add more Rides.
 
-### Tasks
-- [x] Create the **Fuel depletion** logic.
-- [x] Create prefabs for **Coins** and **Fuel Cans**.
-- [x] Write the collection scripts (triggers for picking up items).
-- [x] Implement **Game Over** conditions:
-  - Running out of fuel.
-  - Driver's head hitting the ground (crash).
-- [x] Set up a basic distance tracker.
+[] Pickup Truck
+[] Mini
+[] Bus
+[] F1
+[] Monster. Truck
+[] Van
+[] Rocket Car
 
----
-
-## The "Double Mellstroy" Meme System (The USP)
-**Goal:** Integrate the Mellstroy memes into the gameplay.
-
-### Tasks
-- [x] **The Driver (1:1 Video/GIF):** Attach a UI/Sprite player to the car seat that stays upright. Connect it to the game state (*Idle, Speeding, Flipping*).
-- [x] **The Streamer (16:9 Corner Cam):** Create a UI canvas overlay.
-- [x] **The Event Manager:** Write a script that detects events (*Airtime, Crash, Low Fuel, Coin streak*) and tells the Streamer and Driver which meme video/sprite to play.
-
----
-
-## UI, Garage & Menus
-**Goal:** Build the menus to navigate the game and upgrade cars.
-
-### Tasks
-- [x] Create the **HUD (Heads Up Display)** showing Fuel Bar, Distance, and Coins.
-- [x] Build the **Main Menu**.
-- [x] Build the **Garage UI** using a horizontal scrolling card layout.
-- [x] Implement the save system (`PlayerPrefs`) so coins, unlocked cars, and upgrades persist when the game is closed.
-
----
-
-## Content Expansion
-**Goal:** Add more of everything.
-
-### Tasks
-- [ ] Add new vehicles with different base stats and hitboxes.
-- [ ] Create multiple maps using **SpriteShape** (*e.g., Desert, Moon, Forest*) with custom gravity or grip settings.
-- [ ] Import all final **Nano Banana** graphics and replace placeholders.
-
----
 
 ## Audio & Final Polish
-**Goal:** Make the game sound good and feel "Play Store ready."
+**Goal:** Make the game audio"
 
 ### Tasks
-- [x] Add looping **Engine sounds** (pitch changes dynamically based on vehicle speed).
-- [ ] Add UI click sounds, coin pickup sounds, and Mellstroy meme audio clips.
-- [ ] Performance optimization (ensuring stable framerates on older mobile devices).
-- [ ] Build and export the final **Android APK/AAB** file.
+[] Add looping Engine sounds
+[] Add UI sounds
+[] Add Ambient music
+[] Add sound for each map feature
