@@ -153,7 +153,7 @@ MonoBehaviour:
   coin5Prefab: {fileID: 3433777762193160581, guid: 59a21b2f944fd4aa196107fcd9fab215, type: 3}
   coin10Prefab: {fileID: 7891165457619460463, guid: 2ce6e76f47f024af2814e1855b0e109f, type: 3}
   coin25Prefab: {fileID: 7891165457619460463, guid: 3dd6e8776bcf948b99a119888b34e74e, type: 3}
-  coinSpacing: 1.5
+  coinSpacing: 1.75
   silverCoinDistance: 1500
   goldCoinDistance: 3000
   tier1GroupSize: 5
@@ -161,8 +161,8 @@ MonoBehaviour:
   tier3GroupSize: 10
   fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
   gemPrefab: {fileID: 8692838261110679811, guid: 851d75133791d4189a76d7be025f92c9, type: 3}
-  minGemDistance: 400
-  maxGemDistance: 1500
+  minGemDistance: 100
+  maxGemDistance: 200
   gemHeightOffset: 1
   generateProps: 1
   propPrefabs:
