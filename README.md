@@ -63,7 +63,7 @@
 
 ### Tasks
 - [ ] Pause Menu
-- [ ] Garage Menu
+- [x] Garage Menu
 - [ ] Main Menu
 - [ ] GameScreen Menu
 
