@@ -1,22 +1,10 @@
 fileFormatVersion: 2
-guid: 266f9ecaec0574aeeab436659157ecfd
+guid: a71b232983f224acd8456ad2ce512522
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1388995813746772273
-    second: PauseMeu_0
-  - first:
-      213: -6720659755123521504
-    second: PauseMeu_1
-  - first:
-      213: 1544367422668388996
-    second: PauseMeu_2
-  - first:
-      213: -4126871968182079790
-    second: PauseMeu_3
-  - first:
-      213: 1716336474626464516
-    second: PauseMeu_4
+      213: -6000424854975064876
+    second: PauseResume_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -110,14 +98,14 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Android
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 51
     textureCompression: 1
-    compressionQuality: 50
+    compressionQuality: 100
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 0
+    overridden: 1
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -125,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: PauseMeu_0
+      name: PauseResume_0
       rect:
         serializedVersion: 2
-        x: 85
-        y: 259
-        width: 249
-        height: 307
+        x: 0
+        y: 0
+        width: 400
+        height: 139
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -140,96 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fc67e17aaab49bce0800000000000000
-      internalID: -1388995813746772273
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PauseMeu_1
-      rect:
-        serializedVersion: 2
-        x: 66
-        y: 152
-        width: 129
-        height: 88
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 028499f6f8b6bb2a0800000000000000
-      internalID: -6720659755123521504
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PauseMeu_2
-      rect:
-        serializedVersion: 2
-        x: 224
-        y: 152
-        width: 129
-        height: 88
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 48ab5de0df1be6510800000000000000
-      internalID: 1544367422668388996
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PauseMeu_3
-      rect:
-        serializedVersion: 2
-        x: 66
-        y: 47
-        width: 129
-        height: 87
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2de6dfe5fc76ab6c0800000000000000
-      internalID: -4126871968182079790
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PauseMeu_4
-      rect:
-        serializedVersion: 2
-        x: 224
-        y: 47
-        width: 129
-        height: 87
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 40b182d1ee6a1d710800000000000000
-      internalID: 1716336474626464516
+      spriteID: 4d459c1d2653abca0800000000000000
+      internalID: -6000424854975064876
       vertices: []
       indices: 
       edges: []
@@ -248,11 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      PauseMeu_0: -1388995813746772273
-      PauseMeu_1: -6720659755123521504
-      PauseMeu_2: 1544367422668388996
-      PauseMeu_3: -4126871968182079790
-      PauseMeu_4: 1716336474626464516
+      PauseResume_0: -6000424854975064876
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
