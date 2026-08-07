@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a5f38a9882ca7438eae3796c29cd981b
+guid: d20de3385c4eb4ccb9aa2e52a2f0e016
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1480262017889029046
-    second: Gemini_Generated_Image_ishvr0ishvr0ishv_0
+      213: 2983737825266201291
+    second: RedCardCar_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -53,7 +53,7 @@ TextureImporter:
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 0
+  spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -98,14 +98,14 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Android
-    maxTextureSize: 1024
+    maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 51
+    textureFormat: -1
     textureCompression: 1
-    compressionQuality: 100
+    compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 1
+    overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Gemini_Generated_Image_ishvr0ishvr0ishv_0
+      name: RedCardCar_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 2726
-        height: 1536
+        width: 600
+        height: 418
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a44b839998d057be0800000000000000
-      internalID: -1480262017889029046
+      spriteID: bc273e95ebd586920800000000000000
+      internalID: 2983737825266201291
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Gemini_Generated_Image_ishvr0ishvr0ishv_0: -1480262017889029046
+      RedCardCar_0: 2983737825266201291
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

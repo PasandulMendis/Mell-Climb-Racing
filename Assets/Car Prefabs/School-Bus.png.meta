@@ -116,10 +116,10 @@ TextureImporter:
       name: School-Bus_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 38
         y: 0
-        width: 1077
-        height: 358
+        width: 775
+        height: 259
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

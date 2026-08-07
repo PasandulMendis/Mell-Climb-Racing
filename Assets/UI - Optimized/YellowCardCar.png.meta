@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b1e2dd549e3374170901a91c167e99fb
+guid: cde062fea8a8c4469a1a5c4508dd4e80
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -916045961378760933
-    second: illustration_0
+      213: 6488032236360795670
+    second: YellowCardCar_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: illustration_0
+      name: YellowCardCar_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 801
-        height: 601
+        width: 600
+        height: 409
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b1776123d0d8943f0800000000000000
-      internalID: -916045961378760933
+      spriteID: 6168193a1fe1a0a50800000000000000
+      internalID: 6488032236360795670
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      illustration_0: -916045961378760933
+      YellowCardCar_0: 6488032236360795670
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

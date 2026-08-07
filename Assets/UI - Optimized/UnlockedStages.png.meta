@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3ae6c315c9316499aad94260ad294fa9
+guid: a9bb841c1109f49f2af79bc04d6203d6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3361933791039264791
-    second: mustang model_0
+      213: -7817212265421034825
+    second: UnlockedStages_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: mustang model_0
+      name: UnlockedStages_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 3024
-        height: 1664
+        width: 200
+        height: 204
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 718174d78fcf7ae20800000000000000
-      internalID: 3361933791039264791
+      spriteID: 7baa0c9acdea38390800000000000000
+      internalID: -7817212265421034825
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      mustang model_0: 3361933791039264791
+      UnlockedStages_0: -7817212265421034825
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

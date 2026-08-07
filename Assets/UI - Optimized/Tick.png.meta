@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 94ed531723f8a4e7dbeb076ee7fed59a
+guid: b61f191677eda42e385462cfc5937d94
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7559958477339498981
-    second: tachometer2_0
+      213: -7692115157373309178
+    second: Tick_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: tachometer2_0
+      name: Tick_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 806
-        height: 806
+        x: 90
+        y: 40
+        width: 392
+        height: 351
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5e916864e2e5ae860800000000000000
-      internalID: 7559958477339498981
+      spriteID: 60fad59d40e104590800000000000000
+      internalID: -7692115157373309178
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      tachometer2_0: 7559958477339498981
+      Tick_0: -7692115157373309178
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

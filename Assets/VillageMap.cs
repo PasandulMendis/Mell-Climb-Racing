@@ -225,7 +225,7 @@ public class VillageMap : MapGenerator
         SpriteShapeRenderer ssr = chunk.GetComponent<SpriteShapeRenderer>();
         if (ssr != null)
         {
-            Color groundTint = Color.Lerp(Color.white, propTint, 0.5f);
+            Color groundTint = Color.Lerp(Color.white, propTint, 0.75f);
             ssr.color = groundTint;
         }
     }
