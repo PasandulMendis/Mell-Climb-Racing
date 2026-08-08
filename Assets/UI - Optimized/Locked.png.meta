@@ -116,10 +116,10 @@ TextureImporter:
       name: Locked_0
       rect:
         serializedVersion: 2
-        x: 52
-        y: 61
-        width: 348
-        height: 447
+        x: 16
+        y: 19
+        width: 118
+        height: 150
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

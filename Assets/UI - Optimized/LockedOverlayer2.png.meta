@@ -5,6 +5,15 @@ TextureImporter:
   - first:
       213: 31469267506187208
     second: LockedOverlayer2_0
+  - first:
+      213: 4059793644443163143
+    second: LockedOverlayer2_1
+  - first:
+      213: -2377255357577798317
+    second: LockedOverlayer2_2
+  - first:
+      213: 3192006734625006077
+    second: LockedOverlayer2_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -116,10 +125,10 @@ TextureImporter:
       name: LockedOverlayer2_0
       rect:
         serializedVersion: 2
-        x: 28
-        y: 33
-        width: 525
-        height: 367
+        x: 0
+        y: 0
+        width: 975
+        height: 706
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,6 +139,72 @@ TextureImporter:
       bones: []
       spriteID: 8cb4c0fc12dcf6000800000000000000
       internalID: 31469267506187208
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LockedOverlayer2_1
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 698
+        width: 13
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70a5c665fc8475830800000000000000
+      internalID: 4059793644443163143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LockedOverlayer2_2
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 601
+        width: 8
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35d5e27f8da420fd0800000000000000
+      internalID: -2377255357577798317
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LockedOverlayer2_3
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 0
+        width: 898
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df16af196394c4c20800000000000000
+      internalID: 3192006734625006077
       vertices: []
       indices: 
       edges: []
@@ -149,6 +224,9 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       LockedOverlayer2_0: 31469267506187208
+      LockedOverlayer2_1: 4059793644443163143
+      LockedOverlayer2_2: -2377255357577798317
+      LockedOverlayer2_3: 3192006734625006077
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

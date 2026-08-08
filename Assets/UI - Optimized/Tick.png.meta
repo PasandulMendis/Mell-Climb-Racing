@@ -116,10 +116,10 @@ TextureImporter:
       name: Tick_0
       rect:
         serializedVersion: 2
-        x: 90
-        y: 40
-        width: 392
-        height: 351
+        x: 22
+        y: 9
+        width: 106
+        height: 94
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
