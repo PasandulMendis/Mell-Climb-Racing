@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: dca611a4332d44438b169f853494564e
+guid: 4deeaf9e8b7474025a6b779ce00deceb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 671675061935861785
-    second: Flat-Tire_0
+      213: -3009252415948406025
+    second: CreamCardMap_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Flat-Tire_0
+      name: CreamCardMap_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 4
-        width: 109
-        height: 111
+        y: 0
+        width: 663
+        height: 697
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 910fc2ff8e4425900800000000000000
-      internalID: 671675061935861785
+      spriteID: 7f2c8e31fdcfc36d0800000000000000
+      internalID: -3009252415948406025
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Flat-Tire_0: 671675061935861785
+      CreamCardMap_0: -3009252415948406025
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

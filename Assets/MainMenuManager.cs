@@ -18,10 +18,14 @@ public class MainMenuManager : MonoBehaviour
         public GameObject lockedOverlay;   // The black transparent background overlay
         public RectTransform lockIconTransform; // Dedicated Lock Icon Transform (shakes when coins insufficient)
         
-        [Header("Power / Upgrade Level UI")]
-        public GameObject powerContainer;  // Parent object containing the power bar (hidden when locked/maps)
+        [Header("Power / Upgrade Level UI (Cars Only)")]
+        public GameObject powerContainer;  // Parent object containing the power bar (hidden when locked)
         public Image powerFillImage;       // UI Image set to Image Type: Filled (Horizontal)
         public TextMeshProUGUI powerText;   // TMP displaying "LV 24/40"
+
+        [Header("Best Record UI (Maps Only)")]
+        public GameObject bestDistanceContainer; // Parent object containing best distance text (hidden when locked)
+        public TextMeshProUGUI bestDistanceText; // TMP displaying "BEST: 1250m"
         
         [Header("Interactive Buttons")]
         public Button buyButton;           // Dedicated Buy button placed on top of overlay
@@ -295,6 +299,7 @@ public class MainMenuManager : MonoBehaviour
         for (int i = 0; i < maps.Length; i++)
         {
             UpdateCardVisuals(maps[i], selectedMapIndex == i);
+            UpdateMapDistanceVisuals(i, maps[i]);
         }
 
         // Update Unlocked Counters Text
@@ -352,6 +357,27 @@ public class MainMenuManager : MonoBehaviour
         if (item.powerText != null)
         {
             item.powerText.text = $"LV {currentPowerLevel}/{totalMaxLimit}";
+        }
+    }
+
+    private void UpdateMapDistanceVisuals(int mapIndex, StoreItem item)
+    {
+        if (item.bestDistanceText == null && item.bestDistanceContainer == null)
+            return;
+
+        // Toggle container visibility based on unlock status
+        if (item.bestDistanceContainer != null)
+        {
+            item.bestDistanceContainer.SetActive(item.isUnlocked);
+        }
+
+        // Fetch highest distance recorded for this map from GameManager's save key
+        int bestDistance = PlayerPrefs.GetInt("HighestDistance_Map_" + mapIndex, 0);
+
+        // Format best distance text (e.g., BEST: 1250m)
+        if (item.bestDistanceText != null)
+        {
+            item.bestDistanceText.text = $"{bestDistance}M";
         }
     }
 

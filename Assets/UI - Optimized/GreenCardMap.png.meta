@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: dafa14fde49824f54b0018a4a6fd3a8c
+guid: cba7dfab7339f42bfae858adafd13440
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9005862669924795485
-    second: needleshort3_0
+      213: 4651233936355833434
+    second: GreenCardMap_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: needleshort3_0
+      name: GreenCardMap_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 31
-        height: 310
+        width: 664
+        height: 697
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d5481d812604bfc70800000000000000
-      internalID: 9005862669924795485
+      spriteID: a563bbf2f908c8040800000000000000
+      internalID: 4651233936355833434
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      needleshort3_0: 9005862669924795485
+      GreenCardMap_0: 4651233936355833434
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

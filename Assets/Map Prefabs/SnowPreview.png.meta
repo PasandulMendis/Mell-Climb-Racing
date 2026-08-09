@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 941c7a6eb12e04e59a88c8e268f57234
+guid: 514e84caa286d47dd9c3813b26b6125d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5979484976212452011
-    second: school-bus-carcass_0
+      213: 3087276986520898389
+    second: SnowPreview_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: school-bus-carcass_0
+      name: SnowPreview_0
       rect:
         serializedVersion: 2
-        x: 3
-        y: 42
-        width: 951
-        height: 223
+        x: 0
+        y: 0
+        width: 450
+        height: 300
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ba2adeab7e56bf250800000000000000
-      internalID: 5979484976212452011
+      spriteID: 55b01d8ef0638da20800000000000000
+      internalID: 3087276986520898389
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      school-bus-carcass_0: 5979484976212452011
+      SnowPreview_0: 3087276986520898389
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

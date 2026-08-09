@@ -4807,8 +4807,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   carPrefabs:
-  - {fileID: 8890536893444065306, guid: 7b6deddbb92734b9581f36cd437cc60f, type: 3}
-  - {fileID: 8890536893444065306, guid: e2aeaefc13e204472b4c8343e3fdde40, type: 3}
+  - {fileID: 8890536893444065306, guid: cbe637a1377c4469988d51eba3b9798d, type: 3}
+  - {fileID: 8890536893444065306, guid: 5a7cfb009ad7645e4abcf0fe7f7f572b, type: 3}
   - {fileID: 8890536893444065306, guid: 1ec92bbaa943c4978b463a0bb32820de, type: 3}
   - {fileID: 8890536893444065306, guid: b0a73f12ac72a4ada8d07f151dfcf2a1, type: 3}
   - {fileID: 8890536893444065306, guid: 0b0bbf9b40a04490682ed8cccab4dd1f, type: 3}

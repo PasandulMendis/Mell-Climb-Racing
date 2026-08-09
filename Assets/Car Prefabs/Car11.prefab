@@ -15579,28 +15579,26 @@ MonoBehaviour:
   frontWheel: {fileID: 1436022057002365322}
   engineSpeedLevels:
   - 1500
+  - 1600
   - 1700
+  - 1800
   - 1900
+  - 2000
   - 2100
+  - 2200
   - 2300
   - 2500
-  - 2700
-  - 2800
-  - 3000
-  - 3400
   suspensionFrequencyLevels:
   - 3
+  - 3.1
   - 3.2
+  - 3.3
   - 3.4
+  - 3.5
   - 3.6
+  - 3.7
   - 3.8
   - 4
-  - 4.2
-  - 4.4
-  - 4.6
-  - 4.8
-  - 5
-  - 5
   tireFrictionLevels:
   - 1.5
   - 1.7
@@ -15623,18 +15621,18 @@ MonoBehaviour:
   - 240
   - 260
   - 300
-  engineCostLevels: 00000000960000002c01000058020000e8030000d0070000c4090000b80b0000a00f000088130000
-  suspensionCostLevels: 0000000064000000fa000000f4010000840300008403000084030000840300008403000084030000
-  tireCostLevels: 00000000780000001801000026020000b6030000b6030000b6030000b6030000b6030000b6030000
-  fuelCostLevels: 0000000050000000c800000090010000200300002003000020030000200300002003000020030000
+  engineCostLevels: 00000000f4010000e8030000dc050000b80b000088130000401f0000e02e000068420000a8610000
+  suspensionCostLevels: 00000000f4010000e8030000dc050000b80b000088130000401f0000e02e000068420000a8610000
+  tireCostLevels: 00000000f4010000e8030000dc050000b80b000088130000401f0000e02e000068420000a8610000
+  fuelCostLevels: 00000000f4010000e8030000dc050000b80b000088130000401f0000e02e000068420000a8610000
   speed: 1500
   maxFuel: 0
-  rotationSpeed: 0.1
+  rotationSpeed: 0.075
   isFourWheelDrive: 0
-  airRotationMultiplier: 1
-  flipCoinBonus: 200
-  nitroBoostForce: 40
-  nitroDuration: 3
+  airRotationMultiplier: 1.05
+  flipCoinBonus: 250
+  nitroBoostForce: 50
+  nitroDuration: 2
   nitroThrusterPoint: {fileID: 6488087045609720082}
   coastingBrakeForce: 1
   hasFuel: 1
@@ -15648,12 +15646,12 @@ MonoBehaviour:
   revLimiterBounceSpeed: 25
   backWheelDirt: {fileID: 5916646985922288629}
   frontWheelDirt: {fileID: 1483555568163866781}
-  scaredHeightTrigger: 1000
+  scaredHeightTrigger: 10000
   magnetRadius: 0
   targetUIIcon: {fileID: 0}
   headlights: {fileID: 2440860835194561389}
   flatTireSprite: {fileID: 671675061935861785, guid: dca611a4332d44438b169f853494564e, type: 3}
-  flatTireScale: 0.35
+  flatTireScale: 0.1
   flatTireFriction: 0.1
   currentRPM: 0
 --- !u!114 &7891034384017083176
