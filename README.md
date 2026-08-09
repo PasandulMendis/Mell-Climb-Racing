@@ -73,13 +73,15 @@
 **Goal:** Add more Rides.
 
 ### Tasks
-- [ ] Pickup Truck
-- [ ] Mini
-- [ ] Bus
-- [ ] F1
-- [ ] Monster Truck
-- [ ] Van
-- [ ] Rocket Car
+- [x] Jeep
+- [x] K5
+- [ ] Western Star
+- [ ] 6x6
+- [ ] Trophy Truck
+- [ ] Beetle
+- [ ] Peterbilt
+- [ ] BTR
+- [ ] HETS
 
 ---
 
