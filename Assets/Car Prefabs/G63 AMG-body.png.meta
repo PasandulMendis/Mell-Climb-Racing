@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b836f40ca310747eab721f27850fb04a
+guid: 104f6404d540947649df7bab1f318d2f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7309297974558746154
-    second: car-model_0
+      213: -3179479576341668042
+    second: G63 AMG-body_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 180
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: car-model_0
+      name: G63 AMG-body_0
       rect:
         serializedVersion: 2
-        x: 32
-        y: 99
-        width: 501
-        height: 193
+        x: 0
+        y: 0
+        width: 800
+        height: 296
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6d991fce738209a90800000000000000
-      internalID: -7309297974558746154
+      spriteID: 63f9b81cb2830e3d0800000000000000
+      internalID: -3179479576341668042
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      car-model_0: -7309297974558746154
+      G63 AMG-body_0: -3179479576341668042
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -5651,8 +5651,8 @@ MonoBehaviour:
   - {fileID: 8374513663811443938, guid: cbe637a1377c4469988d51eba3b9798d, type: 3}
   - {fileID: 8374513663811443938, guid: 5a7cfb009ad7645e4abcf0fe7f7f572b, type: 3}
   - {fileID: 8374513663811443938, guid: 47834c403b81044da94e971849fde6f4, type: 3}
-  - {fileID: 8374513663811443938, guid: b0a73f12ac72a4ada8d07f151dfcf2a1, type: 3}
-  - {fileID: 8374513663811443938, guid: 0b0bbf9b40a04490682ed8cccab4dd1f, type: 3}
+  - {fileID: 8374513663811443938, guid: 37a186dfc681141d3b631c78eb6b4c87, type: 3}
+  - {fileID: 8374513663811443938, guid: 298b582b864504b74a356c1d022fb06c, type: 3}
   totalCoinsText: {fileID: 1451584720}
   totalGemsText: {fileID: 1159139751}
   engineLevelText: {fileID: 369181974}

@@ -141,7 +141,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 0.5
+  m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 1
@@ -297,7 +297,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 0.5
+  m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 1
@@ -15183,7 +15183,7 @@ Transform:
   m_GameObject: {fileID: 5834548419733967909}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.79, y: -0.241, z: 0}
+  m_LocalPosition: {x: -3.12, y: -0.781, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -15477,8 +15477,8 @@ PolygonCollider2D:
     - - {x: 1.5116358, y: -0.9695947}
       - {x: 1.5830613, y: -0.8695972}
       - {x: 2.4298892, y: -0.8650501}
-      - {x: 2.6169653, y: -1.0381941}
-      - {x: 2.6522627, y: -1.0083283}
+      - {x: 2.496581, y: -0.86447513}
+      - {x: 2.5968373, y: -0.7649276}
       - {x: 2.5729244, y: 0.049714804}
       - {x: 1.477988, y: 0.1852884}
       - {x: 1.3304057, y: 0.2285698}
@@ -15562,7 +15562,7 @@ WheelJoint2D:
   serializedVersion: 4
   m_EnableCollision: 0
   m_ConnectedRigidBody: {fileID: 4245748491227705489}
-  m_BreakForce: Infinity
+  m_BreakForce: 500
   m_BreakTorque: Infinity
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 1
@@ -15938,7 +15938,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 0.5
+  m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 1
