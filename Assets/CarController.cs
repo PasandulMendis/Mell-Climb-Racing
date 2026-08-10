@@ -1,12 +1,35 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic; // Required for using Lists
+
+[System.Serializable]
+public class CarWheel
+{
+    [Tooltip("Just a name to help you organize in the inspector (e.g., 'Back Left')")]
+    public string wheelName = "Wheel";
+    
+    [Tooltip("The WheelJoint2D component for this specific wheel")]
+    public WheelJoint2D wheelJoint;
+    
+    [Tooltip("If TRUE, the engine powers this wheel. If FALSE, it just rolls (Dead wheel)")]
+    public bool isDriven = true;
+    
+    [Tooltip("Dirt particle system assigned to this specific wheel")]
+    public ParticleSystem dirtParticle;
+
+    // Internal states managed by the script
+    [HideInInspector] public WheelContact contactScript;
+    [HideInInspector] public bool isGrounded = false;
+    [HideInInspector] public bool isPopped = false;
+}
 
 public class CarController : MonoBehaviour
 {
-    [Header("Car Components")]
+    [Header("Car Components (Multi-Wheel Support)")]
     public Rigidbody2D carRigidbody;
-    public WheelJoint2D backWheel;
-    public WheelJoint2D frontWheel;
+    
+    [Tooltip("Add all your vehicle's wheels here. Supports 2, 4, 6, 8+ wheels!")]
+    public List<CarWheel> wheels = new List<CarWheel>();
 
     [Header("Upgrade Levels")]
     public float[] engineSpeedLevels = new float[] { 1500f, 1700f, 1900f, 2100f, 2300f };
@@ -24,9 +47,6 @@ public class CarController : MonoBehaviour
     public float speed;       
     public float maxFuel;
     public float rotationSpeed = 250f; 
-
-    [Header("Drive Settings")]
-    public bool isFourWheelDrive = false; 
 
     [Header("Air Control & Stunts")]
     [Tooltip("Multiply rotation speed when all wheels leave the ground for better flips!")]
@@ -52,39 +72,24 @@ public class CarController : MonoBehaviour
     public float pitchMultiplier = 0.05f;
 
     [Header("Rev Limiter Settings")]
-    [Tooltip("RPM required to trigger the rev limiter sound (0.0 to 1.0)")]
     public float revLimiterThreshold = 0.95f;
-    [Tooltip("How much the audio pitch drops when bouncing off the limiter")]
     public float revLimiterPitchDrop = 0.4f;
-    [Tooltip("How fast the limiter stutters (bounces)")]
     public float revLimiterBounceSpeed = 25f;
-
-    [Header("Wheel Dirt Particles")]
-    public ParticleSystem backWheelDirt;
-    public ParticleSystem frontWheelDirt;
 
     [Header("Meme Settings")]
     public float scaredHeightTrigger = 6f; 
 
     [Header("Coin Magnetism")]
-    [Tooltip("How far away the car can suck in coins")]
     public float magnetRadius = 6f;
-    [Tooltip("Drag the UI Coin Icon RectTransform here so coins know where to fly!")]
     public RectTransform targetUIIcon;
 
     [Header("Lighting")]
-    [Tooltip("Drag the parent object containing your headlight sprites here")]
     public GameObject headlights;
 
-    [Header("NEW: Tire Popping (Bear Traps)")]
+    [Header("Tire Popping (Bear Traps)")]
     public Sprite flatTireSprite;
-    [Tooltip("How much smaller the tire gets when popped (e.g. 0.75 = 75% of original size)")]
     public float flatTireScale = 0.75f;
-    [Tooltip("Friction of a popped tire (0.1 = very slippery)")]
     public float flatTireFriction = 0.1f;
-    
-    private bool backTirePopped = false;
-    private bool frontTirePopped = false;
 
     [HideInInspector] public float currentRPM = 0f;
 
@@ -94,11 +99,6 @@ public class CarController : MonoBehaviour
 
     private float movementInput;
     private float rpmCap = 1f;
-
-    private WheelContact backContact;
-    private WheelContact frontContact;
-    private bool backGrounded = false;
-    private bool frontGrounded = false;
 
     private float totalAirRotation = 0f;
     private float lastZRotation = 0f;
@@ -112,26 +112,32 @@ public class CarController : MonoBehaviour
 
     void Start()
     {
-        WheelJoint2D[] allJoints = GetComponents<WheelJoint2D>();
-        if (allJoints.Length >= 2 && backWheel == frontWheel)
+        // Auto-assign wheels if the list is completely empty
+        if (wheels.Count == 0)
         {
-            backWheel = allJoints[0];
-            frontWheel = allJoints[1];
+            WheelJoint2D[] allJoints = GetComponents<WheelJoint2D>();
+            for (int i = 0; i < allJoints.Length; i++)
+            {
+                CarWheel newWheel = new CarWheel();
+                newWheel.wheelName = "Auto-Assigned Wheel " + (i + 1);
+                newWheel.wheelJoint = allJoints[i];
+                newWheel.isDriven = true; // Default to driven
+                wheels.Add(newWheel);
+            }
         }
 
-        if (backWheel != null && backWheel.connectedBody != null)
+        // Initialize wheel contacts dynamically
+        foreach (CarWheel w in wheels)
         {
-            backContact = backWheel.connectedBody.gameObject.GetComponent<WheelContact>();
-            if (backContact == null) backContact = backWheel.connectedBody.gameObject.AddComponent<WheelContact>();
-        }
-        if (frontWheel != null && frontWheel.connectedBody != null)
-        {
-            frontContact = frontWheel.connectedBody.gameObject.GetComponent<WheelContact>();
-            if (frontContact == null) frontContact = frontWheel.connectedBody.gameObject.AddComponent<WheelContact>();
+            if (w.wheelJoint != null && w.wheelJoint.connectedBody != null)
+            {
+                w.contactScript = w.wheelJoint.connectedBody.gameObject.GetComponent<WheelContact>();
+                if (w.contactScript == null) 
+                    w.contactScript = w.wheelJoint.connectedBody.gameObject.AddComponent<WheelContact>();
+            }
         }
 
         int carID = PlayerPrefs.GetInt("SelectedCar", 0);
-
         int engineLevel = PlayerPrefs.GetInt("Car_" + carID + "_EquippedEngineLevel", 1);
         int suspensionLevel = PlayerPrefs.GetInt("Car_" + carID + "_EquippedSuspensionLevel", 1);
         int tireLevel = PlayerPrefs.GetInt("Car_" + carID + "_EquippedTireLevel", 1);
@@ -145,7 +151,6 @@ public class CarController : MonoBehaviour
         if (engineSpeedLevels.Length > 0) 
         {
             speed = engineSpeedLevels[engIdx];
-            
             float absoluteMaxSpeed = engineSpeedLevels[engineSpeedLevels.Length - 1];
             rpmCap = speed / absoluteMaxSpeed;
         }
@@ -157,36 +162,31 @@ public class CarController : MonoBehaviour
             float newFrequency = suspensionFrequencyLevels[susIdx];
             float newDamping = 0.6f;
 
-            if (backWheel != null)
+            foreach (CarWheel w in wheels)
             {
-                JointSuspension2D backSus = backWheel.suspension;
-                backSus.frequency = newFrequency;
-                backSus.dampingRatio = newDamping; 
-                backWheel.suspension = backSus;
-            }
-
-            if (frontWheel != null)
-            {
-                JointSuspension2D frontSus = frontWheel.suspension;
-                frontSus.frequency = newFrequency;
-                frontSus.dampingRatio = newDamping; 
-                frontWheel.suspension = frontSus;
+                if (w.wheelJoint != null)
+                {
+                    JointSuspension2D sus = w.wheelJoint.suspension;
+                    sus.frequency = newFrequency;
+                    sus.dampingRatio = newDamping; 
+                    w.wheelJoint.suspension = sus;
+                }
             }
         }
 
-        if (tireFrictionLevels.Length > 0 && backWheel != null && frontWheel != null)
+        if (tireFrictionLevels.Length > 0)
         {
-            CircleCollider2D backCol = backWheel.connectedBody != null ? backWheel.connectedBody.GetComponent<CircleCollider2D>() : null;
-            CircleCollider2D frontCol = frontWheel.connectedBody != null ? frontWheel.connectedBody.GetComponent<CircleCollider2D>() : null;
+            PhysicsMaterial2D tireMat = new PhysicsMaterial2D("UpgradedGrip");
+            tireMat.friction = tireFrictionLevels[tireIdx];
+            tireMat.bounciness = 0f;
             
-            if (backCol != null && frontCol != null)
+            foreach (CarWheel w in wheels)
             {
-                PhysicsMaterial2D tireMat = new PhysicsMaterial2D("UpgradedGrip");
-                tireMat.friction = tireFrictionLevels[tireIdx];
-                tireMat.bounciness = 0f;
-                
-                backCol.sharedMaterial = tireMat;
-                frontCol.sharedMaterial = tireMat;
+                if (w.wheelJoint != null && w.wheelJoint.connectedBody != null)
+                {
+                    CircleCollider2D col = w.wheelJoint.connectedBody.GetComponent<CircleCollider2D>();
+                    if (col != null) col.sharedMaterial = tireMat;
+                }
             }
         }
 
@@ -195,14 +195,8 @@ public class CarController : MonoBehaviour
         if (targetUIIcon == null)
         {
             GameObject foundIcon = GameObject.Find("CoinIcon");
-            if (foundIcon != null)
-            {
-                targetUIIcon = foundIcon.GetComponent<RectTransform>();
-            }
-            else
-            {
-                Debug.LogWarning("CarController: Could not find 'CoinIcon' in the scene hierarchy!");
-            }
+            if (foundIcon != null) targetUIIcon = foundIcon.GetComponent<RectTransform>();
+            else Debug.LogWarning("CarController: Could not find 'CoinIcon' in the scene hierarchy!");
         }
 
         ToggleHeadlights(false);
@@ -210,10 +204,7 @@ public class CarController : MonoBehaviour
 
     public void ToggleHeadlights(bool state)
     {
-        if (headlights != null)
-        {
-            headlights.SetActive(state);
-        }
+        if (headlights != null) headlights.SetActive(state);
     }
 
     void Update()
@@ -257,7 +248,14 @@ public class CarController : MonoBehaviour
 
     void HandleAudioAndEffects()
     {
-        float targetRPM = 0.1f; // Engine idle
+        float targetRPM = 0.1f; 
+        
+        // Determine if AT LEAST ONE wheel is on the ground
+        bool isAnyWheelGrounded = false;
+        foreach (CarWheel w in wheels)
+        {
+            if (w.isGrounded) isAnyWheelGrounded = true;
+        }
 
         if (hasFuel)
         {
@@ -267,7 +265,7 @@ public class CarController : MonoBehaviour
             }
             else if (movementInput > 0)
             {
-                if (!backGrounded)
+                if (!isAnyWheelGrounded)
                 {
                     targetRPM = 1.0f * rpmCap; 
                 }
@@ -286,7 +284,7 @@ public class CarController : MonoBehaviour
             }
         }
         
-        float lerpSpeed = (movementInput > 0 && !backGrounded) ? 15f : 8f;
+        float lerpSpeed = (movementInput > 0 && !isAnyWheelGrounded) ? 15f : 8f;
         currentRPM = Mathf.Lerp(currentRPM, targetRPM, Time.deltaTime * lerpSpeed);
 
         if (engineAudioSource != null)
@@ -328,32 +326,29 @@ public class CarController : MonoBehaviour
 
     void HandleDirtParticles()
     {
-        if (backWheelDirt != null)
+        foreach (CarWheel w in wheels)
         {
-            var em = backWheelDirt.emission;
-            if (backGrounded && movementInput != 0 && hasFuel) em.rateOverTime = 30f;
-            else em.rateOverTime = 0f;
-        }
-
-        if (frontWheelDirt != null)
-        {
-            var em = frontWheelDirt.emission;
-            if (frontGrounded && movementInput != 0 && hasFuel && isFourWheelDrive) em.rateOverTime = 30f;
-            else em.rateOverTime = 0f;
+            if (w.dirtParticle != null)
+            {
+                var em = w.dirtParticle.emission;
+                // Only spawn dirt if wheel is on ground, gas is pressed, has fuel, AND is a driven wheel
+                if (w.isGrounded && movementInput != 0 && hasFuel && w.isDriven) 
+                    em.rateOverTime = 30f;
+                else 
+                    em.rateOverTime = 0f;
+            }
         }
     }
 
     public void UpdateDirtColor(Color newColor)
     {
-        if (backWheelDirt != null)
+        foreach (CarWheel w in wheels)
         {
-            var main = backWheelDirt.main;
-            main.startColor = newColor;
-        }
-        if (frontWheelDirt != null)
-        {
-            var main = frontWheelDirt.main;
-            main.startColor = newColor;
+            if (w.dirtParticle != null)
+            {
+                var main = w.dirtParticle.main;
+                main.startColor = newColor;
+            }
         }
     }
 
@@ -389,7 +384,6 @@ public class CarController : MonoBehaviour
         nitroTimer = nitroDuration;
 
         if (GameManager.instance != null) GameManager.instance.runNitrosUsed++;
-
         if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
         if (GameManager.instance != null) GameManager.instance.UpdateNitroUI(currentNitro);
     }
@@ -424,7 +418,6 @@ public class CarController : MonoBehaviour
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, magnetRadius);
         foreach (var hit in hitColliders)
         {
-            // If the object we found is a Coin, tell it to magnetize to us!
             Coin coinScript = hit.GetComponent<Coin>();
             if (coinScript != null)
             {
@@ -435,19 +428,29 @@ public class CarController : MonoBehaviour
 
     void FixedUpdate()
     {
-        backGrounded = backContact != null ? backContact.CheckGrounded() : false;
-        frontGrounded = frontContact != null ? frontContact.CheckGrounded() : false;
+        bool isAirborne = true;
+        bool canRotate = false;
+
+        // Check grounded status for all configured wheels
+        foreach (CarWheel w in wheels)
+        {
+            w.isGrounded = w.contactScript != null ? w.contactScript.CheckGrounded() : false;
+            
+            // If any wheel touches ground, car is not fully airborne
+            if (w.isGrounded) isAirborne = false; 
+            
+            // If any wheel leaves ground, car can flip/rotate
+            if (!w.isGrounded) canRotate = true;  
+        }
 
         if (GameManager.instance != null && GameManager.instance.isGameOver)
         {
-            if (backWheel != null) backWheel.useMotor = false;
-            if (frontWheel != null) frontWheel.useMotor = false;
+            foreach (CarWheel w in wheels)
+            {
+                if (w.wheelJoint != null) w.wheelJoint.useMotor = false;
+            }
             return;
         }
-
-        bool isAirborne = !backGrounded && !frontGrounded;
-
-        bool canRotate = !backGrounded || !frontGrounded;
 
         if (movementInput != 0)
         {
@@ -455,20 +458,20 @@ public class CarController : MonoBehaviour
             motor.motorSpeed = movementInput * speed * -1f; 
             motor.maxMotorTorque = 10000f;
 
-            if (backWheel != null)
+            foreach (CarWheel w in wheels)
             {
-                backWheel.motor = motor;
-                backWheel.useMotor = true;
-            }
-            
-            if (frontWheel != null)
-            {
-                if (isFourWheelDrive)
+                if (w.wheelJoint != null)
                 {
-                    frontWheel.motor = motor;
-                    frontWheel.useMotor = true;
+                    if (w.isDriven) // Dedicated Wheel Drive logic
+                    {
+                        w.wheelJoint.motor = motor;
+                        w.wheelJoint.useMotor = true;
+                    }
+                    else
+                    {
+                        w.wheelJoint.useMotor = false;
+                    }
                 }
-                else frontWheel.useMotor = false;
             }
         }
         else
@@ -477,15 +480,13 @@ public class CarController : MonoBehaviour
             brakeMotor.motorSpeed = 0f;
             brakeMotor.maxMotorTorque = coastingBrakeForce;
 
-            if (backWheel != null)
+            foreach (CarWheel w in wheels)
             {
-                backWheel.motor = brakeMotor;
-                backWheel.useMotor = true;
-            }
-            if (frontWheel != null)
-            {
-                frontWheel.motor = brakeMotor;
-                frontWheel.useMotor = true;
+                if (w.wheelJoint != null)
+                {
+                    w.wheelJoint.motor = brakeMotor;
+                    w.wheelJoint.useMotor = true; // Apply coasting brakes to ALL wheels for stability
+                }
             }
         }
 
@@ -527,7 +528,7 @@ public class CarController : MonoBehaviour
             if (Mathf.Abs(totalAirRotation) >= 360f)
             {
                 flipsThisJump++;
-                AddHype(0.2f); // --- NEW: Add 20% to Hype Meter per flip! ---
+                AddHype(0.2f); 
 
                 string flipType = totalAirRotation > 0 ? "Backflip" : "Frontflip";
                 
@@ -554,7 +555,6 @@ public class CarController : MonoBehaviour
                 }
             }
             
-            // Reset everything while driving normally
             totalAirRotation = 0f;
             currentAirTime = 0f;
             flipsThisJump = 0;
@@ -580,25 +580,25 @@ public class CarController : MonoBehaviour
         if (!hitGround && MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared);
     }
 
-    // --- NEW: TIRE POPPING LOGIC ---
     public bool PopTire(GameObject tireObject)
     {
-        bool isBackWheel = (backWheel != null && tireObject == backWheel.connectedBody.gameObject);
-        bool isFrontWheel = (frontWheel != null && tireObject == frontWheel.connectedBody.gameObject);
-
         bool poppedThisFrame = false;
 
-        if (isBackWheel && !backTirePopped)
+        // Loop through all wheels to check which one matched the bear trap
+        foreach (CarWheel w in wheels)
         {
-            backTirePopped = true;
-            ApplyFlatTire(backWheel.connectedBody.gameObject);
-            poppedThisFrame = true;
-        }
-        else if (isFrontWheel && !frontTirePopped)
-        {
-            frontTirePopped = true;
-            ApplyFlatTire(frontWheel.connectedBody.gameObject);
-            poppedThisFrame = true;
+            if (w.wheelJoint != null && w.wheelJoint.connectedBody != null)
+            {
+                if (w.wheelJoint.connectedBody.gameObject == tireObject)
+                {
+                    if (!w.isPopped)
+                    {
+                        w.isPopped = true;
+                        ApplyFlatTire(w.wheelJoint.connectedBody.gameObject);
+                        poppedThisFrame = true;
+                    }
+                }
+            }
         }
 
         if (poppedThisFrame)

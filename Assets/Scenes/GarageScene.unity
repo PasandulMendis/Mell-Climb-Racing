@@ -5650,7 +5650,7 @@ MonoBehaviour:
   carPrefabs:
   - {fileID: 8374513663811443938, guid: cbe637a1377c4469988d51eba3b9798d, type: 3}
   - {fileID: 8374513663811443938, guid: 5a7cfb009ad7645e4abcf0fe7f7f572b, type: 3}
-  - {fileID: 8374513663811443938, guid: 1ec92bbaa943c4978b463a0bb32820de, type: 3}
+  - {fileID: 8374513663811443938, guid: 47834c403b81044da94e971849fde6f4, type: 3}
   - {fileID: 8374513663811443938, guid: b0a73f12ac72a4ada8d07f151dfcf2a1, type: 3}
   - {fileID: 8374513663811443938, guid: 0b0bbf9b40a04490682ed8cccab4dd1f, type: 3}
   totalCoinsText: {fileID: 1451584720}
