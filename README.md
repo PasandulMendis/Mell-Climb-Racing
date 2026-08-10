@@ -75,7 +75,7 @@
 ### Tasks
 - [x] Jeep
 - [x] K5
-- [ ] Western Star
+- [x] Western Star
 - [ ] 6x6
 - [ ] Trophy Truck
 - [ ] Beetle
