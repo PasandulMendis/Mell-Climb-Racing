@@ -62,10 +62,10 @@
 **Goal:** Build the best Unique User interface
 
 ### Tasks
-- [ ] Pause Menu
+- [X] Pause Menu
 - [x] Garage Menu
-- [ ] Main Menu
-- [ ] GameScreen Menu
+- [X] Main Menu
+- [X] GameScreen Menu
 
 ---
 
@@ -78,11 +78,10 @@
 - [x] Western Star
 - [x] G63 AMG
 - [x] Volkswagen Transporter
-- [ ] Trophy Truck
-- [ ] Beetle
-- [ ] Peterbilt
-- [ ] BTR
-- [ ] HETS
+- [X] Hot Rod
+- [X] Beetle
+- [X] BTR
+- [X] HETS
 
 ---
 
