@@ -67,7 +67,7 @@ MonoBehaviour:
   tier1GroupSize: 5
   tier2GroupSize: 8
   tier3GroupSize: 10
-  fuelPrefab: {fileID: 7883096931010308211, guid: d0c516118089b45018a0f54a2e177299, type: 3}
+  fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
   gemPrefab: {fileID: 8692838261110679811, guid: 851d75133791d4189a76d7be025f92c9, type: 3}
   minGemDistance: 300
   maxGemDistance: 500

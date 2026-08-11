@@ -5336,7 +5336,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2440860835194561389}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.70068365, w: 0.7134721}
+  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 2.45, y: -0.482, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -5381,8 +5381,8 @@ MonoBehaviour:
   m_LocalBounds:
     m_Center: {x: 0, y: -0.00000011920929, z: 0}
     m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
-  m_PointLightInnerAngle: 29.490002
-  m_PointLightOuterAngle: 42.77
+  m_PointLightInnerAngle: 31.88
+  m_PointLightOuterAngle: 49.86
   m_PointLightInnerRadius: 0
   m_PointLightOuterRadius: 6.3110337
   m_ShapeLightParametricSides: 5
@@ -15391,12 +15391,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -3386216661331549103, guid: 37f1a540422494f488311a1885fbb811, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 37f1a540422494f488311a1885fbb811, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3.5435898, y: 0.9948718}
+  m_Size: {x: 8, y: 2.66}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -15467,7 +15467,7 @@ PolygonCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 8, y: 2.66}
-    newSize: {x: 3.5435898, y: 0.9948718}
+    newSize: {x: 8, y: 2.66}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0

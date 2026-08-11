@@ -1565,7 +1565,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 3.5
+  orthographic size: 3.8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1610,7 +1610,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   target: {fileID: 0}
   offset: {x: 0, y: 2, z: -10}
-  defaultZoom: 3.5
+  defaultZoom: 3.8
   maxZoomOut: 4.2
   minSpeedForZoom: 10
   maxSpeedForZoom: 25
@@ -4812,6 +4812,10 @@ MonoBehaviour:
   - {fileID: 8890536893444065306, guid: 47834c403b81044da94e971849fde6f4, type: 3}
   - {fileID: 8890536893444065306, guid: 37a186dfc681141d3b631c78eb6b4c87, type: 3}
   - {fileID: 8890536893444065306, guid: 298b582b864504b74a356c1d022fb06c, type: 3}
+  - {fileID: 8890536893444065306, guid: 771d92511c09b4c84aee4f9267ca5b69, type: 3}
+  - {fileID: 8890536893444065306, guid: f9993ce24a6e440e896a46325977b5d0, type: 3}
+  - {fileID: 8890536893444065306, guid: 4535fff19126141048a45c5492336867, type: 3}
+  - {fileID: 8890536893444065306, guid: 5505f7ab68f0f44c494c25a8caf5f9c1, type: 3}
   mapPrefabs:
   - {fileID: 8208565040995769957, guid: 8ed44fbc6db62494fabe695cf8cedbc3, type: 3}
   - {fileID: 8208565040995769957, guid: cfde6038e6819491ea4bff61970a4e7e, type: 3}
@@ -7140,7 +7144,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 88.4, y: 1.8}
+  m_AnchoredPosition: {x: -1.199997, y: -52.4}
   m_SizeDelta: {x: 22, y: 22}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2051513589
