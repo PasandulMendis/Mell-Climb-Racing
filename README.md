@@ -76,7 +76,8 @@
 - [x] Jeep
 - [x] K5
 - [x] Western Star
-- [ ] 6x6
+- [x] G63 AMG
+- [x] Volkswagen Transporter
 - [ ] Trophy Truck
 - [ ] Beetle
 - [ ] Peterbilt
