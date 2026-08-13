@@ -233,7 +233,7 @@ public class SnowMap : MapGenerator
         SpriteShapeRenderer ssr = chunk.GetComponent<SpriteShapeRenderer>();
         if (ssr != null)
         {
-            Color groundTint = Color.Lerp(Color.white, propTint, 0.75f);
+            Color groundTint = Color.Lerp(Color.white, propTint, 0.9f);
             ssr.color = groundTint;
         }
     }

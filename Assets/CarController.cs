@@ -94,7 +94,8 @@ public class CarController : MonoBehaviour
     [HideInInspector] public float currentRPM = 0f;
 
     private int currentNitro;
-    private bool isNitroActive = false;
+    [HideInInspector] public bool isNitroActive = false;
+
     private float nitroTimer = 0f;
 
     private float movementInput;
@@ -429,7 +430,6 @@ public class CarController : MonoBehaviour
     void FixedUpdate()
     {
         bool isAirborne = true;
-        bool canRotate = false;
 
         // Check grounded status for all configured wheels
         foreach (CarWheel w in wheels)
@@ -438,10 +438,11 @@ public class CarController : MonoBehaviour
             
             // If any wheel touches ground, car is not fully airborne
             if (w.isGrounded) isAirborne = false; 
-            
-            // If any wheel leaves ground, car can flip/rotate
-            if (!w.isGrounded) canRotate = true;  
         }
+
+        // FIX: The vehicle can ONLY apply torque for aerial flips when ALL wheels are completely off the ground (isAirborne is true).
+        // If any wheel is touching the ground, canRotate remains false, preventing accidental pitching on gas/brake.
+        bool canRotate = isAirborne;
 
         if (GameManager.instance != null && GameManager.instance.isGameOver)
         {
@@ -490,6 +491,7 @@ public class CarController : MonoBehaviour
             }
         }
 
+        // Only apply torque if the car is fully airborne (no wheels touching ground)
         if (canRotate)
         {
             float flipTorque = movementInput * rotationSpeed * airRotationMultiplier * carRigidbody.mass * 50f;

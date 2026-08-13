@@ -173,7 +173,7 @@ public class BeachMap : MapGenerator
         SpriteShapeRenderer ssr = chunk.GetComponent<SpriteShapeRenderer>();
         if (ssr != null)
         {
-            Color groundTint = Color.Lerp(Color.white, propTint, 0.75f);
+            Color groundTint = Color.Lerp(Color.white, propTint, 1f);
             ssr.color = groundTint;
         }
     }

@@ -51,7 +51,7 @@ MonoBehaviour:
   destroyDistanceBehind: 60
   terrainDepth: 1
   blankChunkPrefab: {fileID: 2503069242505576877, guid: fdfd0f85ff57c4d5e940d6368c59d996, type: 3}
-  pointSpacing: 1
+  pointSpacing: 0.5
   baseAmplitude: 5
   maxAmplitude: 25
   difficultyScaling: 0.006

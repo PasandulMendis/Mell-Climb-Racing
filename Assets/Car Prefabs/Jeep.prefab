@@ -10788,7 +10788,7 @@ MonoBehaviour:
   fuelCostLevels: 00000000f4010000e8030000dc050000b80b000088130000401f0000e02e000068420000a8610000
   speed: 1500
   maxFuel: 0
-  rotationSpeed: 0.075
+  rotationSpeed: 0.15
   airRotationMultiplier: 1.05
   flipCoinBonus: 250
   nitroBoostForce: 40
