@@ -21,6 +21,8 @@ public class CameraController : MonoBehaviour
     [Tooltip("How smoothly the camera transitions between zoom levels.")]
     public float zoomSmoothSpeed = 3f;
 
+    [HideInInspector] public bool isCutsceneActive = false; // --- NEW: Lets other scripts take control! ---
+
     private Camera cam;
     private Rigidbody2D targetRb;
 
@@ -31,6 +33,8 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate()
     {
+        if (isCutsceneActive) return; // --- NEW: Stop strict tracking during teleports! ---
+
         // Check if we actually have a target
         if (target != null)
         {

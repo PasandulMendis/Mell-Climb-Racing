@@ -105,6 +105,13 @@ MonoBehaviour:
   ufoPrefab: {fileID: 8083625630068698541, guid: a7b237cf1e22a4829883b16a9277abd2, type: 3}
   minUFODistance: 350
   maxUFODistance: 600
+  generateBlackHoles: 1
+  blackHolePrefab: {fileID: 5571019053739652520, guid: 1adef15a7e6dc466386b7f371dee75d5, type: 3}
+  minBlackHoleDistance: 350
+  maxBlackHoleDistance: 600
+  portalLinkDistance: 50
+  minPortalHeight: 5
+  maxPortalHeight: 20
 --- !u!1 &8776969117805153211
 GameObject:
   m_ObjectHideFlags: 0

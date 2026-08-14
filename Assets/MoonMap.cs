@@ -53,12 +53,24 @@ public class MoonMap : MapGenerator
     public float minUFODistance = 500f;
     public float maxUFODistance = 1000f;
 
+    [Header("Black Holes (Portals)")]
+    public bool generateBlackHoles = true;
+    public GameObject blackHolePrefab;
+    public float minBlackHoleDistance = 600f;
+    public float maxBlackHoleDistance = 1200f;
+    [Tooltip("How far apart Portal A and Portal B spawn from each other")]
+    public float portalLinkDistance = 50f;
+    [Tooltip("Minimum height above the ground the portals can spawn")]
+    public float minPortalHeight = 0f;
+    public float maxPortalHeight = 15f;
+
     private Color propTint = Color.white;
     private bool hasTintedCar = false;
     private MoonTimeOfDay activeTimeOfDay;
     
     private float nextRockFlockX;
     private float nextUFOX;
+    private float nextBlackHoleX;
     private System.Random runRNG;
 
     void LateUpdate()
@@ -152,6 +164,10 @@ public class MoonMap : MapGenerator
         // Initialize the first UFO trigger point
         float rawNextUFO = minUFODistance + (Mathf.PerlinNoise(seed + 2, seed) * 100f);
         nextUFOX = Mathf.Round(rawNextUFO / pointSpacing) * pointSpacing;
+
+        // Initialize the first Black Hole point
+        float rawNextBlackHole = minBlackHoleDistance + (Mathf.PerlinNoise(seed + 3, seed) * 100f);
+        nextBlackHoleX = Mathf.Round(rawNextBlackHole / pointSpacing) * pointSpacing;
     }
 
     protected override bool ProcessTerrainSpline(float globalX, float localX, float originalY, ref float finalY, Spline spline, List<Vector2> physicsPoints, ref int pointIndex, int i, int numSurfacePoints, Transform chunkParent, out bool isHazardZone)
@@ -218,6 +234,47 @@ public class MoonMap : MapGenerator
             }
             
             nextUFOX = Mathf.Round((nextUFOX + Mathf.Lerp(minUFODistance, maxUFODistance, Mathf.PerlinNoise(globalX * 0.7f, seed))) / pointSpacing) * pointSpacing;
+        }
+
+        if (generateBlackHoles && Mathf.Abs(globalX - nextBlackHoleX) < 0.01f)
+        {
+            if (blackHolePrefab != null)
+            {
+                // Bypass the Map Seed entirely using TickCount
+                System.Random trueRNG = new System.Random(System.Environment.TickCount + (int)globalX);
+
+                // --- PORTAL A (START) ---
+                float heightA = originalY + Mathf.Lerp(minPortalHeight, maxPortalHeight, (float)trueRNG.NextDouble());
+                GameObject portalA = Instantiate(blackHolePrefab, new Vector3(globalX, heightA, 0f), Quaternion.identity, chunkParent);
+
+                // --- PORTAL B (DESTINATION) ---
+                float destX = globalX + portalLinkDistance;
+                // MAGIC: We calculate the ground height 50m ahead BEFORE the map is even drawn!
+                float destGroundY = GetRawTerrainY(destX); 
+                float heightB = destGroundY + Mathf.Lerp(minPortalHeight, maxPortalHeight, (float)trueRNG.NextDouble());
+                
+                GameObject portalB = Instantiate(blackHolePrefab, new Vector3(destX, heightB, 0f), Quaternion.identity, chunkParent);
+
+                // --- LINK THEM TOGETHER ---
+                BlackHolePortal scriptA = portalA.GetComponent<BlackHolePortal>();
+                BlackHolePortal scriptB = portalB.GetComponent<BlackHolePortal>();
+
+                if (scriptA != null && scriptB != null)
+                {
+                    scriptA.linkedPortal = scriptB;
+                    scriptB.linkedPortal = scriptA;
+                }
+
+                // Apply moon lighting tint
+                TintObject(portalA);
+                TintObject(portalB);
+            }
+
+            // Calculate next spawn bypassing the seed!
+            System.Random nextRng = new System.Random(System.Environment.TickCount);
+            nextBlackHoleX = Mathf.Round((nextBlackHoleX + Mathf.Lerp(minBlackHoleDistance, maxBlackHoleDistance, (float)nextRng.NextDouble())) / pointSpacing) * pointSpacing;
+            
+            return true; 
         }
 
         return false; 
