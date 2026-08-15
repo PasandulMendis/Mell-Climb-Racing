@@ -1615,6 +1615,9 @@ MonoBehaviour:
   minSpeedForZoom: 10
   maxSpeedForZoom: 25
   zoomSmoothSpeed: 3
+  isCutsceneActive: 0
+  eventZoomActive: 0
+  eventZoomTarget: 15
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0

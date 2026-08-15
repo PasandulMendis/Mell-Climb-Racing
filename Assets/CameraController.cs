@@ -22,6 +22,8 @@ public class CameraController : MonoBehaviour
     public float zoomSmoothSpeed = 3f;
 
     [HideInInspector] public bool isCutsceneActive = false; // --- NEW: Lets other scripts take control! ---
+    [HideInInspector] public bool eventZoomActive = false;  // --- NEW: For Meteorites to pull the camera back! ---
+    [HideInInspector] public float eventZoomTarget = 15f; 
 
     private Camera cam;
     private Rigidbody2D targetRb;
@@ -53,14 +55,20 @@ public class CameraController : MonoBehaviour
 
                 if (targetRb != null)
                 {
-                    // Get the car's current speed
-                    float currentSpeed = targetRb.linearVelocity.magnitude;
+                    float targetZoom = defaultZoom;
 
-                    // Calculate a percentage (0.0 to 1.0) of how fast we are going relative to our zoom thresholds
-                    float speedPercent = Mathf.InverseLerp(minSpeedForZoom, maxSpeedForZoom, currentSpeed);
-
-                    // Map that percentage to our zoom sizes
-                    float targetZoom = Mathf.Lerp(defaultZoom, maxZoomOut, speedPercent);
+                    if (eventZoomActive)
+                    {
+                        // OVERRIDE: Meteorite or event is forcing a massive zoom out!
+                        targetZoom = eventZoomTarget;
+                    }
+                    else
+                    {
+                        // NORMAL: Get the car's current speed
+                        float currentSpeed = targetRb.linearVelocity.magnitude;
+                        float speedPercent = Mathf.InverseLerp(minSpeedForZoom, maxSpeedForZoom, currentSpeed);
+                        targetZoom = Mathf.Lerp(defaultZoom, maxZoomOut, speedPercent);
+                    }
 
                     // Smoothly transition the camera's orthographic size (zoom)
                     cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, zoomSmoothSpeed * Time.deltaTime);

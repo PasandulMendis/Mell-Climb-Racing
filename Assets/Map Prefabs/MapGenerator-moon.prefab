@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 250038d4e422d46d49e6d67bcace6292, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MoonMap
-  seed: 323
+  seed: 111
   chunksToSpawnAhead: 3
   chunkWidth: 20
   destroyDistanceBehind: 60
@@ -54,8 +54,8 @@ MonoBehaviour:
   pointSpacing: 0.5
   baseAmplitude: 5
   maxAmplitude: 25
-  difficultyScaling: 0.006
-  noiseFrequency: 0.05
+  difficultyScaling: 0.005
+  noiseFrequency: 0.045
   secondaryNoiseFrequency: 0.2
   secondaryAmplitude: 1
   coin5Prefab: {fileID: 3433777762193160581, guid: 59a21b2f944fd4aa196107fcd9fab215, type: 3}
@@ -73,19 +73,32 @@ MonoBehaviour:
   maxGemDistance: 600
   gemHeightOffset: 1
   generateProps: 1
-  propPrefabs: []
-  propCheckInterval: 5
+  propPrefabs:
+  - {fileID: 5810962781693183048, guid: b2ae9dc81b0f44b51a18b0e4a77dd919, type: 3}
+  - {fileID: 8428209575205214762, guid: 12be07fbe5f87409a8481101801a4a35, type: 3}
+  - {fileID: 6696444210289048468, guid: 8b028dcbea99d41669351a2447a338a6, type: 3}
+  - {fileID: 2932437450189941835, guid: 52f64c980b2e94f089fb6e8b85231595, type: 3}
+  - {fileID: 596123700918345683, guid: 54d1ea0f1e600438e8474cf3643963e7, type: 3}
+  - {fileID: 3115867557332239436, guid: 9efd3f13f23804008bea9ec2987fff72, type: 3}
+  - {fileID: 3838367829491545801, guid: c2c2c94123fe54310a22f893e62e930d, type: 3}
+  - {fileID: 921475967414522998, guid: dc1ae3df57091458088317ced5bb2b23, type: 3}
+  - {fileID: 4492357341623815988, guid: 57c82e93e6cfb4d609fe55dddaab8dac, type: 3}
+  - {fileID: 4492357341623815988, guid: 57c82e93e6cfb4d609fe55dddaab8dac, type: 3}
+  - {fileID: 921475967414522998, guid: dc1ae3df57091458088317ced5bb2b23, type: 3}
+  - {fileID: 5810962781693183048, guid: b2ae9dc81b0f44b51a18b0e4a77dd919, type: 3}
+  - {fileID: 596123700918345683, guid: 54d1ea0f1e600438e8474cf3643963e7, type: 3}
+  propCheckInterval: 10
   propSpawnProbability: 0.5
   propYOffset: 0
-  propTerrainAlignment: 0.5
-  moonGravityY: -4
+  propTerrainAlignment: 0.9
+  moonGravityY: -5
   randomizeTime: 0
   specificTimeOfDay: 0
   skyBackgroundRenderer: {fileID: 1426976256775349961}
   dayEarthSprite: {fileID: -9050685816927580207, guid: 9262cdab9489f4ffaafe52192c2c05b0, type: 3}
   nightEarthSprite: {fileID: 536514625845783505, guid: 3a2d6254010fa4921930b99e92aebd8e, type: 3}
   dayPropTint: {r: 1, g: 1, b: 1, a: 1}
-  nightPropTint: {r: 0.3, g: 0.3, b: 0.5, a: 1}
+  nightPropTint: {r: 1, g: 1, b: 1, a: 1}
   generateFloatingRocks: 1
   floatingRockPrefabs:
   - {fileID: 6973071324046928926, guid: 3ab9bf14ba53a4309bf337b90b51e307, type: 3}
@@ -95,7 +108,7 @@ MonoBehaviour:
   - {fileID: 6973071324046928926, guid: d437d7e1a84884b7d8bb39a11cf90f78, type: 3}
   - {fileID: 6973071324046928926, guid: cf46e314af00749b6b7c751fe40864ab, type: 3}
   minRockFlockDistance: 200
-  maxRockFlockDistance: 500
+  maxRockFlockDistance: 400
   minRocksPerFlock: 10
   maxRocksPerFlock: 25
   flockSpreadWidth: 40
@@ -108,10 +121,53 @@ MonoBehaviour:
   generateBlackHoles: 1
   blackHolePrefab: {fileID: 5571019053739652520, guid: 1adef15a7e6dc466386b7f371dee75d5, type: 3}
   minBlackHoleDistance: 350
-  maxBlackHoleDistance: 600
+  maxBlackHoleDistance: 500
   portalLinkDistance: 50
-  minPortalHeight: 5
-  maxPortalHeight: 20
+  minPortalHeight: 2
+  maxPortalHeight: 6
+  generateGeysers: 1
+  geyserPrefab: {fileID: 5654800921218275213, guid: f8b68f76df81840598f3cbcfcf0ddb25, type: 3}
+  minGeyserDistance: 100
+  maxGeyserDistance: 150
+  geyserYOffset: 0
+  geyserTerrainAlignment: 1
+  generateMeteorites: 1
+  meteoritePrefab: {fileID: 7337576816172140079, guid: 1543d0a7e5cf146c3b7cc8ddae1253fc, type: 3}
+  minMeteoriteDistance: 400
+  maxMeteoriteDistance: 600
+  meteoriteAltitude: 35
+  generateHazardZones: 1
+  warningFlagPrefab: {fileID: 2314724650383190604, guid: 4a3efadc2b40548cf8cbbf5921e08a9e, type: 3}
+  warningFlagYOffset: 0.8
+  spaceDebrisPrefabs:
+  - {fileID: 3824854384676826254, guid: 9f2de6b1d80bd4e3b8390b93f2723ce5, type: 3}
+  - {fileID: 8005002836764299429, guid: 6f0664a90f51d4d2e8d7cba6c31d9066, type: 3}
+  - {fileID: 7335559128976180566, guid: 3b563170d6e97496295fb68a8fc4250b, type: 3}
+  - {fileID: 5028497443578782132, guid: 6851523d0c6bc49f4a2fd35c201c3c70, type: 3}
+  - {fileID: 7385788677672901000, guid: 85e1761334a3245e38aef5b1515d4bf4, type: 3}
+  - {fileID: 1369596957595246768, guid: 5d305e0d3c5594a3c9e475a58ca769a8, type: 3}
+  - {fileID: 848011379362665022, guid: ff2117c36c3ac46a7803cd7e6c46c6c0, type: 3}
+  - {fileID: 6479156471797134338, guid: d28625afd36684a37baaee21d78af3a0, type: 3}
+  - {fileID: 6050914194016306467, guid: 93f942909be564e0bbc92fe9bad887ed, type: 3}
+  - {fileID: 322988053794530871, guid: 0df1b162c55f349f1ad8058a881e2afb, type: 3}
+  - {fileID: 7066886975802339770, guid: a4026e46d604c471aa303fd024289abb, type: 3}
+  - {fileID: 3318568293875906925, guid: 590e1850f6c8d4eab98568f935949d21, type: 3}
+  - {fileID: 5345245473895494083, guid: 215647bbf67414acea30771c62073f10, type: 3}
+  - {fileID: 1230891736670607314, guid: 354051479e98f4cd6bce9c45bc0ca962, type: 3}
+  - {fileID: 6343165451971768075, guid: b1e05f13ae4994432b2d258f24fe7d30, type: 3}
+  - {fileID: 6042246151296012790, guid: ae59a9e8911004ae7b9bd9ba3bb8c317, type: 3}
+  - {fileID: 4201136251460167365, guid: 1aacc4ef7660d4287ae75d21a027a65e, type: 3}
+  - {fileID: 1990930585946837130, guid: fbfab13dd103746788a9f8ab9c511f11, type: 3}
+  - {fileID: 591436312404549719, guid: 43cfb32983aa841958212dd2866a3cb0, type: 3}
+  - {fileID: 4446511116717144663, guid: 2fc43d57c1c384832855b2911e191fc3, type: 3}
+  - {fileID: 6404112556839674026, guid: f611ee70be50f45dda28e03aeb59f89a, type: 3}
+  minZoneDistance: 1200
+  maxZoneDistance: 1500
+  minZoneLength: 100
+  maxZoneLength: 300
+  debrisFlockDistance: 100
+  minDebrisPerFlock: 30
+  maxDebrisPerFlock: 50
 --- !u!1 &8776969117805153211
 GameObject:
   m_ObjectHideFlags: 0
@@ -138,8 +194,8 @@ Transform:
   m_GameObject: {fileID: 8776969117805153211}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0.00000016391, z: 0}
+  m_LocalScale: {x: 1.5819876, y: 1.5819876, z: 1.5819876}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1618981065495509087}

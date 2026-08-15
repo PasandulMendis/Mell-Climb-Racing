@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1486941769255339135}
   - component: {fileID: 9011361041904952005}
   - component: {fileID: 1014075970896886797}
+  - component: {fileID: 5187488207257784994}
   m_Layer: 0
   m_Name: FloatingMoonRock4
   m_TagString: Untagged
@@ -178,3 +179,19 @@ PolygonCollider2D:
       - {x: -0.9057262, y: -0.75009835}
       - {x: -0.12272182, y: -1.0511594}
   m_UseDelaunayMesh: 1
+--- !u!114 &5187488207257784994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6973071324046928926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b8dd9a2a9d9040449efd753c9b29bdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloatingMoonRock
+  maxDriftSpeed: 1
+  maxSpinSpeed: 1
+  deleteDistance: 100
+  maxSafeDistance: 120
