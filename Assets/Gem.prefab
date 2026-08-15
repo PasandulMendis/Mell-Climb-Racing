@@ -238,6 +238,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gem
   gemValue: 1
+  collectSound: {fileID: 8300000, guid: 32ca0793cdd514eb88bb2d364628de0b, type: 3}
   magnetSpeed: 1
   uiFlySpeed: 20
   shrinkTargetScale: 1

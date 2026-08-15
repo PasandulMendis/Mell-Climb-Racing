@@ -7,6 +7,9 @@ public class FuelSystem : MonoBehaviour
     [Tooltip("How fast fuel drains per second")]
     public float fuelDrainRate = 5f;
 
+    [Header("Audio")]
+    public AudioClip refuelSound;
+
     [HideInInspector] public bool isOutOfFuel = false;
 
     private CarController carController;
@@ -75,6 +78,12 @@ public class FuelSystem : MonoBehaviour
         
         isOutOfFuel = false;
         Debug.Log("Fuel Refilled!");
+
+        // Play the satisfying glug-glug refuel sound!
+        if (AudioManager.instance != null && refuelSound != null)
+        {
+            AudioManager.instance.PlaySFX(refuelSound, 1f);
+        }
 
         if (MemeManager.instance != null)
         {

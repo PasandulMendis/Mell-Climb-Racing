@@ -10822,6 +10822,7 @@ MonoBehaviour:
   flatTireScale: 0.1
   flatTireFriction: 0.1
   currentRPM: 0
+  isNitroActive: 0
 --- !u!114 &7891034384017083176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10848,7 +10849,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: e8883eea53a314ca199b49aa7b65b446, type: 3}
+  m_Resource: {fileID: 8300000, guid: d81d10e23957849fc9f355a4d7e88913, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1

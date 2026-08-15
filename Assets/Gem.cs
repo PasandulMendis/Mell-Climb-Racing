@@ -5,6 +5,9 @@ public class Gem : MonoBehaviour
     [Header("Gem Properties")]
     public int gemValue = 1; 
 
+    [Header("Audio")]
+    public AudioClip collectSound;
+
     [Header("Magnetism Settings")]
     public float magnetSpeed = 15f;
 
@@ -85,6 +88,12 @@ public class Gem : MonoBehaviour
             
             isMagnetized = false;
             isFlyingToUI = true;
+
+            // --- MOVED: Play the SFX instantly upon physical touch! ---
+            if (AudioManager.instance != null && collectSound != null)
+            {
+                AudioManager.instance.PlaySFX(collectSound, 0.8f);
+            }
 
             // --- NEW FIX: Parent to camera so it never gets left behind at high speeds! ---
             if (mainCam != null) transform.SetParent(mainCam.transform, true);

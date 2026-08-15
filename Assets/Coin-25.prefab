@@ -142,6 +142,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
   coinValue: 25
+  collectSound: {fileID: 8300000, guid: a5b958a2352d643598c78554870cd6c7, type: 3}
   magnetSpeed: 15
   uiFlySpeed: 10
   shrinkTargetScale: 0.85

@@ -10488,7 +10488,7 @@ Transform:
   m_GameObject: {fileID: 8890536893444065306}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.02102, y: -1.76, z: 0}
+  m_LocalPosition: {x: 0, y: -3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10790,8 +10790,8 @@ MonoBehaviour:
   engineAudioSource: {fileID: -5327865585866080723}
   exhaustParticleSystem: {fileID: 6520549613286971545}
   minPitch: 0.8
-  maxPitch: 3
-  pitchMultiplier: 0.05
+  maxPitch: 2
+  pitchMultiplier: 0.025
   revLimiterThreshold: 0.92
   revLimiterPitchDrop: 1
   revLimiterBounceSpeed: 25
@@ -10803,6 +10803,7 @@ MonoBehaviour:
   flatTireScale: 0.1
   flatTireFriction: 0.1
   currentRPM: 0
+  isNitroActive: 0
 --- !u!114 &7891034384017083176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10817,6 +10818,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FuelSystem
   currentFuel: 0
   fuelDrainRate: 6.5
+  refuelSound: {fileID: 8300000, guid: d99ce66dde25c4e2f94de3f2bfa22461, type: 3}
   isOutOfFuel: 0
 --- !u!82 &-5327865585866080723
 AudioSource:
@@ -10829,7 +10831,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: e8883eea53a314ca199b49aa7b65b446, type: 3}
+  m_Resource: {fileID: 8300000, guid: 540e9d8e182f44a6fa73d9c6ef5a46c7, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
