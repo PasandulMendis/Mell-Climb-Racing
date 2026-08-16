@@ -527,7 +527,7 @@ public class CarController : MonoBehaviour
             totalAirRotation += deltaZ;
             lastZRotation = currentZ;
 
-            if (Mathf.Abs(totalAirRotation) >= 360f)
+            if (Mathf.Abs(totalAirRotation) >= 300f)
             {
                 flipsThisJump++;
                 AddHype(0.2f); 
@@ -544,7 +544,7 @@ public class CarController : MonoBehaviour
                     if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
                 }
 
-                totalAirRotation -= Mathf.Sign(totalAirRotation) * 360f;
+                totalAirRotation -= Mathf.Sign(totalAirRotation) * 300f;
             }
         }
         else

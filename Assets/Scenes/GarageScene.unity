@@ -621,6 +621,7 @@ GameObject:
   - component: {fileID: 193074156}
   - component: {fileID: 193074154}
   - component: {fileID: 193074157}
+  - component: {fileID: 193074158}
   m_Layer: 5
   m_Name: button -
   m_TagString: Untagged
@@ -803,6 +804,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &193074158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193074152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 1
 --- !u!1 &269422623
 GameObject:
   m_ObjectHideFlags: 0
@@ -815,6 +829,7 @@ GameObject:
   - component: {fileID: 269422627}
   - component: {fileID: 269422625}
   - component: {fileID: 269422628}
+  - component: {fileID: 269422629}
   m_Layer: 5
   m_Name: button -
   m_TagString: Untagged
@@ -997,6 +1012,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &269422629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269422623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 1
 --- !u!1 &298839831
 GameObject:
   m_ObjectHideFlags: 0
@@ -1086,6 +1114,7 @@ GameObject:
   - component: {fileID: 356368949}
   - component: {fileID: 356368947}
   - component: {fileID: 356368950}
+  - component: {fileID: 356368951}
   m_Layer: 5
   m_Name: button +
   m_TagString: Untagged
@@ -1268,6 +1297,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &356368951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 356368945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 1
 --- !u!1 &369181971
 GameObject:
   m_ObjectHideFlags: 0
@@ -1555,6 +1597,7 @@ GameObject:
   - component: {fileID: 387997003}
   - component: {fileID: 387997002}
   - component: {fileID: 387997005}
+  - component: {fileID: 387997006}
   m_Layer: 5
   m_Name: Engine button
   m_TagString: Untagged
@@ -1696,6 +1739,19 @@ MonoBehaviour:
   releasePopScale: 1.1
   popDuration: 0.15
   baseScale: {x: 1, y: 1, z: 1}
+--- !u!114 &387997006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387997000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 0
 --- !u!1 &471181966
 GameObject:
   m_ObjectHideFlags: 0
@@ -2058,6 +2114,7 @@ GameObject:
   - component: {fileID: 672935362}
   - component: {fileID: 672935361}
   - component: {fileID: 672935364}
+  - component: {fileID: 672935365}
   m_Layer: 5
   m_Name: Mainmenu
   m_TagString: Untagged
@@ -2195,6 +2252,19 @@ MonoBehaviour:
   releasePopScale: 1.1
   popDuration: 0.15
   baseScale: {x: 1, y: 1, z: 1}
+--- !u!114 &672935365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 672935359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 0
 --- !u!1 &690979542
 GameObject:
   m_ObjectHideFlags: 0
@@ -2345,6 +2415,7 @@ GameObject:
   - component: {fileID: 695756600}
   - component: {fileID: 695756599}
   - component: {fileID: 695756602}
+  - component: {fileID: 695756603}
   m_Layer: 5
   m_Name: Start
   m_TagString: Untagged
@@ -2482,6 +2553,19 @@ MonoBehaviour:
   releasePopScale: 1.1
   popDuration: 0.15
   baseScale: {x: 1, y: 1, z: 1}
+--- !u!114 &695756603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 695756597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 2
 --- !u!1 &699984820
 GameObject:
   m_ObjectHideFlags: 0
@@ -2631,6 +2715,7 @@ GameObject:
   - component: {fileID: 795822609}
   - component: {fileID: 795822607}
   - component: {fileID: 795822610}
+  - component: {fileID: 795822611}
   m_Layer: 5
   m_Name: button +
   m_TagString: Untagged
@@ -2813,6 +2898,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &795822611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795822605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 1
 --- !u!1 &815050556
 GameObject:
   m_ObjectHideFlags: 0
@@ -2826,6 +2924,7 @@ GameObject:
   - component: {fileID: 815050559}
   - component: {fileID: 815050558}
   - component: {fileID: 815050561}
+  - component: {fileID: 815050562}
   m_Layer: 5
   m_Name: BuyNitroButton
   m_TagString: Untagged
@@ -2962,6 +3061,19 @@ MonoBehaviour:
   releasePopScale: 1.1
   popDuration: 0.15
   baseScale: {x: 1, y: 1, z: 1}
+--- !u!114 &815050562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815050556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 0
 --- !u!1 &878958977
 GameObject:
   m_ObjectHideFlags: 0
@@ -2975,6 +3087,7 @@ GameObject:
   - component: {fileID: 878958980}
   - component: {fileID: 878958979}
   - component: {fileID: 878958982}
+  - component: {fileID: 878958983}
   m_Layer: 5
   m_Name: Tire button
   m_TagString: Untagged
@@ -3116,6 +3229,19 @@ MonoBehaviour:
   releasePopScale: 1.1
   popDuration: 0.15
   baseScale: {x: 1, y: 1, z: 1}
+--- !u!114 &878958983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878958977}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 0
 --- !u!1 &1014120774
 GameObject:
   m_ObjectHideFlags: 0
@@ -3128,6 +3254,7 @@ GameObject:
   - component: {fileID: 1014120778}
   - component: {fileID: 1014120776}
   - component: {fileID: 1014120779}
+  - component: {fileID: 1014120780}
   m_Layer: 5
   m_Name: button -
   m_TagString: Untagged
@@ -3310,6 +3437,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1014120780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1014120774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 1
 --- !u!1 &1131704258
 GameObject:
   m_ObjectHideFlags: 0
@@ -3596,6 +3736,7 @@ GameObject:
   - component: {fileID: 1165573447}
   - component: {fileID: 1165573445}
   - component: {fileID: 1165573448}
+  - component: {fileID: 1165573449}
   m_Layer: 5
   m_Name: button -
   m_TagString: Untagged
@@ -3778,6 +3919,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1165573449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165573443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 1
 --- !u!1 &1193616512
 GameObject:
   m_ObjectHideFlags: 0
@@ -4003,6 +4157,7 @@ GameObject:
   - component: {fileID: 1263431312}
   - component: {fileID: 1263431311}
   - component: {fileID: 1263431314}
+  - component: {fileID: 1263431315}
   m_Layer: 5
   m_Name: Fuel button
   m_TagString: Untagged
@@ -4144,6 +4299,19 @@ MonoBehaviour:
   releasePopScale: 1.1
   popDuration: 0.15
   baseScale: {x: 1, y: 1, z: 1}
+--- !u!114 &1263431315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263431309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 0
 --- !u!1 &1426131472
 GameObject:
   m_ObjectHideFlags: 0
@@ -4586,6 +4754,7 @@ GameObject:
   - component: {fileID: 1642229615}
   - component: {fileID: 1642229613}
   - component: {fileID: 1642229616}
+  - component: {fileID: 1642229617}
   m_Layer: 5
   m_Name: button +
   m_TagString: Untagged
@@ -4768,6 +4937,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1642229617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642229611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 1
 --- !u!1 &1660189891
 GameObject:
   m_ObjectHideFlags: 0
@@ -5191,6 +5373,7 @@ GameObject:
   - component: {fileID: 1965714032}
   - component: {fileID: 1965714030}
   - component: {fileID: 1965714033}
+  - component: {fileID: 1965714034}
   m_Layer: 5
   m_Name: button +
   m_TagString: Untagged
@@ -5373,6 +5556,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1965714034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965714028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 1
 --- !u!1 &2007000122
 GameObject:
   m_ObjectHideFlags: 0
@@ -5698,6 +5894,7 @@ GameObject:
   - component: {fileID: 2101561121}
   - component: {fileID: 2101561120}
   - component: {fileID: 2101561123}
+  - component: {fileID: 2101561124}
   m_Layer: 5
   m_Name: Suspension button
   m_TagString: Untagged
@@ -5839,6 +6036,19 @@ MonoBehaviour:
   releasePopScale: 1.1
   popDuration: 0.15
   baseScale: {x: 1, y: 1, z: 1}
+--- !u!114 &2101561124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2101561118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f914c3705c79c452bb79665ac8c18c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  soundType: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

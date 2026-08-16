@@ -15,6 +15,9 @@ public class StuntManager : MonoBehaviour
     [Tooltip("Multiplier for chaining flips (e.g. Double Flip = 100 * 2 = 200 coins)")]
     public float multiFlipMultiplier = 1.5f;
 
+    [Header("Audio")]
+    public AudioClip flipSound;
+
     [Header("UI References")]
     [Tooltip("The prefab with the FloatingText script and a TextMeshPro component")]
     public GameObject floatingTextPrefab;
@@ -60,6 +63,12 @@ public class StuntManager : MonoBehaviour
         Color flipColor = flipsInOneJump > 1 ? Color.magenta : Color.yellow; // Special color for combos!
 
         SpawnFloatingText($"{prefix}{flipType.ToUpper()}!\n+{reward}", carPosition, flipColor);
+
+        // --- NEW: Play the satisfying thud sound! ---
+        if (AudioManager.instance != null && flipSound != null)
+        {
+            AudioManager.instance.PlaySFX(flipSound, 0.8f);
+        }
 
         if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
     }

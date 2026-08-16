@@ -64,6 +64,9 @@ public class GameManager : MonoBehaviour
     
     public float milestoneVisibleRange = 200f;
 
+    [Header("Audio")]
+    public AudioClip milestoneSound;
+
     // --- NEW: STAT TRACKING FOR GAME OVER SCREEN ---
     [HideInInspector] public int totalCoinsThisRun = 0;
     [HideInInspector] public int totalGemsThisRun = 0; // --- NEW ---
@@ -89,7 +92,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = 120;
 
         currentMapIndex = PlayerPrefs.GetInt("SelectedMap", 0);
 
@@ -259,6 +262,12 @@ public class GameManager : MonoBehaviour
             milestonePopupPanel.SetActive(true);
             if (milestonePopupText != null) milestonePopupText.text = "STAGE " + maxMilestoneLevel + " REACHED!\n+" + reward + " COINS";
             popupTimer = 3.0f; 
+        }
+
+        // --- NEW: Play the milestone sound! ---
+        if (AudioManager.instance != null && milestoneSound != null)
+        {
+            AudioManager.instance.PlaySFX(milestoneSound, 1f);
         }
 
         if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);

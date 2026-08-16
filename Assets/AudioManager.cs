@@ -18,6 +18,16 @@ public class AudioManager : MonoBehaviour
     [Tooltip("Assign the Map BGM in order of your Map IDs (0 = Village, 1 = Forest, 2 = Snow, etc.)")]
     public AudioClip[] mapBGMs;
 
+    [Header("UI Sounds (Centralized)")]
+    [Tooltip("Standard click for basic navigation buttons")]
+    public AudioClip standardClickSound;
+    [Tooltip("Heavy, satisfying click for buying upgrades")]
+    public AudioClip buyUpgradeSound;
+    [Tooltip("Exciting sound for hitting the big PLAY button")]
+    public AudioClip playButtonSound;
+    [Tooltip("Buzzer for when you don't have enough coins")]
+    public AudioClip errorSound;
+
     void Awake()
     {
         // --- SINGLETON PATTERN ---
@@ -36,7 +46,11 @@ public class AudioManager : MonoBehaviour
 
     void OnDestroy()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        // --- SAFETY FIX: Only unregister if THIS is the real, surviving manager! ---
+        if (instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -86,6 +100,12 @@ public class AudioManager : MonoBehaviour
         // Instantly drop volume to 30%
         if (musicSource != null) musicSource.volume = 0.3f;
     }
+
+    // --- CENTRAL UI AUDIO HOOKS ---
+    public void PlayStandardClick() { PlaySFX(standardClickSound); }
+    public void PlayBuyUpgradeClick() { PlaySFX(buyUpgradeSound); }
+    public void PlayPlayButtonClick() { PlaySFX(playButtonSound); }
+    public void PlayErrorClick() { PlaySFX(errorSound); }
 
     // --- GLOBAL SFX HELPER ---
     public void PlaySFX(AudioClip clip, float volume = 1f)
