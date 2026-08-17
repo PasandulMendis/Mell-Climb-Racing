@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class WheelDustTrail : MonoBehaviour
 {
@@ -32,6 +33,10 @@ public class WheelDustTrail : MonoBehaviour
     [Tooltip("Assign colors here. Element 0 = Map 0 (Dirt), Element 1 = Map 1 (Snow), etc.")]
     public Color[] mapDustColors;
 
+    [Header("Ground Tag Settings")]
+    [Tooltip("Tags of ground objects that should NOT spawn dust (e.g., 'Wood' for bridges).")]
+    public List<string> disallowedGroundTags = new List<string> { "Wood" };
+
     // Internal state to track when we hit the ground
     private bool wasGroundedLastFrame = true;
 
@@ -49,7 +54,7 @@ public class WheelDustTrail : MonoBehaviour
             carController = GetComponentInParent<CarController>();
         }
         
-        // Ensure the particle system emission is initially turned off
+        // Ensure the particle system emission is initially turned off but the system itself is "Playing"
         if (dustParticleSystem != null)
         {
             var emission = dustParticleSystem.emission;
@@ -99,41 +104,65 @@ public class WheelDustTrail : MonoBehaviour
         CarWheel targetWheel = carController.wheels[targetWheelIndex];
         bool isCurrentlyGrounded = targetWheel.isGrounded;
         
-        // Get the car's current speed
+        // Get the car's current speed and check if actively accelerating
         float currentSpeed = carController.carRigidbody.linearVelocity.magnitude;
-
-        // Check if the car is actively accelerating using your Dashboard RPM logic!
-        // Your GameManager idles at low RPM, anything > 0.3 means they are hitting the gas.
         bool isAccelerating = carController.currentRPM > 0.3f;
 
-        // 1. LANDING EFFECT (Puff of dust when hitting the ground)
-        if (enableLandingPuff && isCurrentlyGrounded && !wasGroundedLastFrame)
+        // Check if the wheel is touching a disallowed tag (like a "Wood" bridge)
+        bool touchingDisallowedGround = false;
+        if (isCurrentlyGrounded && disallowedGroundTags.Count > 0 && targetWheel.wheelJoint != null)
         {
-            // Forces the particle system to play a burst immediately
+            // Get the collider of the wheel itself
+            Collider2D wheelCol = targetWheel.wheelJoint.connectedBody != null ? 
+                targetWheel.wheelJoint.connectedBody.GetComponent<Collider2D>() : 
+                targetWheel.wheelJoint.GetComponent<Collider2D>();
+            
+            if (wheelCol != null)
+            {
+                // Create a small circle check slightly larger than the wheel to see what we are touching
+                float checkRadius = wheelCol.bounds.extents.y * 1.2f;
+                Collider2D[] hits = Physics2D.OverlapCircleAll(wheelCol.bounds.center, checkRadius);
+                
+                foreach (var hit in hits)
+                {
+                    // Ignore the car itself
+                    if (hit.gameObject != carController.gameObject && !hit.transform.IsChildOf(carController.transform))
+                    {
+                        if (disallowedGroundTags.Contains(hit.tag))
+                        {
+                            touchingDisallowedGround = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 1. LANDING EFFECT (Puff of dust when hitting the ground)
+        if (enableLandingPuff && isCurrentlyGrounded && !wasGroundedLastFrame && !touchingDisallowedGround)
+        {
             dustParticleSystem.Play();
         }
 
         // 2. CONTINUOUS TRAIL EFFECT (Dust trailing while driving or accelerating)
         var emission = dustParticleSystem.emission;
         
-        // Trail is active if we are on the ground AND (moving fast enough OR actively pushing the gas pedal)
-        if (isCurrentlyGrounded && (currentSpeed > minSpeedForTrail || isAccelerating))
+        // Trail is active if we are on ALLOWED ground AND (moving fast enough OR actively pushing the gas pedal)
+        if (isCurrentlyGrounded && !touchingDisallowedGround && (currentSpeed > minSpeedForTrail || isAccelerating))
         {
-            // Ensure the system is actually playing (in case it stopped automatically)
+            // Force the system to stay awake if it fell asleep
             if (!dustParticleSystem.isPlaying) 
             {
                 dustParticleSystem.Play();
             }
 
-            // Turn on continuous emission while driving on the ground
+            // Turn on continuous emission
             emission.enabled = true;
-            
-            // Override the prefab's rate to ensure a thick, continuous trail instead of tiny spots
             emission.rateOverTime = continuousEmissionRate;
         }
         else
         {
-            // Turn off emission when in the air or completely stopped
+            // Turn off emission when in the air, completely stopped, or driving on a bridge
             emission.enabled = false;
         }
 
