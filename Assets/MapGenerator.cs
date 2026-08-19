@@ -7,10 +7,20 @@ public class MapGenerator : MonoBehaviour
     [Header("Base Generation Settings")]
     public int seed = 8888; 
     public int chunksToSpawnAhead = 5; 
+    // NEW: How many chunks to generate behind the starting position (0) at launch
+    public int chunksToSpawnBehindAtStart = 3; 
     public float chunkWidth = 20f;
     public float destroyDistanceBehind = 50f; 
     public float terrainDepth = 80f;
     public GameObject blankChunkPrefab; 
+
+    [Header("Player Limits")]
+    // NEW: Maximum distance player can reverse from 0 before hitting a wall
+    public float maxReverseDistance = 50f; 
+    [Tooltip("The name of the layer created in Unity for the invisible wall (e.g., 'InvisibleWall'). Must exist in Edit -> Project Settings -> Tags and Layers.")]
+    public string invisibleWallLayerName = "InvisibleWall";
+    private GameObject invisibleWall;
+    private float maxProgressedX = 0f;
 
     [Header("Math & Difficulty (Perlin Noise)")]
     public float pointSpacing = 2f; 
@@ -66,21 +76,62 @@ public class MapGenerator : MonoBehaviour
     void Start()
     {
         Random.InitState(seed);
-        nextSpawnX = 0f;
-        oldestChunkStartX = 0f;
+        
+        // MODIFIED: Start generating chunks from behind the zero point to prevent falling if reversing immediately
+        float startGenerationX = -(chunksToSpawnBehindAtStart * chunkWidth);
+        nextSpawnX = startGenerationX;
+        oldestChunkStartX = startGenerationX;
 
         float rawNextGem = minGemDistance + (Mathf.PerlinNoise(seed + 9, seed) * (maxGemDistance - minGemDistance));
         nextGemX = Mathf.Round(rawNextGem / pointSpacing) * pointSpacing;
 
+        // Don't spawn props or coins behind the starting line if we don't want them there.
+        // We leave these at positive values assuming gameplay goes forward.
         nextPropX = pointSpacing;
 
         // Give the child map a chance to setup its own variables!
         InitializeMap();
 
-        for (int i = 0; i < chunksToSpawnAhead; i++)
+        // Spawn initial chunks (behind + ahead)
+        int totalInitialChunks = chunksToSpawnBehindAtStart + chunksToSpawnAhead;
+        for (int i = 0; i < totalInitialChunks; i++)
         {
             SpawnChunk();
         }
+
+        // Create the invisible wall to restrict reversing
+        CreateInvisibleWall();
+    }
+
+    private void CreateInvisibleWall()
+    {
+        invisibleWall = new GameObject("InvisibleReverseWall");
+        invisibleWall.transform.parent = this.transform;
+        
+        // Assign the layer so it only collides with the player (based on Physics2D matrix settings)
+        int wallLayer = LayerMask.NameToLayer(invisibleWallLayerName);
+        if (wallLayer != -1)
+        {
+            invisibleWall.layer = wallLayer;
+        }
+        else
+        {
+            Debug.LogWarning($"[MapGenerator] Layer '{invisibleWallLayerName}' does not exist! Please create it in Unity's Tags and Layers and update the collision matrix.");
+        }
+
+        // Position it initially at max reverse distance from start
+        float wallX = -maxReverseDistance;
+        invisibleWall.transform.position = new Vector3(wallX, 0f, 0f);
+
+        BoxCollider2D boxCol = invisibleWall.AddComponent<BoxCollider2D>();
+        // Make it very tall so the player can't jump over it, and wide enough to stop them
+        boxCol.size = new Vector2(2f, 200f); 
+
+        // Set a physics material to make it frictionless so car doesn't stick to it
+        PhysicsMaterial2D slipMat = new PhysicsMaterial2D("Slip");
+        slipMat.friction = 0f;
+        slipMat.bounciness = 0f;
+        boxCol.sharedMaterial = slipMat;
     }
 
     void Update()
@@ -92,12 +143,35 @@ public class MapGenerator : MonoBehaviour
             return;
         }
 
+        // Track the maximum distance the player has traveled forward
+        if (playerCar.position.x > maxProgressedX)
+        {
+            maxProgressedX = playerCar.position.x;
+        }
+
+        // Update the invisible wall's position to trail behind the max progress
+        if (invisibleWall != null)
+        {
+            float targetWallX = maxProgressedX - maxReverseDistance;
+            
+            // Adjust the Y position so the wall roughly follows the terrain height, 
+            // preventing the car from slipping under it if the terrain drops sharply.
+            float terrainY = GetRawTerrainY(targetWallX);
+            invisibleWall.transform.position = new Vector3(targetWallX, terrainY, 0f);
+        }
+
+        // Generate chunks ahead
         while (nextSpawnX - playerCar.position.x < (chunksToSpawnAhead * chunkWidth)) SpawnChunk();
 
+        // Destroy chunks behind
         while (activeChunks.Count > 0)
         {
             float oldestChunkEndX = oldestChunkStartX + chunkWidth;
-            if (playerCar.position.x - oldestChunkEndX > destroyDistanceBehind)
+            
+            // We can destroy a chunk if it is entirely behind the moving invisible wall
+            float currentWallX = invisibleWall != null ? invisibleWall.transform.position.x : -maxReverseDistance;
+
+            if (oldestChunkEndX < currentWallX - 10f) // Add a small 10f buffer to be safe
             {
                 GameObject oldestChunk = activeChunks[0];
                 activeChunks.RemoveAt(0);
@@ -149,10 +223,10 @@ public class MapGenerator : MonoBehaviour
             float finalY = originalY;
             bool isHazardZone = false;
 
-            // 1. VIRTUAL HOOK: Let child maps deform the terrain (Water dips, Gorges)
+            // 1. VIRTUAL HOOK: Let child maps deform the terrain
             bool handledSpline = ProcessTerrainSpline(globalX, localX, originalY, ref finalY, spline, physicsPoints, ref pointIndex, i, numSurfacePoints, newChunk.transform, out isHazardZone);
 
-            // If the child didn't handle it, insert a standard dirt point
+            // Standard dirt point
             if (!handledSpline)
             {
                 Vector3 localPoint = new Vector3(localX, finalY, 0f);
@@ -163,20 +237,22 @@ public class MapGenerator : MonoBehaviour
                 pointIndex++;
             }
 
-            // 2. VIRTUAL HOOK: Let child maps spawn obstacles (Trees, Rocks, Bouncers)
+            // 2. VIRTUAL HOOK: Let child maps spawn obstacles
             bool spawnedObstacle = false;
-            if (!isHazardZone)
+            // Don't spawn obstacles behind the starting line (0)
+            if (!isHazardZone && globalX >= 0) 
             {
                 spawnedObstacle = ProcessHazards(globalX, originalY, i, numSurfacePoints, newChunk.transform);
             }
 
             // 3. BASE PICKUPS (Coins, Fuel, Gems)
-            if (i < numSurfacePoints && !isHazardZone && !spawnedObstacle)
+            // Don't spawn pickups behind the starting line (0)
+            if (i < numSurfacePoints && !isHazardZone && !spawnedObstacle && globalX >= 0)
             {
                 SpawnPickups(new Vector3(globalX, originalY, 0f), newChunk.transform);
             }
             
-            // 4. BASE ENVIRONMENT PROPS (Trees in background)
+            // 4. BASE ENVIRONMENT PROPS 
             if (generateProps && globalX >= nextPropX && i < numSurfacePoints)
             {
                 if (!isHazardZone)
@@ -185,8 +261,6 @@ public class MapGenerator : MonoBehaviour
                 }
                 else
                 {
-                    // FIX: Even if blocked by a tunnel/lake, the prop distance tracker must keep advancing! 
-                    // This prevents all the skipped props from spawning in a massive clump at the tunnel exit.
                     nextPropX += propCheckInterval;
                 }
             }
@@ -206,13 +280,11 @@ public class MapGenerator : MonoBehaviour
         }
         
         edgeCol.SetPoints(physicsPoints);
-         // NEW: Let child maps know a chunk finished generating so they can style the ground!
         OnChunkGenerated(newChunk);
         activeChunks.Add(newChunk);
         nextSpawnX += chunkWidth;
     }
 
-    // FIX: Changed from private to 'protected virtual' so SnowMap can manually call this inside tunnels!
     protected virtual void SpawnPickups(Vector3 groundPosition, Transform chunkParent)
     {
         if (groundPosition.x >= nextFuelX)
@@ -278,7 +350,6 @@ public class MapGenerator : MonoBehaviour
                 prop.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(0f, terrainAngle, propTerrainAlignment));
                 if (Mathf.PerlinNoise(groundPosition.x * 9.9f, seed + 8.8f) > 0.5f) prop.transform.localScale = new Vector3(-prop.transform.localScale.x, prop.transform.localScale.y, prop.transform.localScale.z);
 
-                // NEW: Let child maps know a prop was spawned so they can modify it (like tinting!)
                 OnEnvironmentPropSpawned(prop);
             }
         }

@@ -47,10 +47,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MoonMap
   seed: 111
   chunksToSpawnAhead: 3
+  chunksToSpawnBehindAtStart: 3
   chunkWidth: 20
   destroyDistanceBehind: 60
   terrainDepth: 1
   blankChunkPrefab: {fileID: 2503069242505576877, guid: 22ba11f7b7f4f400e9de6444d888a568, type: 3}
+  maxReverseDistance: 50
   pointSpacing: 0.5
   baseAmplitude: 5
   maxAmplitude: 25
@@ -122,7 +124,7 @@ MonoBehaviour:
   blackHolePrefab: {fileID: 5571019053739652520, guid: 1adef15a7e6dc466386b7f371dee75d5, type: 3}
   minBlackHoleDistance: 350
   maxBlackHoleDistance: 500
-  portalLinkDistance: 50
+  portalLinkDistance: 47
   minPortalHeight: 2
   maxPortalHeight: 6
   generateGeysers: 1

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3615307531604379463}
   - component: {fileID: 6455653695014890139}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Flame Light 2D
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108,7 +108,7 @@ GameObject:
   - component: {fileID: 4534905092579642732}
   - component: {fileID: 1386594014570264347}
   - component: {fileID: 2435750274529498624}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Back Wheel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -264,7 +264,7 @@ GameObject:
   - component: {fileID: 6201835986390640414}
   - component: {fileID: 35025620640196097}
   - component: {fileID: 1171412992371855465}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Front Wheel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -419,7 +419,7 @@ GameObject:
   - component: {fileID: 1351695663006774114}
   - component: {fileID: 7861387007282947081}
   - component: {fileID: 7618282102517694979}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RoofCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -510,7 +510,7 @@ GameObject:
   - component: {fileID: 5729171200238550594}
   - component: {fileID: 2223790146901238975}
   - component: {fileID: 2162979678856671458}
-  m_Layer: 5
+  m_Layer: 3
   m_Name: DriverMeme
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -526,14 +526,14 @@ RectTransform:
   m_GameObject: {fileID: 2253162748902461113}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8607353420593977520}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.052000046, y: 0.35300064}
+  m_AnchoredPosition: {x: 0.017000198, y: 0.3939991}
   m_SizeDelta: {x: -44.1, y: -44.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2223790146901238975
@@ -581,7 +581,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1124146258536166082}
   - component: {fileID: 3732651331745346435}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Spot Light 2D
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -666,7 +666,7 @@ GameObject:
   - component: {fileID: 7183415144157639414}
   - component: {fileID: 6520549613286971545}
   - component: {fileID: 1684363942372371148}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Exhaust
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -681,13 +681,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4559908899484303075}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.5053174, y: -0.49462548, z: 0.49462548, w: 0.5053174}
-  m_LocalPosition: {x: 0.272, y: 1.018, z: -0}
+  m_LocalRotation: {x: -0.336237, y: -0.62204856, z: -0.10320631, w: 0.6995347}
+  m_LocalPosition: {x: -0.064, y: 1.04, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8151598668928751057}
-  m_LocalEulerAnglesHint: {x: -1.225, y: -90, z: 90}
+  m_LocalEulerAnglesHint: {x: -36.785, y: -90, z: 20}
 --- !u!198 &6520549613286971545
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -696,7 +696,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4559908899484303075}
   serializedVersion: 8
-  lengthInSec: 5
+  lengthInSec: 1
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -770,9 +770,9 @@ ParticleSystem:
     enabled: 1
     startLifetime:
       serializedVersion: 2
-      minMaxState: 3
-      scalar: 0.6
-      minScalar: 0.3
+      minMaxState: 0
+      scalar: 1
+      minScalar: 5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -823,9 +823,9 @@ ParticleSystem:
         m_RotationOrder: 4
     startSpeed:
       serializedVersion: 2
-      minMaxState: 3
-      scalar: 1.5
-      minScalar: 0.5
+      minMaxState: 0
+      scalar: 1
+      minScalar: 5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -878,7 +878,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.14150941, g: 0.14150941, b: 0.14150941, a: 0.7607843}
+      maxColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 0.43137255}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -942,8 +942,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.05
-      minScalar: 0.02
+      scalar: 0.5
+      minScalar: 0
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1100,7 +1100,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationX:
       serializedVersion: 2
-      minMaxState: 3
+      minMaxState: 0
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -1153,7 +1153,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationY:
       serializedVersion: 2
-      minMaxState: 3
+      minMaxState: 0
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -1206,8 +1206,8 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotation:
       serializedVersion: 2
-      minMaxState: 3
-      scalar: 6.283185
+      minMaxState: 0
+      scalar: 0
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -1259,7 +1259,7 @@ ParticleSystem:
         m_RotationOrder: 4
     randomizeRotationDirection: 0
     gravitySource: 1
-    maxNumParticles: 100000
+    maxNumParticles: 300
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
@@ -1319,15 +1319,15 @@ ParticleSystem:
   ShapeModule:
     serializedVersion: 6
     enabled: 1
-    type: 4
-    angle: 35
-    length: 0.01
+    type: 5
+    angle: 25
+    length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 1, y: 1, z: 1}
+    m_Scale: {x: 0.68, y: 0, z: 0.09}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -1406,7 +1406,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.15
+      value: 1
       mode: 0
       spread: 0
       speed:
@@ -1464,8 +1464,8 @@ ParticleSystem:
           m_RotationOrder: 4
     arc:
       value: 360
-      mode: 1
-      spread: 1
+      mode: 0
+      spread: 0
       speed:
         serializedVersion: 2
         minMaxState: 0
@@ -1525,7 +1525,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 150
+      scalar: 300
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -1577,9 +1577,9 @@ ParticleSystem:
         m_RotationOrder: 4
     rateOverDistance:
       serializedVersion: 2
-      minMaxState: 3
-      scalar: 15
-      minScalar: 1.5
+      minMaxState: 0
+      scalar: 1
+      minScalar: 0
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1964,7 +1964,7 @@ ParticleSystem:
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
-        key1: {r: 1, g: 1, b: 1, a: 0.17254902}
+        key1: {r: 1, g: 1, b: 1, a: 0}
         key2: {r: 0, g: 0, b: 0, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
@@ -1988,7 +1988,7 @@ ParticleSystem:
         atime6: 0
         atime7: 0
         m_Mode: 0
-        m_ColorSpace: 0
+        m_ColorSpace: -1
         m_NumColorKeys: 2
         m_NumAlphaKeys: 2
       minGradient:
@@ -2146,11 +2146,11 @@ ParticleSystem:
     flipU: 0
     flipV: 0
   VelocityModule:
-    enabled: 0
+    enabled: 1
     x:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: -0.2
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -2256,7 +2256,7 @@ ParticleSystem:
     z:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 0.2
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -2730,7 +2730,7 @@ ParticleSystem:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    inWorldSpace: 0
+    inWorldSpace: 1
   InheritVelocityModule:
     enabled: 0
     m_Mode: 0
@@ -3340,12 +3340,12 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
   NoiseModule:
-    enabled: 1
+    enabled: 0
     strength:
       serializedVersion: 2
-      minMaxState: 3
-      scalar: 0.4
-      minScalar: 0.2
+      minMaxState: 0
+      scalar: 1
+      minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -3396,7 +3396,7 @@ ParticleSystem:
         m_RotationOrder: 4
     strengthY:
       serializedVersion: 2
-      minMaxState: 3
+      minMaxState: 0
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -3449,7 +3449,7 @@ ParticleSystem:
         m_RotationOrder: 4
     strengthZ:
       serializedVersion: 2
-      minMaxState: 3
+      minMaxState: 0
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -3501,16 +3501,16 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     separateAxes: 0
-    frequency: 1.5
+    frequency: 0.5
     damping: 1
     octaves: 1
     octaveMultiplier: 0.5
     octaveScale: 2
-    quality: 1
+    quality: 2
     scrollSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.5
+      scalar: 0
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -4040,7 +4040,7 @@ ParticleSystem:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    range: {x: 0, y: 5}
+    range: {x: 0, y: 1}
     separateAxes: 0
   RotationBySpeedModule:
     enabled: 0
@@ -4214,7 +4214,7 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 0.9665436, b: 0.7877358, a: 1}
+        key0: {r: 1, g: 1, b: 1, a: 1}
         key1: {r: 1, g: 1, b: 1, a: 1}
         key2: {r: 0, g: 0, b: 0, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
@@ -4239,7 +4239,7 @@ ParticleSystem:
         atime6: 0
         atime7: 0
         m_Mode: 0
-        m_ColorSpace: 0
+        m_ColorSpace: -1
         m_NumColorKeys: 2
         m_NumAlphaKeys: 2
       minGradient:
@@ -4471,7 +4471,7 @@ ParticleSystem:
     - serializedVersion: 3
       emitter: {fileID: 0}
       type: 0
-      properties: -1
+      properties: 0
       emitProbability: 1
   LightsModule:
     enabled: 0
@@ -5437,7 +5437,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 2f648a0387c699744badac79f063b1d1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5456,15 +5456,15 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
+  m_SortingLayerID: 84559311
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0
-  m_MaxParticleSize: 0.5
+  m_MaxParticleSize: 0.25
   m_CameraVelocityScale: 0
   m_VelocityScale: 0
   m_LengthScale: 2
@@ -5501,7 +5501,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7548708097605545633}
   - component: {fileID: 3580780868710544340}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Chassis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5591,7 +5591,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6488087045609720082}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: NitroPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5625,7 +5625,7 @@ GameObject:
   - component: {fileID: 4889798209053366697}
   - component: {fileID: 2145616266646003571}
   - component: {fileID: 5093341213716700532}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: NitroThruster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5841,7 +5841,7 @@ GameObject:
   - component: {fileID: 665377865879471503}
   - component: {fileID: 2705048332200900089}
   - component: {fileID: 2006405566190062322}
-  m_Layer: 5
+  m_Layer: 3
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5949,7 +5949,7 @@ GameObject:
   - component: {fileID: 8374513663811443938}
   - component: {fileID: 7891034384017083176}
   - component: {fileID: -5327865585866080723}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Western Star
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -6126,7 +6126,8 @@ PolygonCollider2D:
       - {x: 1.2281647, y: 0.61273676}
       - {x: 1.0972058, y: 0.73004794}
       - {x: 0.86505836, y: 0.91191983}
-      - {x: 0.29245678, y: 1.1051838}
+      - {x: 0.4900585, y: 0.87688905}
+      - {x: 0.07145481, y: 1.0846256}
       - {x: 0.011298239, y: 1.0967658}
       - {x: -0.03555329, y: 0.8217383}
       - {x: -0.5511765, y: 0.8173417}
@@ -6305,7 +6306,7 @@ MonoBehaviour:
   rotationSpeed: 0.02
   airRotationMultiplier: 1
   flipCoinBonus: 250
-  nitroBoostForce: 50
+  nitroBoostForce: 80
   nitroDuration: 2
   nitroThrusterPoint: {fileID: 6488087045609720082}
   coastingBrakeForce: 1.1
@@ -6313,8 +6314,8 @@ MonoBehaviour:
   engineAudioSource: {fileID: -5327865585866080723}
   exhaustParticleSystem: {fileID: 6520549613286971545}
   minPitch: 0.8
-  maxPitch: 3
-  pitchMultiplier: 0.05
+  maxPitch: 2
+  pitchMultiplier: 0.005
   revLimiterThreshold: 0.92
   revLimiterPitchDrop: 1
   revLimiterBounceSpeed: 25
@@ -6452,7 +6453,7 @@ GameObject:
   - component: {fileID: 2544183270492947923}
   - component: {fileID: 1379382159054853736}
   - component: {fileID: 4245748491227705489}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Back Wheel Extra
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6614,7 +6615,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233658, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: InitialModule.startSize.scalar
-      value: 0.8
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233658, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: InitialModule.startSize.minScalar
@@ -6642,11 +6643,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233660, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.746
+      value: -2.162
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233660, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.215
+      value: -1.126
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233660, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6683,6 +6684,10 @@ PrefabInstance:
     - target: {fileID: 2282438384830233661, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: m_Name
       value: BackDust Extra
+      objectReference: {fileID: 0}
+    - target: {fileID: 2282438384830233661, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233661, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: m_IsActive
@@ -6743,6 +6748,7 @@ MonoBehaviour:
   - {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
   disallowedGroundTags:
   - Wood
+  - Water
 --- !u!1001 &5490396796103529286
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6761,7 +6767,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233658, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: InitialModule.startSize.scalar
-      value: 0.8
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233658, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: InitialModule.startSize.minScalar
@@ -6793,7 +6799,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233660, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.215
+      value: -1.126
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233660, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6830,6 +6836,10 @@ PrefabInstance:
     - target: {fileID: 2282438384830233661, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: m_Name
       value: BackDust
+      objectReference: {fileID: 0}
+    - target: {fileID: 2282438384830233661, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2282438384830233661, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}
       propertyPath: m_IsActive
@@ -6885,6 +6895,7 @@ MonoBehaviour:
   - {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
   disallowedGroundTags:
   - Wood
+  - Water
 --- !u!198 &6024997533790777212 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 2282438384830233658, guid: 7697a49ea05824642b45a2fab61c81c4, type: 3}

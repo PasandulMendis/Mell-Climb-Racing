@@ -138,10 +138,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ForestMap
   seed: 8888
   chunksToSpawnAhead: 3
+  chunksToSpawnBehindAtStart: 3
   chunkWidth: 20
   destroyDistanceBehind: 60
   terrainDepth: 2
   blankChunkPrefab: {fileID: 2503069242505576877, guid: 78bc2df6de1b3435d9f9adb7ad7fd37d, type: 3}
+  maxReverseDistance: 45
   pointSpacing: 0.5
   baseAmplitude: 2
   maxAmplitude: 10

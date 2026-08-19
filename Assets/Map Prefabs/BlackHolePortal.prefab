@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackHolePortal
   linkedPortal: {fileID: 0}
-  cooldown: 1
+  cooldown: 5
   lastTeleportTime: -999
   scaleDownTime: 0.1
   cameraPanTime: 0.8

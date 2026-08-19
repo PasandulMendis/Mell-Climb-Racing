@@ -138,10 +138,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VillageMap
   seed: 12345
   chunksToSpawnAhead: 3
+  chunksToSpawnBehindAtStart: 3
   chunkWidth: 20
   destroyDistanceBehind: 60
   terrainDepth: 2
   blankChunkPrefab: {fileID: 2503069242505576877, guid: 1a41ed39a7dae4b47a390be90b337059, type: 3}
+  maxReverseDistance: 45
   pointSpacing: 0.5
   baseAmplitude: 3
   maxAmplitude: 25

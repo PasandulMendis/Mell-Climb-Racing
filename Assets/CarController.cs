@@ -315,7 +315,7 @@ public class CarController : MonoBehaviour
             var emission = exhaustParticleSystem.emission;
             if (hasFuel && (GameManager.instance == null || !GameManager.instance.isGameOver))
             {
-                if (movementInput > 0) emission.rateOverTime = 30f; 
+                if (movementInput > 0) emission.rateOverTime = 300f; 
                 else emission.rateOverTime = 5f; 
             }
             else

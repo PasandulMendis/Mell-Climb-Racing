@@ -151,37 +151,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MemeManager
   streamerPlayer: {fileID: 1792975626}
   driverPlayer: {fileID: 50063215}
-  streamerIdle:
-  - {fileID: 32900000, guid: a343f2d5f1fb1420a8ef7f0de2ff0818, type: 3}
-  streamerHappy:
-  - {fileID: 32900000, guid: f21e7c47a8ad94ab18e8c13909445a2b, type: 3}
-  - {fileID: 32900000, guid: 81bd878f030bf4ffb96c42dc08a5ac3f, type: 3}
-  - {fileID: 32900000, guid: 8c909149a0bcc47d19c676f2e9bf2f5e, type: 3}
-  streamerAngry:
-  - {fileID: 32900000, guid: 0a19d30e0eb8d41e584c312b32850000, type: 3}
-  - {fileID: 32900000, guid: 9307d0a813d1040cc849f3cff90d15da, type: 3}
-  - {fileID: 32900000, guid: 008b72be38842493e966c2be44412072, type: 3}
-  - {fileID: 32900000, guid: 31daab27df9a54ace8ee6744302f3804, type: 3}
-  streamerScared:
-  - {fileID: 32900000, guid: a5371aa4f81444cd68c1cf1213f9e7b7, type: 3}
-  - {fileID: 32900000, guid: e6aed89aa204f4082a9766bc5b57fc59, type: 3}
-  - {fileID: 32900000, guid: 84e52177356734895b5983804f54c532, type: 3}
+  streamerIdle: []
+  streamerHappy: []
+  streamerAngry: []
+  streamerScared: []
   driverIdle:
-  - {fileID: 32900000, guid: d04b95b95bea54b40abab9df68c446c0, type: 3}
-  - {fileID: 32900000, guid: 88da379963082483d8e342fd0e0cb87a, type: 3}
-  - {fileID: 32900000, guid: e5bce787230b7494f99190b9c102eb4c, type: 3}
-  - {fileID: 32900000, guid: 1423d45da4c084f9c9d5e6f2de4ede77, type: 3}
+  - {fileID: 32900000, guid: 096ab8cffedca4301addbb86ab36cc7b, type: 3}
+  - {fileID: 32900000, guid: 32e45ef7f970d406eab2cf455e5539af, type: 3}
+  - {fileID: 32900000, guid: 474ab2b5f019c45169dc4abfd485d85a, type: 3}
+  - {fileID: 32900000, guid: 32305aac2de944f6e8afe6c99bd4e9e6, type: 3}
   driverHappy:
-  - {fileID: 32900000, guid: f21e7c47a8ad94ab18e8c13909445a2b, type: 3}
-  - {fileID: 32900000, guid: 81bd878f030bf4ffb96c42dc08a5ac3f, type: 3}
-  - {fileID: 32900000, guid: 8c909149a0bcc47d19c676f2e9bf2f5e, type: 3}
+  - {fileID: 32900000, guid: 4bab09e7f6848436fa250bd498eccb80, type: 3}
+  - {fileID: 32900000, guid: 0dba23da0cf4f407390660800ca0cacc, type: 3}
+  - {fileID: 32900000, guid: 3c86dd6d6d9b64ff18ddfad5d09a0706, type: 3}
+  - {fileID: 32900000, guid: ed51c2d03d94742669110d2070216c42, type: 3}
   driverAngry:
-  - {fileID: 32900000, guid: e271a37ef202c4eab99278725dfeb14a, type: 3}
-  - {fileID: 32900000, guid: 82393bb85f8ba412eb890483bbc76364, type: 3}
-  - {fileID: 32900000, guid: 31daab27df9a54ace8ee6744302f3804, type: 3}
+  - {fileID: 32900000, guid: 728202ce104a64501a207e3ebda67f2e, type: 3}
+  - {fileID: 32900000, guid: b85ac191670f24a14b988930b86ed31e, type: 3}
+  - {fileID: 32900000, guid: 3a50a3223ad2e4b7ea6377df510a7f89, type: 3}
+  - {fileID: 32900000, guid: 14909c3211a4148efaf973d2f3071766, type: 3}
+  - {fileID: 32900000, guid: 7b9d70ebd09b64673be7f4b11b09e45f, type: 3}
   driverScared:
-  - {fileID: 32900000, guid: 7886bc9c52e224ff29ece35ac607eb5b, type: 3}
-  - {fileID: 32900000, guid: 0833d844bbdcd4634af5a54f5d1a6cb4, type: 3}
+  - {fileID: 32900000, guid: 94f87b83fb6b04ee7967312236e695d6, type: 3}
+  - {fileID: 32900000, guid: 1cee2d1f7e12e47489f5d58b3ec4145f, type: 3}
+  - {fileID: 32900000, guid: f7002859038ce4eef9a62638fab64179, type: 3}
 --- !u!4 &50063213
 Transform:
   m_ObjectHideFlags: 0
@@ -1086,7 +1079,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 60, y: 60}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &339463291
 MonoBehaviour:
@@ -1101,14 +1094,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1117894018864531364, guid: c6502e2a7351d41cc8e91a3c6727d907, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3703,7 +3696,6 @@ RectTransform:
   - {fileID: 1484007479}
   - {fileID: 1347868695}
   - {fileID: 339463290}
-  - {fileID: 1576980984}
   m_Father: {fileID: 474763903}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
@@ -5309,81 +5301,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -47.2}
   m_SizeDelta: {x: 17, y: 17}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &1576980983
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1576980984}
-  - component: {fileID: 1576980986}
-  - component: {fileID: 1576980985}
-  m_Layer: 5
-  m_Name: Vehicle
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1576980984
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1576980983}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1230537474}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -318.9, y: -2.2}
-  m_SizeDelta: {x: 50, y: 60}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1576980985
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1576980983}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 7016520231821885232, guid: 53733375ad0f44810aec7c78ad1e3c87, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &1576980986
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1576980983}
-  m_CullTransparentMesh: 1
 --- !u!1 &1656607169
 GameObject:
   m_ObjectHideFlags: 0

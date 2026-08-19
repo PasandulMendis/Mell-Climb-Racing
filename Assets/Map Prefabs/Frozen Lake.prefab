@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -7750335611328384667}
   m_Layer: 0
   m_Name: Frozen Lake
-  m_TagString: Untagged
+  m_TagString: Water
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
