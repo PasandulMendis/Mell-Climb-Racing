@@ -144,6 +144,7 @@ MonoBehaviour:
   terrainDepth: 2
   blankChunkPrefab: {fileID: 2503069242505576877, guid: 1a41ed39a7dae4b47a390be90b337059, type: 3}
   maxReverseDistance: 45
+  invisibleWallLayerName: InvisibleWall
   pointSpacing: 0.5
   baseAmplitude: 3
   maxAmplitude: 25
@@ -194,7 +195,7 @@ MonoBehaviour:
   propYOffset: -0.1
   propTerrainAlignment: 0.8
   enableStaticTime: 1
-  randomizeTime: 1
+  randomizeTime: 0
   specificTimeOfDay: 2
   skyBackgroundRenderer: {fileID: 4705067604519369960}
   dawnColors:
@@ -222,7 +223,7 @@ MonoBehaviour:
   generateWaterPools: 1
   waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
   mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
-  mudProbability: 0.1
+  mudProbability: 0
   minWaterWidth: 6
   maxWaterWidth: 12
   waterDepth: 0.2

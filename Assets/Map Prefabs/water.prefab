@@ -150,15 +150,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1f07fb7ac20942a4ab80328f6fb421f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicWater2D
-  nodeCount: 70
+  nodeCount: 100
+  foamColor: {r: 1, g: 1, b: 1, a: 0.9}
   surfaceColor: {r: 0.19971518, g: 0.59246916, b: 0.8301887, a: 0.8}
   depthColor: {r: 0.0054734685, g: 0.15151043, b: 0.38679248, a: 0.9}
-  springConstant: 0.005
-  damping: 0.04
-  spread: 0.025
-  collisionForceMultiplier: 0.025
-  buoyancyStrength: 2
-  fluidViscosity: 1.25
-  continuousWakeMultiplier: 0.005
+  baseFoamThickness: 0.05
+  maxFoamThickness: 0.4
+  foamGenerationMultiplier: 0.02
+  foamDecayRate: 2
+  springConstant: 0.015
+  damping: 0.035
+  spread: 0.045
+  collisionForceMultiplier: 0.045
+  useComplexAmbient: 1
+  wave1Speed: 1.5
+  wave1Freq: 2
+  wave1Amp: 0.06
+  wave2Speed: -2.1
+  wave2Freq: 5
+  wave2Amp: 0.03
+  wave3Speed: 3.5
+  wave3Freq: 1.5
+  wave3Amp: 0.04
+  buoyancyStrength: 10
+  hydrodynamicDrag: 2.5
+  rotationalFriction: 3
   splashPrefab: {fileID: 0}
   splashSound: {fileID: 0}
