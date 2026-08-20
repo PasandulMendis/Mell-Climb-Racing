@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.U2D; 
 using System.Collections.Generic;
-using System.Linq; // Added for Reverse()
+using System.Linq; 
 
 public class SnowMap : MapGenerator
 {
@@ -40,7 +40,6 @@ public class SnowMap : MapGenerator
     private Color propTint = Color.white;
     private bool hasTintedCar = false;
 
-
     [Header("--- SNOW SPECIFIC FEATURES ---")]
     
     [Header("1. Frozen Lakes (Fluid Hazards)")]
@@ -54,8 +53,21 @@ public class SnowMap : MapGenerator
     public float minLakeWidth = 15f;
     public float maxLakeWidth = 40f;
     public float lakeDepth = 8f;
+    [Tooltip("The visual depth of the water mesh generated downwards. Keep small to save performance.")]
+    public float waterMeshDepth = 15f;
+
     public float waterLevelOffset = -2f;
     public int waterSortingOrder = 3;
+
+    [Header("Fluid Terrain Placement Rules")]
+    [Tooltip("If true, fluid pools (lakes) will only spawn on flat ground or inside valleys between hills.")]
+    public bool requireFlatOrValleyTerrain = true;
+    [Tooltip("Maximum allowed height difference between start bank and end bank of fluid pool.")]
+    public float maxFluidEdgeHeightDiff = 1.0f;
+    [Tooltip("Maximum allowed internal slope across the terrain segment before fluid is rejected.")]
+    public float maxFluidTerrainSlope = 0.15f;
+    [Tooltip("Tolerated bulge height above bank height. Keeps lakes off top of hills/peaks.")]
+    public float maxPeakBulgeTolerance = 0.05f;
 
     [Header("2. Snow Tunnels (Major Feature)")]
     public bool generateTunnels = true;
@@ -82,16 +94,7 @@ public class SnowMap : MapGenerator
     [Tooltip("Offsets the icicle downwards so it doesn't get stuck in the ceiling collider")]
     public float icicleYOffset = -1.5f;
 
-    [Header("4. Snowmen Obstacles")]
-    public bool generateSnowmen = true;
-    public GameObject snowmanPrefab;
-    [Tooltip("Minimum distance between snowmen")]
-    public float minSnowmanDistance = 150f;
-    [Tooltip("Maximum distance between snowmen")]
-    public float maxSnowmanDistance = 400f;
-    public float snowmanYOffset = 0.5f;
-
-   [Header("3. Giant Snowballs")]
+    [Header("3. Giant Snowballs")]
     public bool generateGiantSnowballs = true;
     public GameObject giantSnowballPrefab;
     [Tooltip("Minimum distance between giant snowballs")]
@@ -100,6 +103,15 @@ public class SnowMap : MapGenerator
     public float maxSnowballDistance = 1500f;
     [Tooltip("Spawns the snowball slightly in the air so it drops naturally onto the slope")]
     public float snowballYOffset = 3f;
+
+    [Header("4. Snowmen Obstacles")]
+    public bool generateSnowmen = true;
+    public GameObject snowmanPrefab;
+    [Tooltip("Minimum distance between snowmen")]
+    public float minSnowmanDistance = 150f;
+    [Tooltip("Maximum distance between snowmen")]
+    public float maxSnowmanDistance = 400f;
+    public float snowmanYOffset = 0.5f;
 
     [Header("5. Ice Block Pyramids")]
     public bool generateIcePyramids = true;
@@ -140,12 +152,10 @@ public class SnowMap : MapGenerator
     private Spline currentCeilingSpline;
     private List<Vector2> ceilingPhysicsPoints;
     
-    // NEW: We will store the points temporarily so we can reverse them later
     private List<Vector2> tempCeilingPoints; 
     
     private System.Random runRNG;
     private bool isNightTime = false; 
-
 
     void LateUpdate()
     {
@@ -155,10 +165,13 @@ public class SnowMap : MapGenerator
             TintObject(playerCar.gameObject);
         }
         
-        CarController carScript = playerCar.GetComponent<CarController>();
-        if (carScript != null)
+        if (playerCar != null)
         {
-            carScript.ToggleHeadlights(isNightTime);
+            CarController carScript = playerCar.GetComponent<CarController>();
+            if (carScript != null)
+            {
+                carScript.ToggleHeadlights(isNightTime);
+            }
         }
 
         if (skyBackgroundRenderer != null && Camera.main != null)
@@ -270,6 +283,90 @@ public class SnowMap : MapGenerator
         nextIcePyramidX = Mathf.Round(rawNextPyramid / pointSpacing) * pointSpacing;
     }
 
+    /// <summary>
+    /// Checks whether the raw terrain profile from fluidX to fluidX + width is flat or forms a natural valley,
+    /// avoiding steep hills, sloped grades, hill peaks, and floating visual mesh edges.
+    /// </summary>
+    private bool IsTerrainSuitableForFluid(float fluidX, float width)
+    {
+        if (!requireFlatOrValleyTerrain) return true;
+
+        float startY = GetRawTerrainY(fluidX);
+        float endY = GetRawTerrainY(fluidX + width);
+
+        // 1. Bank Level Check: Start & End banks should be close in height
+        float edgeDiff = Mathf.Abs(startY - endY);
+        if (edgeDiff > maxFluidEdgeHeightDiff)
+        {
+            return false; // Terrain is on a steep global gradient
+        }
+
+        // Global Gradient Check: Ensure ground across entire pool width isn't a continuous incline/decline
+        float globalSlope = edgeDiff / width;
+        if (globalSlope > maxFluidTerrainSlope)
+        {
+            return false; // Overall hillside gradient is too steep for standing fluid
+        }
+
+        // Calculate fluid surface elevation
+        float bankBaseY = Mathf.Min(startY, endY);
+        float surfaceY = bankBaseY + waterLevelOffset;
+
+        // Calculate visual padding bounds
+        float edgePadding = Mathf.Clamp(width * 0.2f, 4f, 15f);
+        float leftVisualX = fluidX - (edgePadding * 0.5f);
+        float rightVisualX = fluidX + width + (edgePadding * 0.5f);
+
+        // 2. Visual Padding Edge Check:
+        // Ensure terrain outside both banks doesn't drop below the fluid surface level.
+        // If the ground past either bank dips below surfaceY, the flat top fluid mesh will poke out of the slope.
+        int paddingSamples = 3;
+        for (int p = 1; p <= paddingSamples; p++)
+        {
+            float t = (float)p / paddingSamples;
+            float checkLeftX = Mathf.Lerp(fluidX, leftVisualX, t);
+            float checkRightX = Mathf.Lerp(fluidX + width, rightVisualX, t);
+
+            if (GetRawTerrainY(checkLeftX) < surfaceY || GetRawTerrainY(checkRightX) < surfaceY)
+            {
+                return false; // Ground dips below fluid level in the visual padding region!
+            }
+        }
+
+        // 3. Peak / Convex Hill Detection:
+        // Real lakes rest in valleys (concave) or flat ground.
+        // If ANY interior point is higher than the HIGHER of the two banks, it's a hill peak/mound.
+        float maxBankY = Mathf.Max(startY, endY);
+
+        int samples = 10; // Fine-grained sampling
+        float step = width / samples;
+
+        for (int k = 0; k <= samples; k++)
+        {
+            float currX = fluidX + k * step;
+            float currY = GetRawTerrainY(currX);
+
+            // REJECT PEAKS: Interior terrain rises above highest bank elevation
+            if (currY > maxBankY + maxPeakBulgeTolerance)
+            {
+                return false; 
+            }
+
+            // Slope check against adjacent sample
+            if (k > 0)
+            {
+                float prevY = GetRawTerrainY(fluidX + (k - 1) * step);
+                float localSlope = Mathf.Abs(currY - prevY) / step;
+                if (localSlope > maxFluidTerrainSlope)
+                {
+                    return false; // Terrain grade is too steep inside this segment
+                }
+            }
+        }
+
+        return true; // Suitable flat ground or natural valley!
+    }
+
     protected override bool ProcessTerrainSpline(float globalX, float localX, float originalY, ref float finalY, Spline spline, List<Vector2> physicsPoints, ref int pointIndex, int i, int numSurfacePoints, Transform chunkParent, out bool isHazardZone)
     {
         isHazardZone = false;
@@ -361,16 +458,25 @@ public class SnowMap : MapGenerator
         }
 
         // ==========================================
-        // FLUID LOGIC (Lakes)
+        // FLUID LOGIC (Frozen Lakes)
         // ==========================================
-        bool inLakeZone = generateLakes && globalX >= nextLakeX && globalX <= nextLakeX + currentLakeWidth;
-        
-        if (inLakeZone && (globalX >= nextTunnelX - 200f && globalX <= nextTunnelX + currentTunnelLength + 200f))
+        if (generateLakes && globalX >= nextLakeX && !isBuildingLake)
         {
-            nextLakeX = nextTunnelX + currentTunnelLength + 300f;
-            inLakeZone = false;
-            isBuildingLake = false;
+            // 1. Tunnel Zone Avoidance: Don't spawn a lake too close to or inside a tunnel.
+            bool overlapsTunnel = (nextLakeX + currentLakeWidth >= nextTunnelX - 200f && nextLakeX <= nextTunnelX + currentTunnelLength + 200f);
+            if (overlapsTunnel)
+            {
+                // Push completely past the tunnel zone
+                nextLakeX = Mathf.Round((nextTunnelX + currentTunnelLength + 300f) / pointSpacing) * pointSpacing;
+            }
+            // 2. Terrain Suitability Check: If terrain is on a hill/slope, push fluid location forward point by point
+            else if (!IsTerrainSuitableForFluid(nextLakeX, currentLakeWidth))
+            {
+                nextLakeX = Mathf.Round((nextLakeX + pointSpacing) / pointSpacing) * pointSpacing;
+            }
         }
+
+        bool inLakeZone = generateLakes && globalX >= nextLakeX && globalX <= nextLakeX + currentLakeWidth;
 
         if (inLakeZone)
         {
@@ -380,12 +486,15 @@ public class SnowMap : MapGenerator
                 isBuildingLake = true;
                 float startY = GetRawTerrainY(nextLakeX);
                 float endY = GetRawTerrainY(nextLakeX + currentLakeWidth);
-                float midY = (startY + endY) / 2f; 
                 
-                float paddedVisualWidth = currentLakeWidth + 15f;
-                float paddedVisualDepth = (lakeDepth * 2f) + 20f; 
+                // Use minimum bank Y to anchor top surface correctly below both banks
+                float bankBaseY = Mathf.Min(startY, endY); 
                 
-                float surfaceY = midY + waterLevelOffset;
+                float edgePadding = Mathf.Clamp(currentLakeWidth * 0.2f, 4f, 15f);
+                float paddedVisualWidth = currentLakeWidth + edgePadding;
+                float paddedVisualDepth = waterMeshDepth; 
+ 
+                float surfaceY = bankBaseY + waterLevelOffset;
                 float centerOffsetY = surfaceY - (paddedVisualDepth / 2f);
                 
                 Vector2 centerPos = new Vector2(nextLakeX + currentLakeWidth / 2f, centerOffsetY);
@@ -429,8 +538,10 @@ public class SnowMap : MapGenerator
                 }
             }
             
+            // Raised-Cosine curve: blend slope smoothly into and out of the lake bed (derivative at edges = 0)
             float dipPercent = (globalX - nextLakeX) / currentLakeWidth;
-            float dipAmount = Mathf.Sin(dipPercent * Mathf.PI) * lakeDepth;
+            float smoothFactor = 0.5f * (1f - Mathf.Cos(dipPercent * 2f * Mathf.PI));
+            float dipAmount = smoothFactor * lakeDepth;
             finalY -= dipAmount; 
             return false; 
         }
@@ -485,7 +596,6 @@ public class SnowMap : MapGenerator
         return false; 
     }
 
-
     // ==========================================
     // ICE PYRAMID BUILDER
     // ==========================================
@@ -526,7 +636,6 @@ public class SnowMap : MapGenerator
         return false;
     }
 
-
     // ==========================================
     // CEILING BUILDER HELPERS
     // ==========================================
@@ -536,8 +645,7 @@ public class SnowMap : MapGenerator
 
         currentCeilingObj = Instantiate(ceilingChunkPrefab, chunkParent.position, Quaternion.identity, chunkParent);
         
-        // --- THE MAGIC FIX ---
-        // Your SpriteShape profile only has snow assigned to the "UP" normal (top half).
+        // SpriteShape profile only has snow assigned to the "UP" normal (top half).
         // By drawing left-to-right but flipping the object, the "UP" snow texture hangs downwards!
         currentCeilingObj.transform.localScale = new Vector3(1f, -1f, 1f);
         
@@ -551,7 +659,6 @@ public class SnowMap : MapGenerator
     void AddCeilingPoint(float localX, float ceilingY)
     {
         // Because the object is flipped Y, we must invert the local Y coordinates
-        // so that they end up at the correct World Y positions!
         float invertedY = -ceilingY;
         
         tempCeilingPoints.Add(new Vector2(localX, invertedY));
@@ -568,7 +675,6 @@ public class SnowMap : MapGenerator
         float leftmostX = tempCeilingPoints[0].x;
         float rightmostX = tempCeilingPoints[tempCeilingPoints.Count - 1].x;
         
-        // Because scale Y is -1, -100 local becomes +100 World!
         float ceilingTop = -100f; 
 
         // 1. Start the spline top-left
@@ -602,7 +708,7 @@ public class SnowMap : MapGenerator
             }
         }
 
-        // Apply EdgeCollider (It uses the inverted local points, which the -1 scale flips to perfect World space!)
+        // Apply EdgeCollider
         EdgeCollider2D col = currentCeilingObj.GetComponent<EdgeCollider2D>();
         if (col == null) col = currentCeilingObj.AddComponent<EdgeCollider2D>();
         col.SetPoints(ceilingPhysicsPoints);

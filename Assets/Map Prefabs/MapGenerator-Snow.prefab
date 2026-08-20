@@ -144,6 +144,7 @@ MonoBehaviour:
   terrainDepth: 1
   blankChunkPrefab: {fileID: 2503069242505576877, guid: eb037fc69c2a24f2e891c4c262d46fa6, type: 3}
   maxReverseDistance: 45
+  invisibleWallLayerName: InvisibleWall
   pointSpacing: 0.5
   baseAmplitude: 4
   maxAmplitude: 25
@@ -203,13 +204,18 @@ MonoBehaviour:
   generateLakes: 1
   waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
   frozenLakePrefab: {fileID: 8163008081576812170, guid: 82f3d524bbe9a4ff1a8a7a26b76ab33b, type: 3}
-  minLakeDistance: 250
+  minLakeDistance: 100
   maxLakeDistance: 350
-  minLakeWidth: 6
-  maxLakeWidth: 12
-  lakeDepth: 1.1
+  minLakeWidth: 8
+  maxLakeWidth: 26
+  lakeDepth: 1.6
+  waterMeshDepth: 5
   waterLevelOffset: 0
   waterSortingOrder: 4
+  requireFlatOrValleyTerrain: 1
+  maxFluidEdgeHeightDiff: 1
+  maxFluidTerrainSlope: 5
+  maxPeakBulgeTolerance: 0.05
   generateTunnels: 1
   ceilingChunkPrefab: {fileID: 2503069242505576877, guid: 6fc30962f5f194c199f1f66455996601, type: 3}
   iciclePrefab: {fileID: 4778738247051308678, guid: 1a29457753a404c87a5a773a9ef373d8, type: 3}
@@ -219,18 +225,18 @@ MonoBehaviour:
   maxTunnelLength: 150
   minTunnelHeight: 6
   maxTunnelHeight: 6
-  icicleSpawnChance: 0.4
+  icicleSpawnChance: 0.3
   icicleYOffset: -1
-  generateSnowmen: 1
-  snowmanPrefab: {fileID: 9141305696767876709, guid: 378a7443332294fb0b20fb9da29f5ef7, type: 3}
-  minSnowmanDistance: 200
-  maxSnowmanDistance: 500
-  snowmanYOffset: 1.2
   generateGiantSnowballs: 1
   giantSnowballPrefab: {fileID: 3147441054659126348, guid: c6bfe5dadda984fc58e296b52ab02489, type: 3}
   minSnowballDistance: 300
   maxSnowballDistance: 600
   snowballYOffset: 3
+  generateSnowmen: 1
+  snowmanPrefab: {fileID: 9141305696767876709, guid: 378a7443332294fb0b20fb9da29f5ef7, type: 3}
+  minSnowmanDistance: 200
+  maxSnowmanDistance: 500
+  snowmanYOffset: 1.2
   generateIcePyramids: 1
   iceBlockPrefab: {fileID: 8257311918469748673, guid: c9214c8d44c30416b8a8c5c816e225b8, type: 3}
   minIcePyramidDistance: 150

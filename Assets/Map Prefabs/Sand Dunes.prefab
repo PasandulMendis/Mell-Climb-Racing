@@ -45,14 +45,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3583488152674074590}
   serializedVersion: 8
-  lengthInSec: 5
+  lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -227,7 +227,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      maxColor: {r: 0.99607843, g: 0.7882353, b: 0.62352943, a: 0.59607846}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -291,8 +291,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.3
-      minScalar: 0.1
+      scalar: 0.1
+      minScalar: 0
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -608,14 +608,14 @@ ParticleSystem:
         m_RotationOrder: 4
     randomizeRotationDirection: 0
     gravitySource: 0
-    maxNumParticles: 1000
+    maxNumParticles: 20
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
     gravityModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 0.1
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -874,7 +874,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2
+      scalar: 20
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -4786,7 +4786,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10308, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 2f648a0387c699744badac79f063b1d1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4991,15 +4991,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1f07fb7ac20942a4ab80328f6fb421f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicWater2D
-  nodeCount: 70
-  surfaceColor: {r: 0.9811321, g: 0.65456474, b: 0.24528302, a: 0.87058824}
-  depthColor: {r: 0.6981132, g: 0.523926, b: 0.26673195, a: 0.94509804}
-  springConstant: 0.005
-  damping: 0.03
-  spread: 0.015
-  collisionForceMultiplier: 0.02
-  buoyancyStrength: 2
-  fluidViscosity: 6
-  continuousWakeMultiplier: 0.005
-  splashPrefab: {fileID: 6074416777744750288, guid: 318281bb6c51b4670a7e8b866ff4bd1a, type: 3}
+  nodeCount: 100
+  foamColor: {r: 1, g: 1, b: 1, a: 0.9}
+  surfaceColor: {r: 0.9056604, g: 0.8165529, b: 0.6536134, a: 1}
+  depthColor: {r: 0.7264151, g: 0.66668844, b: 0.5242524, a: 1}
+  baseFoamThickness: 0.03
+  maxFoamThickness: 0.25
+  foamGenerationMultiplier: 0.01
+  foamDecayRate: 1
+  springConstant: 0.02
+  damping: 0.09
+  spread: 0.01
+  collisionForceMultiplier: 0.01
+  useComplexAmbient: 0
+  wave1Speed: 1.5
+  wave1Freq: 2
+  wave1Amp: 0.06
+  wave2Speed: -2.1
+  wave2Freq: 5
+  wave2Amp: 0.03
+  wave3Speed: 3.5
+  wave3Freq: 1.5
+  wave3Amp: 0.04
+  buoyancyStrength: 0
+  hydrodynamicDrag: 2.5
+  rotationalFriction: 40
+  enableContinuousSplash: 1
+  minSpeedForSplash: 1
+  continuousSplashInterval: 0.08
+  continuousSplashScale: 0.5
+  wheelInsetRatio: 0.12
+  splashPrefab: {fileID: 3583488152674074590}
   splashSound: {fileID: 0}

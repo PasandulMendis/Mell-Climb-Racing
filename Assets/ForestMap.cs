@@ -59,9 +59,22 @@ public class ForestMap : MapGenerator
     [Range(0f, 1f)] public float mudProbability = 0.3f;
     public float minWaterWidth = 15f;
     public float maxWaterWidth = 40f;
+    [Tooltip("The physical depth of the water affecting the terrain dip.")]
     public float waterDepth = 8f;
+    [Tooltip("The visual depth of the water mesh generated downwards. Keep small to save performance.")]
+    public float waterMeshDepth = 15f;
     public float waterLevelOffset = -2f;
     public int waterSortingOrder = 3;
+
+    [Header("Water Terrain Placement Rules")]
+    [Tooltip("If true, water pools will only spawn on flat ground or inside valleys between hills.")]
+    public bool requireFlatOrValleyTerrain = true;
+    [Tooltip("Maximum allowed height difference between start bank and end bank of water pool.")]
+    public float maxWaterEdgeHeightDiff = 1.0f;
+    [Tooltip("Maximum allowed internal slope across the terrain segment before water is rejected.")]
+    public float maxWaterTerrainSlope = 0.15f;
+    [Tooltip("Tolerated bulge height above bank height. Keeps water off top of hills/peaks.")]
+    public float maxPeakBulgeTolerance = 0.05f;
 
     [Header("Bouncy Hazards (e.g. Giant Mushrooms)")]
     public bool generateBouncyHazards = true;
@@ -73,8 +86,7 @@ public class ForestMap : MapGenerator
     [Tooltip("If true, rotates the bouncy hazard to match the angle of the terrain")]
     public bool alignBouncyToTerrain = true;
 
-
-    [Header("NEW: Bear Traps (Tire Poppers)")]
+    [Header("Bear Traps (Tire Poppers)")]
     public bool generateBearTraps = true;
     public GameObject bearTrapPrefab;
     public float minTrapDistance = 150f;
@@ -82,7 +94,7 @@ public class ForestMap : MapGenerator
     [Tooltip("Adjust to bury the trap slightly into the dirt so it's harder to see!")]
     public float trapYOffset = -0.2f;
 
-    [Header("NEW: Speed Shrooms (Boosters)")]
+    [Header("Speed Shrooms (Boosters)")]
     public bool generateSpeedShrooms = true;
     public GameObject speedShroomPrefab;
     public float minShroomDistance = 300f;
@@ -90,7 +102,7 @@ public class ForestMap : MapGenerator
     [Tooltip("Adjust if the mushroom needs to sit higher or lower on the ground")]
     public float shroomYOffset = 0f;
 
-    [Header("NEW: Giant Seesaws")]
+    [Header("Giant Seesaws")]
     public bool generateSeesaws = true;
     public GameObject seesawPrefab;
     public float minSeesawDistance = 350f;
@@ -98,7 +110,7 @@ public class ForestMap : MapGenerator
     [Tooltip("Adjust to bury the rock base slightly into the dirt")]
     public float seesawYOffset = -0.5f;
 
-    [Header("NEW: Bee Hives (Fuel Drain)")]
+    [Header("Bee Hives (Fuel Drain)")]
     public bool generateBeeHives = true;
     public GameObject beeHivePrefab;
     public float minHiveDistance = 450f;
@@ -106,7 +118,7 @@ public class ForestMap : MapGenerator
     [Tooltip("Adjust to make the hive sit in the grass or float slightly above the road!")]
     public float hiveYOffset = 0.2f;
 
-
+    // Internal trackers
     private float nextBridgeX;
     private float currentBridgeGapWidth;
     private float nextWaterX;
@@ -116,7 +128,7 @@ public class ForestMap : MapGenerator
     private float nextTrapX; 
     private float nextShroomX; 
     private float nextSeesawX; 
-    private float nextHiveX; // Tracker for the Bee Hives
+    private float nextHiveX;
     private System.Random runRNG;
 
     void LateUpdate()
@@ -189,7 +201,6 @@ public class ForestMap : MapGenerator
         Debug.Log("Forest Map started at: " + runTime.ToString());
     }
 
-    // --- NEW: Changed to 'public' so BeeHives can access it when spawning bees mid-game! ---
     public void TintObject(GameObject obj)
     {
         if (propTint == Color.white) return;
@@ -200,7 +211,6 @@ public class ForestMap : MapGenerator
             sr.color *= propTint;
         }
 
-        // --- NEW: Also tint Sprite Shapes! (This fixes the Mud/Fluid hazards if they use Sprite Shapes) ---
         SpriteShapeRenderer[] shapeRenderers = obj.GetComponentsInChildren<SpriteShapeRenderer>();
         foreach (SpriteShapeRenderer ssr in shapeRenderers)
         {
@@ -252,6 +262,12 @@ public class ForestMap : MapGenerator
         float rawWaterWidth = Mathf.Lerp(minWaterWidth, maxWaterWidth, Mathf.PerlinNoise(nextWaterX, seed));
         currentWaterWidth = Mathf.Round(rawWaterWidth / pointSpacing) * pointSpacing;
 
+        float hazardBuffer = 25f;
+        if (generateBridges && generateWaterPools && Mathf.Abs(nextWaterX - nextBridgeX) < (currentWaterWidth + currentBridgeGapWidth + hazardBuffer))
+        {
+            nextWaterX = Mathf.Round((nextBridgeX + currentBridgeGapWidth + hazardBuffer) / pointSpacing) * pointSpacing;
+        }
+
         float rawNextBounce = minBounceDistance + (Mathf.PerlinNoise(seed + 3, seed) * 50f);
         nextBounceX = Mathf.Round(rawNextBounce / pointSpacing) * pointSpacing;
 
@@ -264,17 +280,118 @@ public class ForestMap : MapGenerator
         float rawNextSeesaw = minSeesawDistance + (Mathf.PerlinNoise(seed + 6, seed) * 150f);
         nextSeesawX = Mathf.Round(rawNextSeesaw / pointSpacing) * pointSpacing;
 
-        // Initialize the first Bee Hive position
         float rawNextHive = minHiveDistance + (Mathf.PerlinNoise(seed + 7, seed) * 100f);
         nextHiveX = Mathf.Round(rawNextHive / pointSpacing) * pointSpacing;
+    }
+
+    /// <summary>
+    /// Checks whether the raw terrain profile from waterX to waterX + width is flat or forms a natural valley,
+    /// avoiding steep hills, sloped grades, hill peaks, and floating visual mesh edges.
+    /// </summary>
+    private bool IsTerrainSuitableForWater(float waterX, float width)
+    {
+        if (!requireFlatOrValleyTerrain) return true;
+
+        float startY = GetRawTerrainY(waterX);
+        float endY = GetRawTerrainY(waterX + width);
+
+        // 1. Bank Level Check: Start & End banks should be close in height
+        float edgeDiff = Mathf.Abs(startY - endY);
+        if (edgeDiff > maxWaterEdgeHeightDiff)
+        {
+            return false; // Terrain is on a steep global gradient
+        }
+
+        // Global Gradient Check: Ensure ground across entire pool width isn't a continuous incline/decline
+        float globalSlope = edgeDiff / width;
+        if (globalSlope > maxWaterTerrainSlope)
+        {
+            return false; // Overall hillside gradient is too steep for standing water
+        }
+
+        // Calculate water surface elevation
+        float bankBaseY = Mathf.Min(startY, endY);
+        float surfaceY = bankBaseY + waterLevelOffset;
+
+        // Calculate visual padding bounds
+        float edgePadding = Mathf.Clamp(width * 0.2f, 4f, 15f);
+        float leftVisualX = waterX - (edgePadding * 0.5f);
+        float rightVisualX = waterX + width + (edgePadding * 0.5f);
+
+        // 2. Visual Padding Edge Check:
+        // Ensure terrain outside both banks doesn't drop below the water surface level.
+        // If the ground past either bank dips below surfaceY, the flat top water mesh will poke out of the slope.
+        int paddingSamples = 3;
+        for (int p = 1; p <= paddingSamples; p++)
+        {
+            float t = (float)p / paddingSamples;
+            float checkLeftX = Mathf.Lerp(waterX, leftVisualX, t);
+            float checkRightX = Mathf.Lerp(waterX + width, rightVisualX, t);
+
+            if (GetRawTerrainY(checkLeftX) < surfaceY || GetRawTerrainY(checkRightX) < surfaceY)
+            {
+                return false; // Ground dips below water level in the visual padding region!
+            }
+        }
+
+        // 3. Peak / Convex Hill Detection:
+        // Real water rests in valleys (concave) or flat ground.
+        // If ANY interior point is higher than the HIGHER of the two banks, it's a hill peak/mound.
+        float maxBankY = Mathf.Max(startY, endY);
+
+        int samples = 10; // Fine-grained sampling
+        float step = width / samples;
+
+        for (int k = 0; k <= samples; k++)
+        {
+            float currX = waterX + k * step;
+            float currY = GetRawTerrainY(currX);
+
+            // REJECT PEAKS: Interior terrain rises above highest bank elevation
+            if (currY > maxBankY + maxPeakBulgeTolerance)
+            {
+                return false; 
+            }
+
+            // Slope check against adjacent sample
+            if (k > 0)
+            {
+                float prevY = GetRawTerrainY(waterX + (k - 1) * step);
+                float localSlope = Mathf.Abs(currY - prevY) / step;
+                if (localSlope > maxWaterTerrainSlope)
+                {
+                    return false; // Terrain grade is too steep inside this segment
+                }
+            }
+        }
+
+        return true; // Suitable flat ground or natural valley!
     }
 
     protected override bool ProcessTerrainSpline(float globalX, float localX, float originalY, ref float finalY, Spline spline, List<Vector2> physicsPoints, ref int pointIndex, int i, int numSurfacePoints, Transform chunkParent, out bool isHazardZone)
     {
         isHazardZone = false;
 
-        // --- WATER/MUD LOGIC ---
+        float hazardBuffer = 25f;
+
+        // --- WATER/MUD LOGIC WITH FLAT/VALLEY TERRAIN FILTERING & BRIDGE EXCLUSION ---
+        if (generateWaterPools && globalX >= nextWaterX && !isBuildingWater)
+        {
+            // Push water forward if it conflicts with an active or upcoming bridge zone
+            if (generateBridges && (nextWaterX + currentWaterWidth >= nextBridgeX - hazardBuffer) && (nextWaterX <= nextBridgeX + currentBridgeGapWidth + hazardBuffer))
+            {
+                nextWaterX = Mathf.Round((nextBridgeX + currentBridgeGapWidth + hazardBuffer) / pointSpacing) * pointSpacing;
+            }
+
+            // If terrain is on a hill/slope/peak, push water location forward until suitable flat/valley terrain is found
+            if (!IsTerrainSuitableForWater(nextWaterX, currentWaterWidth))
+            {
+                nextWaterX = Mathf.Round((nextWaterX + pointSpacing) / pointSpacing) * pointSpacing;
+            }
+        }
+
         bool inWaterZone = generateWaterPools && globalX >= nextWaterX && globalX <= nextWaterX + currentWaterWidth;
+        
         if (inWaterZone)
         {
             isHazardZone = true;
@@ -283,13 +400,14 @@ public class ForestMap : MapGenerator
                 isBuildingWater = true;
                 float startY = GetRawTerrainY(nextWaterX);
                 float endY = GetRawTerrainY(nextWaterX + currentWaterWidth);
-                float midY = (startY + endY) / 2f; 
+                
+                float bankBaseY = Mathf.Min(startY, endY);
                 
                 float edgePadding = Mathf.Clamp(currentWaterWidth * 0.2f, 4f, 15f);
                 float paddedVisualWidth = currentWaterWidth + edgePadding;
-                float paddedVisualDepth = (waterDepth * 2f) + 20f; 
+                float paddedVisualDepth = waterMeshDepth; 
                 
-                float surfaceY = midY + waterLevelOffset;
+                float surfaceY = bankBaseY + waterLevelOffset;
                 float centerOffsetY = surfaceY - (paddedVisualDepth / 2f);
                 
                 Vector2 centerPos = new Vector2(nextWaterX + currentWaterWidth / 2f, centerOffsetY);
@@ -297,8 +415,10 @@ public class ForestMap : MapGenerator
                 SpawnFluid(centerPos, paddedVisualWidth, paddedVisualDepth, currentWaterWidth, chunkParent, isMud);
             }
             
+            // Raised-Cosine curve: blend slope smoothly into and out of the water bed (derivative at edges = 0)
             float dipPercent = (globalX - nextWaterX) / currentWaterWidth;
-            float dipAmount = Mathf.Sin(dipPercent * Mathf.PI) * waterDepth;
+            float smoothFactor = 0.5f * (1f - Mathf.Cos(dipPercent * 2f * Mathf.PI));
+            float dipAmount = smoothFactor * waterDepth;
             finalY -= dipAmount; 
             return false; 
         }
@@ -309,9 +429,23 @@ public class ForestMap : MapGenerator
             nextWaterX = Mathf.Round(rawNextWater / pointSpacing) * pointSpacing;
             float rawWaterWidth = Mathf.Lerp(minWaterWidth, maxWaterWidth, Mathf.PerlinNoise(nextWaterX, seed));
             currentWaterWidth = Mathf.Round(rawWaterWidth / pointSpacing) * pointSpacing;
+
+            if (generateBridges && (nextWaterX + currentWaterWidth >= nextBridgeX - hazardBuffer) && (nextWaterX <= nextBridgeX + currentBridgeGapWidth + hazardBuffer))
+            {
+                nextWaterX = Mathf.Round((nextBridgeX + currentBridgeGapWidth + hazardBuffer) / pointSpacing) * pointSpacing;
+            }
         }
 
-        // --- ROPE BRIDGE LOGIC ---
+        // --- ROPE BRIDGE LOGIC WITH WATER EXCLUSION ---
+        if (generateBridges && generateWaterPools && Mathf.Abs(globalX - nextBridgeX) < 0.01f)
+        {
+            // Push bridge start location forward if it lands inside or too close to a water pool
+            if (nextBridgeX >= nextWaterX - hazardBuffer && nextBridgeX <= nextWaterX + currentWaterWidth + hazardBuffer)
+            {
+                nextBridgeX = Mathf.Round((nextWaterX + currentWaterWidth + hazardBuffer) / pointSpacing) * pointSpacing;
+            }
+        }
+
         bool isStartAnchor = generateBridges && Mathf.Abs(globalX - nextBridgeX) < 0.01f;
         bool isEndAnchor = generateBridges && Mathf.Abs(globalX - (nextBridgeX + currentBridgeGapWidth)) < 0.01f;
         bool insideGorge = generateBridges && globalX > nextBridgeX + 0.01f && globalX < (nextBridgeX + currentBridgeGapWidth) - 0.01f;
@@ -363,6 +497,11 @@ public class ForestMap : MapGenerator
                 nextBridgeX = Mathf.Round(rawNextBridge / pointSpacing) * pointSpacing;
                 float rawGap = Mathf.Lerp(minBridgeGapWidth, maxBridgeGapWidth, Mathf.PerlinNoise(nextBridgeX, seed));
                 currentBridgeGapWidth = Mathf.Round(rawGap / pointSpacing) * pointSpacing;
+
+                if (generateWaterPools && (nextBridgeX >= nextWaterX - hazardBuffer) && (nextBridgeX <= nextWaterX + currentWaterWidth + hazardBuffer))
+                {
+                    nextBridgeX = Mathf.Round((nextWaterX + currentWaterWidth + hazardBuffer) / pointSpacing) * pointSpacing;
+                }
             }
             return true;
         }
@@ -430,10 +569,8 @@ public class ForestMap : MapGenerator
                     if (shroomScript.glowRenderer != null) originalGlowColor = shroomScript.glowRenderer.color;
                 }
 
-                // Always tint the shroom so the base sprite gets dark!
                 TintObject(shroom);
 
-                // If it is night time, instantly restore ONLY the glow sprite back to its full brightness!
                 if (activeTimeOfDay == TimeOfDay.Night && shroomScript != null && shroomScript.glowRenderer != null)
                 {
                     shroomScript.glowRenderer.color = originalGlowColor;
@@ -456,7 +593,6 @@ public class ForestMap : MapGenerator
             return true;
         }
 
-        // NEW: Check and place Bee Hives
         bool isHivePoint = generateBeeHives && Mathf.Abs(globalX - nextHiveX) < 0.01f;
         if (isHivePoint)
         {
@@ -465,7 +601,6 @@ public class ForestMap : MapGenerator
                 GameObject hive = Instantiate(beeHivePrefab, new Vector3(globalX, originalY + hiveYOffset, 0f), Quaternion.identity, chunkParent);
                 TintObject(hive);
             }
-            // Calculate when the next hive should spawn
             nextHiveX = Mathf.Round((nextHiveX + Mathf.Lerp(minHiveDistance, maxHiveDistance, Mathf.PerlinNoise(globalX * 0.55f, seed))) / pointSpacing) * pointSpacing;
             return true;
         }

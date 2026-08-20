@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-// AAA 2D Water System
+// AAA 2D Water System with Continuous Wheel Splashes
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
 [RequireComponent(typeof(BoxCollider2D))]
@@ -42,6 +43,19 @@ public class DynamicWater2D : MonoBehaviour
     [Tooltip("Rotational stability - higher values make floating objects fight to stay upright")]
     public float rotationalFriction = 3f;
 
+    [Header("Continuous Wheel Movement Splashes")]
+    [Tooltip("Enable continuous tire splash particles while driving through water")]
+    public bool enableContinuousSplash = true;
+    [Tooltip("Minimum vehicle speed to trigger continuous tire splashes")]
+    public float minSpeedForSplash = 1.0f;
+    [Tooltip("Time interval (seconds) between tire splash particle emissions per wheel")]
+    public float continuousSplashInterval = 0.08f;
+    [Tooltip("Scale modifier for continuous movement splash particles relative to entry impacts")]
+    public float continuousSplashScale = 0.5f;
+    [Tooltip("Tire inset percentage from collider bounds (0.12 = 12% in from edges) for realistic wheel placement")]
+    [Range(0f, 0.45f)]
+    public float wheelInsetRatio = 0.12f;
+
     [Header("Effects")]
     public GameObject splashPrefab;
     public AudioClip splashSound;
@@ -65,6 +79,10 @@ public class DynamicWater2D : MonoBehaviour
     private BoxCollider2D col2D;
     private AudioSource audioSource;
     private ParticleSystem[] bubbleSystems;
+
+    // Cooldown trackers for front/rear wheel splashes per object
+    private Dictionary<Collider2D, float> lastSplashTimeRear = new Dictionary<Collider2D, float>();
+    private Dictionary<Collider2D, float> lastSplashTimeFront = new Dictionary<Collider2D, float>();
 
     public void GenerateWater(float visualWidth, float visualHeight, float physicsWidth)
     {
@@ -101,7 +119,7 @@ public class DynamicWater2D : MonoBehaviour
         vertices = new Vector3[nodeCount * 3];
         colors = new Color[nodeCount * 3];
         uvs = new Vector2[nodeCount * 3];
-        
+
         // 2 Rows of Quads (Foam Row + Water Row) -> 2 * 6 points per column
         triangles = new int[(nodeCount - 1) * 12]; 
 
@@ -186,7 +204,7 @@ public class DynamicWater2D : MonoBehaviour
             accelerations[i] = -springConstant * displacement - damping * velocities[i];
             velocities[i] += accelerations[i];
             yPositions[i] += velocities[i];
-            
+
             // Kinetic Foam Logic: Fast moving nodes generate thicker foam
             float velocityMagnitude = Mathf.Abs(velocities[i]);
             if (velocityMagnitude > 0.05f)
@@ -293,6 +311,41 @@ public class DynamicWater2D : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Spawns a movement-based splash particle at a specific wheel location along the water surface.
+    /// </summary>
+    public void TriggerWheelSplash(float worldX, float surfaceY, Vector2 velocity, float scale = 1.0f)
+    {
+        if (xPositions == null) return;
+
+        float localX = worldX - transform.position.x;
+        int nearestNode = GetNearestNodeIndex(localX);
+
+        // Agitate local water surface node
+        float splashForce = velocity.magnitude * 0.015f;
+        velocities[nearestNode] += (velocity.y < 0 ? -splashForce : splashForce) * collisionForceMultiplier;
+
+        // Boost kinetic foam under tire
+        dynamicFoamThickness[nearestNode] = Mathf.Min(maxFoamThickness, dynamicFoamThickness[nearestNode] + 0.12f * scale);
+
+        // Spawn scaled splash particle prefab at water line
+        if (splashPrefab != null)
+        {
+            Vector3 spawnPos = new Vector3(worldX, surfaceY, 0f);
+            GameObject splashInstance = Instantiate(splashPrefab, spawnPos, Quaternion.identity);
+            
+            // Scale continuous splash slightly smaller than massive impact splash
+            splashInstance.transform.localScale *= scale;
+        }
+
+        // Subdued sound for continuous tire churning
+        if (audioSource != null && splashSound != null && !audioSource.isPlaying)
+        {
+            audioSource.pitch = Random.Range(1.1f, 1.4f);
+            audioSource.PlayOneShot(splashSound, Mathf.Clamp01(velocity.magnitude * 0.005f));
+        }
+    }
+
     void OnTriggerEnter2D(Collider2D col)
     {
         Rigidbody2D rb = col.attachedRigidbody;
@@ -307,25 +360,30 @@ public class DynamicWater2D : MonoBehaviour
         Rigidbody2D rb = col.attachedRigidbody;
         if (rb == null) return;
 
-        // MULTI-POINT BUOYANCY: Sample left and right sides of the object separately
-        // This causes realistic pitch and rotation (e.g. boats rocking, boxes tilting)
-        float leftWorldX = col.bounds.min.x;
-        float rightWorldX = col.bounds.max.x;
+        // MULTI-POINT BUOYANCY: Sample left (rear) and right (front) sides of the object separately
+        float boundsMinX = col.bounds.min.x;
+        float boundsMaxX = col.bounds.max.x;
         float bottomWorldY = col.bounds.min.y;
 
-        float leftSurfaceY = GetWaterHeightAtPosition(leftWorldX);
-        float rightSurfaceY = GetWaterHeightAtPosition(rightWorldX);
+        // Determine exact Front & Rear Wheel positions using inset ratio
+        float rearWheelX = Mathf.Lerp(boundsMinX, boundsMaxX, wheelInsetRatio);
+        float frontWheelX = Mathf.Lerp(boundsMaxX, boundsMinX, wheelInsetRatio);
+
+        float leftSurfaceY = GetWaterHeightAtPosition(rearWheelX);
+        float rightSurfaceY = GetWaterHeightAtPosition(frontWheelX);
 
         float leftDepth = leftSurfaceY - bottomWorldY;
         float rightDepth = rightSurfaceY - bottomWorldY;
 
-        ApplyBuoyancyAtPoint(rb, new Vector2(leftWorldX, bottomWorldY), leftDepth);
-        ApplyBuoyancyAtPoint(rb, new Vector2(rightWorldX, bottomWorldY), rightDepth);
+        ApplyBuoyancyAtPoint(rb, new Vector2(rearWheelX, bottomWorldY), leftDepth);
+        ApplyBuoyancyAtPoint(rb, new Vector2(frontWheelX, bottomWorldY), rightDepth);
 
-        // Apply Hydrodynamic Drag (Velocity Squared formula for realistic resistance)
+        // Hydrodynamic Drag & Velocity check
+        Vector2 currentVelocity = rb.linearVelocity;
+        float speed = currentVelocity.magnitude;
+
         if (leftDepth > 0 || rightDepth > 0) 
         {
-            Vector2 currentVelocity = rb.linearVelocity;
             Vector2 dragForce = -currentVelocity.normalized * (currentVelocity.sqrMagnitude * hydrodynamicDrag);
             rb.AddForce(dragForce * Time.fixedDeltaTime, ForceMode2D.Force);
             
@@ -333,12 +391,45 @@ public class DynamicWater2D : MonoBehaviour
             rb.angularVelocity = Mathf.Lerp(rb.angularVelocity, 0, rotationalFriction * Time.fixedDeltaTime);
             
             // Create continuous waves while moving through water
-            if (currentVelocity.magnitude > 0.5f)
+            if (speed > 0.5f)
             {
                 int node = GetNearestNodeIndex(col.bounds.center.x - transform.position.x);
                 velocities[node] += (currentVelocity.y * 0.005f) * rb.mass;
             }
         }
+
+        // CONTINUOUS DUAL-WHEEL SPLASH LOGIC
+        if (enableContinuousSplash && speed >= minSpeedForSplash)
+        {
+            float currentTime = Time.time;
+
+            // Check & Trigger Rear Wheel Splash
+            if (leftDepth > 0)
+            {
+                if (!lastSplashTimeRear.TryGetValue(col, out float lastTime) || (currentTime - lastTime) >= continuousSplashInterval)
+                {
+                    TriggerWheelSplash(rearWheelX, leftSurfaceY, currentVelocity, continuousSplashScale);
+                    lastSplashTimeRear[col] = currentTime;
+                }
+            }
+
+            // Check & Trigger Front Wheel Splash
+            if (rightDepth > 0)
+            {
+                if (!lastSplashTimeFront.TryGetValue(col, out float lastTime) || (currentTime - lastTime) >= continuousSplashInterval)
+                {
+                    TriggerWheelSplash(frontWheelX, rightSurfaceY, currentVelocity, continuousSplashScale);
+                    lastSplashTimeFront[col] = currentTime;
+                }
+            }
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D col)
+    {
+        // Clean dictionary on exit to avoid unused memory references
+        if (lastSplashTimeRear.ContainsKey(col)) lastSplashTimeRear.Remove(col);
+        if (lastSplashTimeFront.ContainsKey(col)) lastSplashTimeFront.Remove(col);
     }
 
     void ApplyBuoyancyAtPoint(Rigidbody2D rb, Vector2 worldPoint, float depth)

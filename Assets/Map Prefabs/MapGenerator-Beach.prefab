@@ -53,6 +53,7 @@ MonoBehaviour:
   terrainDepth: 1
   blankChunkPrefab: {fileID: 2503069242505576877, guid: fdfd0f85ff57c4d5e940d6368c59d996, type: 3}
   maxReverseDistance: 45
+  invisibleWallLayerName: InvisibleWall
   pointSpacing: 0.5
   baseAmplitude: 5
   maxAmplitude: 25
@@ -124,14 +125,19 @@ MonoBehaviour:
   generateFluids: 1
   waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
   sandDunePrefab: {fileID: 8163008081576812170, guid: 9291c836748eb4306a0a145cf9e1778c, type: 3}
-  sandDuneChance: 0.1
-  minWaterWidth: 5
-  maxWaterWidth: 10
-  waterDepth: 1
+  sandDuneChance: 0.5
+  minWaterWidth: 8
+  maxWaterWidth: 20
+  waterDepth: 0.8
+  waterMeshDepth: 5
   waterLevelOffset: 0
   waterSortingOrder: 4
+  requireFlatOrValleyTerrain: 1
+  maxFluidEdgeHeightDiff: 1
+  maxFluidTerrainSlope: 5
+  maxPeakBulgeTolerance: 0.05
   generateBuoys: 0
-  buoyPrefab: {fileID: 3250197907437683191, guid: a2c5301bc4acb43fe87e26be53593929, type: 3}
+  buoyPrefab: {fileID: 0}
   generateBouncyHazards: 1
   bouncyHazardPrefab: {fileID: 8528793906568397152, guid: b95011aec594a449894de1c9bfff2f40, type: 3}
   minBounceDistance: 250

@@ -41,7 +41,7 @@ public class VillageMap : MapGenerator
 
     private Color propTint = Color.white;
     private bool hasTintedCar = false;
-    private TimeOfDay activeTimeOfDay; // Tracks what time it is so we can turn on headlights!
+    private TimeOfDay activeTimeOfDay; // Tracks active time of day
 
     [Header("Destructible Bridges")]
     public bool generateBridges = true; 
@@ -59,9 +59,22 @@ public class VillageMap : MapGenerator
     [Range(0f, 1f)] public float mudProbability = 0.3f;
     public float minWaterWidth = 15f;
     public float maxWaterWidth = 40f;
+    [Tooltip("The physical depth of the water affecting the terrain dip.")]
     public float waterDepth = 8f;
+    [Tooltip("The visual depth of the water mesh generated downwards.")]
+    public float waterMeshDepth = 15f; 
     public float waterLevelOffset = -2f;
     public int waterSortingOrder = 3;
+
+    [Header("Water Terrain Placement Rules")]
+    [Tooltip("If true, water pools will only spawn on flat ground or inside valleys between hills.")]
+    public bool requireFlatOrValleyTerrain = true;
+    [Tooltip("Maximum allowed height difference between start bank and end bank of water pool.")]
+    public float maxWaterEdgeHeightDiff = 1.0f;
+    [Tooltip("Maximum allowed internal slope across the terrain segment before water is rejected.")]
+    public float maxWaterTerrainSlope = 0.15f;
+    [Tooltip("Tolerated bulge height above bank height. Keeps water off top of hills/peaks.")]
+    public float maxPeakBulgeTolerance = 0.05f;
 
     [Header("Scatter Obstacles (Hay Bales & Fences)")]
     public bool generateScatterObstacles = true;
@@ -74,7 +87,6 @@ public class VillageMap : MapGenerator
     public GameObject bouncyHazardPrefab;
     public float minBounceDistance = 200f;
     public float maxBounceDistance = 400f;
-    [Tooltip("Adjust to sink the hay bales perfectly into the grass")]
     public float bouncyYOffset = 0.5f;
 
     [Header("Jelly Obstacles (Troll Trees)")]
@@ -83,39 +95,34 @@ public class VillageMap : MapGenerator
     public float minJellyDistance = 100f; 
     public float maxJellyDistance = 250f;
     [Range(0f, 1f)] public float jellySolidChance = 0.5f;
-    [Tooltip("Adjust to sink the trees perfectly into the grass")]
     public float jellyYOffset = 0f;
 
-    [Header("NEW: Windmills")]
+    [Header("Windmills")]
     public bool generateWindmills = true;
     public GameObject windmillPrefab;
     public float minWindmillDistance = 300f;
     public float maxWindmillDistance = 600f;
-    [Tooltip("Move the windmill up or down (Y-axis) to sit perfectly on the dirt.")]
     public float windmillYOffset = 5f;
-    [Tooltip("Push the windmill into the background (+Z) so the car drives in front of the base.")]
     public float windmillZOffset = 2f;
 
-    [Header("NEW: Runaway Livestock")]
+    [Header("Runaway Livestock")]
     public bool generateLivestock = true;
     public GameObject livestockPrefab;
     public float minLivestockDistance = 150f;
     public float maxLivestockDistance = 350f;
 
-    [Header("NEW: Scarecrows (Interactive)")]
+    [Header("Scarecrows")]
     public bool generateScarecrows = true;
     public GameObject scarecrowPrefab;
     public float minScarecrowDistance = 200f;
     public float maxScarecrowDistance = 400f;
-    [Tooltip("Move the scarecrow up or down to sit perfectly on the dirt.")]
     public float scarecrowYOffset = 0f;
 
-    [Header("NEW: Hot Air Balloons (Sky Objects)")]
+    [Header("Hot Air Balloons")]
     public bool generateBalloons = true;
     public GameObject balloonPrefab;
     public float minBalloonDistance = 400f;
     public float maxBalloonDistance = 800f;
-    [Tooltip("How high in the sky they spawn")]
     public float minBalloonHeight = 25f;
     public float maxBalloonHeight = 40f;
 
@@ -140,7 +147,6 @@ public class VillageMap : MapGenerator
             hasTintedCar = true;
             TintObject(playerCar.gameObject);
 
-            // --- TURN ON HEADLIGHTS IF IT IS NIGHT TIME ---
             if (activeTimeOfDay == TimeOfDay.Night)
             {
                 CarController cc = playerCar.GetComponent<CarController>();
@@ -249,6 +255,13 @@ public class VillageMap : MapGenerator
         float rawWaterWidth = Mathf.Lerp(minWaterWidth, maxWaterWidth, Mathf.PerlinNoise(nextWaterX, seed));
         currentWaterWidth = Mathf.Round(rawWaterWidth / pointSpacing) * pointSpacing;
 
+        // Ensure water and bridge initial coordinates do not overlap
+        float hazardBuffer = 25f;
+        if (generateBridges && generateWaterPools && Mathf.Abs(nextWaterX - nextBridgeX) < (currentWaterWidth + currentBridgeGapWidth + hazardBuffer))
+        {
+            nextWaterX = Mathf.Round((nextBridgeX + currentBridgeGapWidth + hazardBuffer) / pointSpacing) * pointSpacing;
+        }
+
         float rawNextScatter = minScatterDistance + (Mathf.PerlinNoise(seed + 2, seed) * 50f);
         nextScatterX = Mathf.Round(rawNextScatter / pointSpacing) * pointSpacing;
 
@@ -271,12 +284,114 @@ public class VillageMap : MapGenerator
         nextBalloonX = Mathf.Round(rawNextBalloon / pointSpacing) * pointSpacing;
     }
 
+    /// <summary>
+    /// Checks whether the raw terrain profile from waterX to waterX + width is flat or forms a natural valley,
+    /// avoiding steep hills, sloped grades, and hill peaks.
+    /// </summary>
+    private bool IsTerrainSuitableForWater(float waterX, float width)
+    {
+        if (!requireFlatOrValleyTerrain) return true;
+
+        float startY = GetRawTerrainY(waterX);
+        float endY = GetRawTerrainY(waterX + width);
+
+        // 1. Bank Level Check: Start & End banks should be close in height
+        float edgeDiff = Mathf.Abs(startY - endY);
+        if (edgeDiff > maxWaterEdgeHeightDiff)
+        {
+            return false; // Terrain is on a steep global gradient
+        }
+
+        // Global Gradient Check: Ensure ground across entire pool width isn't a continuous incline/decline
+        float globalSlope = edgeDiff / width;
+        if (globalSlope > maxWaterTerrainSlope)
+        {
+            return false; // Overall hillside gradient is too steep for standing water
+        }
+
+        // Calculate water surface elevation
+        float bankBaseY = Mathf.Min(startY, endY);
+        float surfaceY = bankBaseY + waterLevelOffset;
+
+        // Calculate visual padding bounds
+        float edgePadding = Mathf.Clamp(width * 0.2f, 4f, 15f);
+        float leftVisualX = waterX - (edgePadding * 0.5f);
+        float rightVisualX = waterX + width + (edgePadding * 0.5f);
+
+        // 2. Visual Padding Edge Check:
+        // Ensure terrain outside both banks doesn't drop below the water surface level.
+        // If the ground past either bank dips below surfaceY, the flat top water mesh will poke out of the slope.
+        int paddingSamples = 3;
+        for (int p = 1; p <= paddingSamples; p++)
+        {
+            float t = (float)p / paddingSamples;
+            float checkLeftX = Mathf.Lerp(waterX, leftVisualX, t);
+            float checkRightX = Mathf.Lerp(waterX + width, rightVisualX, t);
+
+            if (GetRawTerrainY(checkLeftX) < surfaceY || GetRawTerrainY(checkRightX) < surfaceY)
+            {
+                return false; // Ground dips below water level in the visual padding region!
+            }
+        }
+
+        // 3. Peak / Convex Hill Detection:
+        // Real water rests in valleys (concave) or flat ground.
+        // If ANY interior point is higher than the HIGHER of the two banks, it's a hill peak/mound.
+        float maxBankY = Mathf.Max(startY, endY);
+
+        int samples = 10; // Fine-grained sampling
+        float step = width / samples;
+
+        for (int k = 0; k <= samples; k++)
+        {
+            float currX = waterX + k * step;
+            float currY = GetRawTerrainY(currX);
+
+            // REJECT PEAKS: Interior terrain rises above highest bank elevation
+            if (currY > maxBankY + maxPeakBulgeTolerance)
+            {
+                return false; 
+            }
+
+            // Slope check against adjacent sample
+            if (k > 0)
+            {
+                float prevY = GetRawTerrainY(waterX + (k - 1) * step);
+                float localSlope = Mathf.Abs(currY - prevY) / step;
+                if (localSlope > maxWaterTerrainSlope)
+                {
+                    return false; // Terrain grade is too steep inside this segment
+                }
+            }
+        }
+
+        return true; // Suitable flat ground or natural valley!
+    }
+
     protected override bool ProcessTerrainSpline(float globalX, float localX, float originalY, ref float finalY, Spline spline, List<Vector2> physicsPoints, ref int pointIndex, int i, int numSurfacePoints, Transform chunkParent, out bool isHazardZone)
     {
         isHazardZone = false;
 
-        // --- WATER/MUD LOGIC ---
+        float hazardBuffer = 25f;
+
+        // --- WATER/MUD LOGIC WITH FLAT/VALLEY TERRAIN FILTERING & BRIDGE EXCLUSION ---
+        if (generateWaterPools && globalX >= nextWaterX && !isBuildingWater)
+        {
+            // Push water forward if it conflicts with an active or upcoming bridge zone
+            if (generateBridges && (nextWaterX + currentWaterWidth >= nextBridgeX - hazardBuffer) && (nextWaterX <= nextBridgeX + currentBridgeGapWidth + hazardBuffer))
+            {
+                nextWaterX = Mathf.Round((nextBridgeX + currentBridgeGapWidth + hazardBuffer) / pointSpacing) * pointSpacing;
+            }
+
+            // If terrain is on a hill/slope/peak, push water location forward until suitable flat/valley terrain is found
+            if (!IsTerrainSuitableForWater(nextWaterX, currentWaterWidth))
+            {
+                nextWaterX = Mathf.Round((nextWaterX + pointSpacing) / pointSpacing) * pointSpacing;
+            }
+        }
+
         bool inWaterZone = generateWaterPools && globalX >= nextWaterX && globalX <= nextWaterX + currentWaterWidth;
+        
         if (inWaterZone)
         {
             isHazardZone = true;
@@ -285,13 +400,14 @@ public class VillageMap : MapGenerator
                 isBuildingWater = true;
                 float startY = GetRawTerrainY(nextWaterX);
                 float endY = GetRawTerrainY(nextWaterX + currentWaterWidth);
-                float midY = (startY + endY) / 2f; 
+                
+                float bankBaseY = Mathf.Min(startY, endY);
                 
                 float edgePadding = Mathf.Clamp(currentWaterWidth * 0.2f, 4f, 15f);
                 float paddedVisualWidth = currentWaterWidth + edgePadding;
-                float paddedVisualDepth = (waterDepth * 2f) + 20f; 
+                float paddedVisualDepth = waterMeshDepth; 
                 
-                float surfaceY = midY + waterLevelOffset;
+                float surfaceY = bankBaseY + waterLevelOffset;
                 float centerOffsetY = surfaceY - (paddedVisualDepth / 2f);
                 
                 Vector2 centerPos = new Vector2(nextWaterX + currentWaterWidth / 2f, centerOffsetY);
@@ -299,8 +415,10 @@ public class VillageMap : MapGenerator
                 SpawnFluid(centerPos, paddedVisualWidth, paddedVisualDepth, currentWaterWidth, chunkParent, isMud);
             }
             
+            // Raised-Cosine curve: blend slope smoothly into and out of the water bed (derivative at edges = 0)
             float dipPercent = (globalX - nextWaterX) / currentWaterWidth;
-            float dipAmount = Mathf.Sin(dipPercent * Mathf.PI) * waterDepth;
+            float smoothFactor = 0.5f * (1f - Mathf.Cos(dipPercent * 2f * Mathf.PI));
+            float dipAmount = smoothFactor * waterDepth;
             finalY -= dipAmount; 
             return false; 
         }
@@ -311,9 +429,23 @@ public class VillageMap : MapGenerator
             nextWaterX = Mathf.Round(rawNextWater / pointSpacing) * pointSpacing;
             float rawWaterWidth = Mathf.Lerp(minWaterWidth, maxWaterWidth, Mathf.PerlinNoise(nextWaterX, seed));
             currentWaterWidth = Mathf.Round(rawWaterWidth / pointSpacing) * pointSpacing;
+
+            if (generateBridges && (nextWaterX + currentWaterWidth >= nextBridgeX - hazardBuffer) && (nextWaterX <= nextBridgeX + currentBridgeGapWidth + hazardBuffer))
+            {
+                nextWaterX = Mathf.Round((nextBridgeX + currentBridgeGapWidth + hazardBuffer) / pointSpacing) * pointSpacing;
+            }
         }
 
-        // --- ROPE BRIDGE LOGIC ---
+        // --- ROPE BRIDGE LOGIC WITH WATER EXCLUSION ---
+        if (generateBridges && generateWaterPools && Mathf.Abs(globalX - nextBridgeX) < 0.01f)
+        {
+            // Push bridge start location forward if it lands inside or too close to a water pool
+            if (nextBridgeX >= nextWaterX - hazardBuffer && nextBridgeX <= nextWaterX + currentWaterWidth + hazardBuffer)
+            {
+                nextBridgeX = Mathf.Round((nextWaterX + currentWaterWidth + hazardBuffer) / pointSpacing) * pointSpacing;
+            }
+        }
+
         bool isStartAnchor = generateBridges && Mathf.Abs(globalX - nextBridgeX) < 0.01f;
         bool isEndAnchor = generateBridges && Mathf.Abs(globalX - (nextBridgeX + currentBridgeGapWidth)) < 0.01f;
         bool insideGorge = generateBridges && globalX > nextBridgeX + 0.01f && globalX < (nextBridgeX + currentBridgeGapWidth) - 0.01f;
@@ -365,6 +497,11 @@ public class VillageMap : MapGenerator
                 nextBridgeX = Mathf.Round(rawNextBridge / pointSpacing) * pointSpacing;
                 float rawGap = Mathf.Lerp(minBridgeGapWidth, maxBridgeGapWidth, Mathf.PerlinNoise(nextBridgeX, seed));
                 currentBridgeGapWidth = Mathf.Round(rawGap / pointSpacing) * pointSpacing;
+
+                if (generateWaterPools && (nextBridgeX >= nextWaterX - hazardBuffer) && (nextBridgeX <= nextWaterX + currentWaterWidth + hazardBuffer))
+                {
+                    nextBridgeX = Mathf.Round((nextWaterX + currentWaterWidth + hazardBuffer) / pointSpacing) * pointSpacing;
+                }
             }
             return true;
         }

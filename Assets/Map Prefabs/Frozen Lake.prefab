@@ -47,11 +47,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce08072ae2fe34fee936e600c4868985, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FrozenLake
-  iceColor: {r: 0.6650944, g: 0.9162736, b: 1, a: 0.8666667}
+  iceColor: {r: 0.7709594, g: 0.93631023, b: 0.990566, a: 0.8666667}
   iceThickness: 1.5
-  iceFriction: 0.05
+  iceFriction: 0.025
   shatterThreshold: 10
-  massShatterThreshold: 20
+  massShatterThreshold: 6
   shatterParticles: {fileID: 0}
   shatterSound: {fileID: 0}
   creakSound: {fileID: 0}

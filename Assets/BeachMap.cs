@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class BeachMap : MapGenerator
 {
-        public enum TimeOfDay { Dawn, Morning, Noon, Dusk, Night }
+    public enum TimeOfDay { Dawn, Morning, Noon, Dusk, Night }
 
     [System.Serializable]
     public class TimeColors
@@ -39,7 +39,6 @@ public class BeachMap : MapGenerator
     private Color propTint = Color.white;
     private bool hasTintedCar = false;
 
-
     [Header("--- BEACH SPECIFIC FEATURES ---")]
     
     [Header("Fluid Hazards (Water & Sand Dunes)")]
@@ -50,10 +49,23 @@ public class BeachMap : MapGenerator
     [Range(0f, 1f)] public float sandDuneChance = 0.5f;
     public float minWaterWidth = 15f;
     public float maxWaterWidth = 40f;
+    [Tooltip("The physical depth of the water affecting the terrain dip.")]
     public float waterDepth = 8f;
+    [Tooltip("The visual depth of the water mesh generated downwards. Keep small to save performance.")]
+    public float waterMeshDepth = 15f;
     public float waterLevelOffset = -2f;
     public int waterSortingOrder = 3;
-    
+
+    [Header("Fluid Terrain Placement Rules")]
+    [Tooltip("If true, fluid pools (water/sand dunes) will only spawn on flat ground or inside valleys between hills.")]
+    public bool requireFlatOrValleyTerrain = true;
+    [Tooltip("Maximum allowed height difference between start bank and end bank of fluid pool.")]
+    public float maxFluidEdgeHeightDiff = 1.0f;
+    [Tooltip("Maximum allowed internal slope across the terrain segment before fluid is rejected.")]
+    public float maxFluidTerrainSlope = 0.15f;
+    [Tooltip("Tolerated bulge height above bank height. Keeps fluid pools off top of hills/peaks.")]
+    public float maxPeakBulgeTolerance = 0.05f;
+
     [Header("Buoys (Water Only)")]
     public bool generateBuoys = true;
     public GameObject buoyPrefab;
@@ -99,24 +111,25 @@ public class BeachMap : MapGenerator
     private float nextGullX;
     private float nextCoconutX;
     private System.Random runRNG;
-    private bool isNightTime = false; // NEW: Track if it is currently night!
+    private bool isNightTime = false; // Track if it is currently night!
 
-
-
-        void LateUpdate()
+    void LateUpdate()
     {
         if (enableStaticTime && !hasTintedCar && playerCar != null)
         {
             hasTintedCar = true;
             TintObject(playerCar.gameObject);
         }          
-        // NEW: Turn on headlights if it's night!
-        CarController carScript = playerCar.GetComponent<CarController>();
-        if (carScript != null)
+        
+        // Turn on headlights if it's night!
+        if (playerCar != null)
         {
-            carScript.ToggleHeadlights(isNightTime);
+            CarController carScript = playerCar.GetComponent<CarController>();
+            if (carScript != null)
+            {
+                carScript.ToggleHeadlights(isNightTime);
+            }
         }
-
 
         if (skyBackgroundRenderer != null && Camera.main != null)
         {
@@ -130,11 +143,9 @@ public class BeachMap : MapGenerator
         TimeOfDay runTime = specificTimeOfDay;
         if (randomizeTime)
         {
-        // FIX: Using system clock ticks for true randomness instead of UnityEngine.Random
-        // which gets locked to the map generation seed by the base MapGenerator class!
-        System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
-        runTime = (TimeOfDay)trueTimeRNG.Next(0, 5); 
-
+            // Using system clock ticks for true randomness across runs
+            System.Random trueTimeRNG = new System.Random(System.Environment.TickCount);
+            runTime = (TimeOfDay)trueTimeRNG.Next(0, 5); 
         }
 
         // Record if it is night time for the headlights!
@@ -178,13 +189,11 @@ public class BeachMap : MapGenerator
         }
     }
 
-
-
     protected override void InitializeMap()
     {
         runRNG = new System.Random(seed);
 
-                if (enableStaticTime)
+        if (enableStaticTime)
         {
             SetupTimeOfDay();
         }
@@ -200,11 +209,104 @@ public class BeachMap : MapGenerator
         nextCoconutX = Mathf.Round((minCoconutDistance + (Mathf.PerlinNoise(seed + 5, seed) * 50f)) / pointSpacing) * pointSpacing;
     }
 
+    /// <summary>
+    /// Checks whether the raw terrain profile from fluidX to fluidX + width is flat or forms a natural valley,
+    /// avoiding steep hills, sloped grades, hill peaks, and floating visual mesh edges.
+    /// </summary>
+    private bool IsTerrainSuitableForFluid(float fluidX, float width)
+    {
+        if (!requireFlatOrValleyTerrain) return true;
+
+        float startY = GetRawTerrainY(fluidX);
+        float endY = GetRawTerrainY(fluidX + width);
+
+        // 1. Bank Level Check: Start & End banks should be close in height
+        float edgeDiff = Mathf.Abs(startY - endY);
+        if (edgeDiff > maxFluidEdgeHeightDiff)
+        {
+            return false; // Terrain is on a steep global gradient
+        }
+
+        // Global Gradient Check: Ensure ground across entire pool width isn't a continuous incline/decline
+        float globalSlope = edgeDiff / width;
+        if (globalSlope > maxFluidTerrainSlope)
+        {
+            return false; // Overall hillside gradient is too steep for standing fluid
+        }
+
+        // Calculate fluid surface elevation
+        float bankBaseY = Mathf.Min(startY, endY);
+        float surfaceY = bankBaseY + waterLevelOffset;
+
+        // Calculate visual padding bounds
+        float edgePadding = Mathf.Clamp(width * 0.2f, 4f, 15f);
+        float leftVisualX = fluidX - (edgePadding * 0.5f);
+        float rightVisualX = fluidX + width + (edgePadding * 0.5f);
+
+        // 2. Visual Padding Edge Check:
+        // Ensure terrain outside both banks doesn't drop below the fluid surface level.
+        // If the ground past either bank dips below surfaceY, the flat top fluid mesh will poke out of the slope.
+        int paddingSamples = 3;
+        for (int p = 1; p <= paddingSamples; p++)
+        {
+            float t = (float)p / paddingSamples;
+            float checkLeftX = Mathf.Lerp(fluidX, leftVisualX, t);
+            float checkRightX = Mathf.Lerp(fluidX + width, rightVisualX, t);
+
+            if (GetRawTerrainY(checkLeftX) < surfaceY || GetRawTerrainY(checkRightX) < surfaceY)
+            {
+                return false; // Ground dips below fluid level in the visual padding region!
+            }
+        }
+
+        // 3. Peak / Convex Hill Detection:
+        // Real water/sand rests in valleys (concave) or flat ground.
+        // If ANY interior point is higher than the HIGHER of the two banks, it's a hill peak/mound.
+        float maxBankY = Mathf.Max(startY, endY);
+
+        int samples = 10; // Fine-grained sampling
+        float step = width / samples;
+
+        for (int k = 0; k <= samples; k++)
+        {
+            float currX = fluidX + k * step;
+            float currY = GetRawTerrainY(currX);
+
+            // REJECT PEAKS: Interior terrain rises above highest bank elevation
+            if (currY > maxBankY + maxPeakBulgeTolerance)
+            {
+                return false; 
+            }
+
+            // Slope check against adjacent sample
+            if (k > 0)
+            {
+                float prevY = GetRawTerrainY(fluidX + (k - 1) * step);
+                float localSlope = Mathf.Abs(currY - prevY) / step;
+                if (localSlope > maxFluidTerrainSlope)
+                {
+                    return false; // Terrain grade is too steep inside this segment
+                }
+            }
+        }
+
+        return true; // Suitable flat ground or natural valley!
+    }
+
     protected override bool ProcessTerrainSpline(float globalX, float localX, float originalY, ref float finalY, Spline spline, List<Vector2> physicsPoints, ref int pointIndex, int i, int numSurfacePoints, Transform chunkParent, out bool isHazardZone)
     {
         isHazardZone = false;
 
-        // --- FLUID LOGIC (Water or Sand Dunes) ---
+        // --- FLUID LOGIC WITH FLAT/VALLEY TERRAIN FILTERING (Water or Sand Dunes) ---
+        if (generateFluids && globalX >= nextFluidX && !isBuildingFluid)
+        {
+            // If terrain is on a hill/slope/peak, push fluid location forward until flat/valley terrain is found
+            if (!IsTerrainSuitableForFluid(nextFluidX, currentFluidWidth))
+            {
+                nextFluidX = Mathf.Round((nextFluidX + pointSpacing) / pointSpacing) * pointSpacing;
+            }
+        }
+
         bool inFluidZone = generateFluids && globalX >= nextFluidX && globalX <= nextFluidX + currentFluidWidth;
         if (inFluidZone)
         {
@@ -214,14 +316,16 @@ public class BeachMap : MapGenerator
                 isBuildingFluid = true;
                 float startY = GetRawTerrainY(nextFluidX);
                 float endY = GetRawTerrainY(nextFluidX + currentFluidWidth);
-                float midY = (startY + endY) / 2f; 
                 
-                // FIX: Dynamic padding! Tiny puddles get tiny overlaps so they don't bleed out of the ground
+                // Use minimum bank Y to anchor top surface below both banks
+                float bankBaseY = Mathf.Min(startY, endY); 
+                
+                // Dynamic padding!
                 float edgePadding = Mathf.Clamp(currentFluidWidth * 0.2f, 4f, 15f);
                 float paddedVisualWidth = currentFluidWidth + edgePadding;
-                float paddedVisualDepth = (waterDepth * 2f) + 20f;
-                
-                float surfaceY = midY + waterLevelOffset;
+                float paddedVisualDepth = waterMeshDepth; 
+
+                float surfaceY = bankBaseY + waterLevelOffset;
                 float centerOffsetY = surfaceY - (paddedVisualDepth / 2f);
                 Vector2 centerPos = new Vector2(nextFluidX + currentFluidWidth / 2f, centerOffsetY);
                 
@@ -255,13 +359,14 @@ public class BeachMap : MapGenerator
                     {
                         GameObject buoy = Instantiate(buoyPrefab, new Vector3(centerPos.x, surfaceY + 1f, 0f), Quaternion.identity, chunkParent);
                         TintObject(buoy);
-
                     }
                 }
             }
             
+            // Raised-Cosine curve: blend slope smoothly into and out of the fluid bed (derivative at edges = 0)
             float dipPercent = (globalX - nextFluidX) / currentFluidWidth;
-            float dipAmount = Mathf.Sin(dipPercent * Mathf.PI) * waterDepth;
+            float smoothFactor = 0.5f * (1f - Mathf.Cos(dipPercent * 2f * Mathf.PI));
+            float dipAmount = smoothFactor * waterDepth;
             finalY -= dipAmount; 
             return false; 
         }
@@ -293,7 +398,6 @@ public class BeachMap : MapGenerator
                     Vector3 skyPos = new Vector3(globalX + Random.Range(-5f, 15f), skyHeight + (g * 1.5f), 0f);
                     GameObject seagull = Instantiate(seagullPrefab, skyPos, Quaternion.identity, chunkParent);
                     TintObject(seagull);
-
                 }
             }
             nextGullX = Mathf.Round((nextGullX + Mathf.Lerp(minGullDistance, maxGullDistance, Mathf.PerlinNoise(globalX * 0.8f, seed))) / pointSpacing) * pointSpacing;
@@ -308,7 +412,6 @@ public class BeachMap : MapGenerator
                 GameObject ball = Instantiate(beachBallPrefab, new Vector3(globalX, originalY + (ballScale * 0.5f) + 1f, 0f), Quaternion.identity, chunkParent);
                 ball.transform.localScale = Vector3.one * ballScale;
                 TintObject(ball);
-
             }
             nextBallX = Mathf.Round((nextBallX + Mathf.Lerp(minBallDistance, maxBallDistance, Mathf.PerlinNoise(globalX * 0.5f, seed))) / pointSpacing) * pointSpacing;
             return true;
@@ -332,7 +435,6 @@ public class BeachMap : MapGenerator
                         float posY = originalY + 1.5f + (r * spacing * 0.85f); 
                         GameObject coconut = Instantiate(coconutPrefab, new Vector3(posX, posY, 0f), Quaternion.identity, chunkParent);
                         TintObject(coconut);
-
                     }
                 }
             }

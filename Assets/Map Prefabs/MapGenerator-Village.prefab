@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1416aab1668aa48e9a30878b1ef64c6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VillageMap
-  seed: 12345
+  seed: 7653
   chunksToSpawnAhead: 3
   chunksToSpawnBehindAtStart: 3
   chunkWidth: 20
@@ -195,7 +195,7 @@ MonoBehaviour:
   propYOffset: -0.1
   propTerrainAlignment: 0.8
   enableStaticTime: 1
-  randomizeTime: 0
+  randomizeTime: 1
   specificTimeOfDay: 2
   skyBackgroundRenderer: {fileID: 4705067604519369960}
   dawnColors:
@@ -226,10 +226,15 @@ MonoBehaviour:
   mudProbability: 0
   minWaterWidth: 6
   maxWaterWidth: 12
-  waterDepth: 0.2
+  waterDepth: 0.6
+  waterMeshDepth: 5
   waterLevelOffset: 0
   waterSortingOrder: 4
-  generateScatterObstacles: 1
+  requireFlatOrValleyTerrain: 1
+  maxWaterEdgeHeightDiff: 1
+  maxWaterTerrainSlope: 5
+  maxPeakBulgeTolerance: 0.05
+  generateScatterObstacles: 0
   scatterPrefabs:
   - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
   minScatterDistance: 100

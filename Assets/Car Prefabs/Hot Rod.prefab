@@ -6256,7 +6256,7 @@ MonoBehaviour:
   fuelCostLevels: 00000000f4010000e8030000dc050000b80b000088130000401f0000e02e000068420000a8610000
   speed: 1500
   maxFuel: 0
-  rotationSpeed: 0.075
+  rotationSpeed: 0.1
   airRotationMultiplier: 1.05
   flipCoinBonus: 250
   nitroBoostForce: 30
@@ -6276,7 +6276,7 @@ MonoBehaviour:
   magnetRadius: 0
   targetUIIcon: {fileID: 0}
   headlights: {fileID: 2440860835194561389}
-  flatTireSprite: {fileID: -1199665920645709641, guid: e32a36a66daaf40ad9c7e4a2034e63a4, type: 3}
+  flatTireSprite: {fileID: -7281411768107700683, guid: 48fd6343811e343f79b386ce0eb228a8, type: 3}
   flatTireScale: 0.1
   flatTireFriction: 0.1
   currentRPM: 0
