@@ -14,32 +14,53 @@ public class GameManager : MonoBehaviour
 
     [Header("Game Stats")]
     public int totalCoins = 0;
-    public int totalGems = 0; // --- NEW ---
+    public int totalGems = 0;
     public float distanceTraveled = 0f;
     public int highestDistance = 0;
     public bool isGameOver = false;
 
-    [Header("Pause Menu & Audio")]
+    [Header("Pause Menu & Audio UI")]
     public GameObject pauseMenuPanel;
-    public TextMeshProUGUI muteButtonText;
+    [Tooltip("UI Image component for the Music Button")]
+    public Image musicButtonImage;
+    [Tooltip("UI Image component for the SFX Button")]
+    public Image sfxButtonImage;
+
+    [Header("Audio Icon Sprites")]
+    [Tooltip("Icon displayed when Music is enabled")]
+    public Sprite musicOnSprite;
+    [Tooltip("Icon displayed when Music is muted")]
+    public Sprite musicOffSprite;
+    [Tooltip("Icon displayed when SFX is enabled")]
+    public Sprite sfxOnSprite;
+    [Tooltip("Icon displayed when SFX is muted")]
+    public Sprite sfxOffSprite;
+
     [HideInInspector] public bool isPaused = false;
 
-    [Header("Mobile Inputs")]
+    [Header("Mobile Inputs & Cooldowns")]
     [HideInInspector] public bool isMobileGasPressed = false;
     [HideInInspector] public bool isMobileBrakePressed = false;
+    
+    [Tooltip("Duration of the Nitro cooldown in seconds")]
+    public float nitroCooldownTime = 10f;
+    private float currentNitroCooldown = 0f;
 
     [Header("UI References")]
     public TextMeshProUGUI coinText; 
-    public TextMeshProUGUI gemText; // --- NEW: Drag your Game Scene Gem Text here ---
+    public TextMeshProUGUI gemText;
     public TextMeshProUGUI distanceText; 
     public TextMeshProUGUI highScoreText; 
     public GameObject gameOverPanel; 
     public TextMeshProUGUI nitroCountText; 
+    
+    [Tooltip("The UI Image of the Nitro button to darken during cooldown")]
+    public Image nitroButtonIcon;
     [Tooltip("The Green Nitro image set to 'Filled'")]
-    public Image hypeNitroFillImage; // --- NEW ---
+    public Image hypeNitroFillImage;
 
     [Header("Dashboard UI")]
-    public RectTransform revNeedle; // The rotating needle image
+    public RectTransform revNeedle; 
     public float minRevAngle = 135f; 
     public float maxRevAngle = -135f;
     [Tooltip("The warning_lit.png image that flashes when hitting the rev limiter")]
@@ -67,13 +88,11 @@ public class GameManager : MonoBehaviour
     [Header("Audio")]
     public AudioClip milestoneSound;
 
-    // --- NEW: STAT TRACKING FOR GAME OVER SCREEN ---
     [HideInInspector] public int totalCoinsThisRun = 0;
-    [HideInInspector] public int totalGemsThisRun = 0; // --- NEW ---
+    [HideInInspector] public int totalGemsThisRun = 0;
     [HideInInspector] public int runFlips = 0;
     [HideInInspector] public float runAirTime = 0f;
     [HideInInspector] public int runNitrosUsed = 0;
-    // -----------------------------------------------
 
     private int maxMilestoneLevel = 0; 
     private int nextMilestoneDistance = 200;
@@ -113,15 +132,15 @@ public class GameManager : MonoBehaviour
         }
 
         totalCoins = PlayerPrefs.GetInt("SavedCoins", 0);
-        totalGems = PlayerPrefs.GetInt("SavedGems", 0); // --- NEW ---
+        totalGems = PlayerPrefs.GetInt("SavedGems", 0);
         
         highestDistance = PlayerPrefs.GetInt("HighestDistance_Map_" + currentMapIndex, 0);
         maxMilestoneLevel = PlayerPrefs.GetInt("MaxMilestone_Map_" + currentMapIndex, 0);
         
         UpdateCoinUI(); 
-        UpdateGemUI(); // --- NEW ---
+        UpdateGemUI(); 
         UpdateNitroUI(PlayerPrefs.GetInt("NitroAmount", 0));
-        UpdateHypeUI(0f); // --- NEW: Start hype meter at 0% ---
+        UpdateHypeUI(0f);
         
         if (highScoreText != null) highScoreText.text = "Best: " + highestDistance.ToString() + "m";
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
@@ -138,7 +157,22 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (isPaused) return; // Prevent game logic from running while paused
+        if (isPaused) return;
+
+        // --- NITRO COOLDOWN & VFX LOGIC ---
+        if (currentNitroCooldown > 0)
+        {
+            currentNitroCooldown -= Time.deltaTime;
+            
+            // Re-enable the button visually when cooldown finishes
+            if (currentNitroCooldown <= 0)
+            {
+                if (nitroButtonIcon != null)
+                    nitroButtonIcon.color = Color.white; // Restore normal bright color
+                if (hypeNitroFillImage != null)
+                    hypeNitroFillImage.color = Color.white; // Restore normal bright color for the fill image
+            }
+        }
 
         if (!isGameOver && playerCar != null)
         {
@@ -205,7 +239,6 @@ public class GameManager : MonoBehaviour
                     }
                 }
             }
-            // ----------------------------------
 
             float distToMilestone = nextMilestoneDistance - distanceTraveled;
 
@@ -243,6 +276,30 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void SaveGameData()
+    {
+        PlayerPrefs.SetInt("SavedCoins", totalCoins);
+        PlayerPrefs.SetInt("SavedGems", totalGems);
+        PlayerPrefs.SetInt("HighestDistance_Map_" + currentMapIndex, highestDistance);
+        PlayerPrefs.SetInt("MaxMilestone_Map_" + currentMapIndex, maxMilestoneLevel);
+        PlayerPrefs.Save();
+    }
+
+    void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus) SaveGameData();
+    }
+
+    void OnApplicationQuit()
+    {
+        SaveGameData();
+    }
+
+    void OnDisable()
+    {
+        SaveGameData();
+    }
+
     private int GetMilestoneDistance(int targetLevel)
     {
         if (targetLevel <= 1) return 200; 
@@ -252,10 +309,11 @@ public class GameManager : MonoBehaviour
     void ReachMilestone()
     {
         maxMilestoneLevel++;
-        PlayerPrefs.SetInt("MaxMilestone_Map_" + currentMapIndex, maxMilestoneLevel);
         
         int reward = maxMilestoneLevel * 1000; 
         AddCoins(reward);
+
+        SaveGameData();
 
         if (milestonePopupPanel != null)
         {
@@ -264,7 +322,6 @@ public class GameManager : MonoBehaviour
             popupTimer = 3.0f; 
         }
 
-        // --- NEW: Play the milestone sound! ---
         if (AudioManager.instance != null && milestoneSound != null)
         {
             AudioManager.instance.PlaySFX(milestoneSound, 1f);
@@ -276,27 +333,31 @@ public class GameManager : MonoBehaviour
         if (nextMilestoneText != null) nextMilestoneText.text = nextMilestoneDistance.ToString() + "m";
     }
 
-    // --- PAUSE MENU LOGIC ---
     public void PauseGame()
     {
-        if (isGameOver) return; // Don't allow pausing if dead
+        if (isGameOver) return;
         
+        SaveGameData();
+
         isPaused = true;
-        Time.timeScale = 0f; // Freeze all physics and delta time
+        Time.timeScale = 0f;
         
         if (pauseMenuPanel != null) pauseMenuPanel.SetActive(true);
+        ApplyMuteState();
     }
 
     public void ResumeGame()
     {
         isPaused = false;
-        Time.timeScale = 1f; // Unfreeze the game
+        Time.timeScale = 1f;
         
         if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
     }
 
     public void RestartGame()
     {
+        SaveGameData();
+
         Time.timeScale = 1f; 
         Application.targetFrameRate = 60;
         int activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
@@ -307,35 +368,70 @@ public class GameManager : MonoBehaviour
             UnityEngine.SceneManagement.SceneManager.LoadScene(activeScene);
     }
 
-    public void ToggleMute()
+    /// <summary>
+    /// Toggles Music state via AudioManager and updates the UI button sprite.
+    /// </summary>
+    public void ToggleMusic()
     {
-        bool isMuted = PlayerPrefs.GetInt("IsMuted", 0) == 1;
-        PlayerPrefs.SetInt("IsMuted", !isMuted ? 1 : 0);
-        PlayerPrefs.Save();
-        
-        ApplyMuteState();
-        
-        // Also force the MemeManager to update its VideoPlayer volume immediately
-        if (MemeManager.instance != null)
+        if (AudioManager.instance != null)
         {
-            MemeManager.instance.ApplyMuteState();
+            AudioManager.instance.ToggleMusic();
+            ApplyMuteState();
         }
     }
 
+    /// <summary>
+    /// Toggles SFX state via AudioManager and updates the UI button sprite.
+    /// </summary>
+    public void ToggleSFX()
+    {
+        if (AudioManager.instance != null)
+        {
+            AudioManager.instance.ToggleSFX();
+            ApplyMuteState();
+        }
+    }
+
+    /// <summary>
+    /// Reads audio mute statuses and updates Pause Menu button icon sprites (ON/OFF).
+    /// </summary>
     public void ApplyMuteState()
     {
-        bool isMuted = PlayerPrefs.GetInt("IsMuted", 0) == 1;
-        
-        // Globally mutes all standard AudioSources in the scene (Engine, Impacts, Coins)
-        AudioListener.volume = isMuted ? 0f : 1f;
-        
-        if (muteButtonText != null)
+        if (AudioManager.instance != null)
         {
-            muteButtonText.text = isMuted ? "UNMUTE" : "MUTE";
+            AudioManager.instance.ApplyAudioSettings();
+
+            bool musicMuted = AudioManager.instance.IsMusicMuted();
+            bool sfxMuted = AudioManager.instance.IsSFXMuted();
+
+            // --- MUSIC BUTTON SPRITE SWAP ---
+            if (musicButtonImage != null)
+            {
+                if (musicMuted && musicOffSprite != null)
+                {
+                    musicButtonImage.sprite = musicOffSprite;
+                }
+                else if (!musicMuted && musicOnSprite != null)
+                {
+                    musicButtonImage.sprite = musicOnSprite;
+                }
+            }
+
+            // --- SFX BUTTON SPRITE SWAP ---
+            if (sfxButtonImage != null)
+            {
+                if (sfxMuted && sfxOffSprite != null)
+                {
+                    sfxButtonImage.sprite = sfxOffSprite;
+                }
+                else if (!sfxMuted && sfxOnSprite != null)
+                {
+                    sfxButtonImage.sprite = sfxOnSprite;
+                }
+            }
         }
     }
 
-    // --- INPUTS & GENERAL ---
     public void PointerDownGas() { isMobileGasPressed = true; }
     public void PointerUpGas() { isMobileGasPressed = false; }
     public void PointerDownBrake() { isMobileBrakePressed = true; }
@@ -343,21 +439,40 @@ public class GameManager : MonoBehaviour
 
     public void MobileNitroPressed()
     {
+        // Block nitro activation if currently on cooldown
+        if (currentNitroCooldown > 0) return;
+
         if (playerCar != null)
         {
             CarController cc = playerCar.GetComponent<CarController>();
-            if (cc != null) cc.TryActivateNitro();
+            if (cc != null) 
+            {
+                cc.TryActivateNitro();
+                
+                // Start cooldown timer
+                currentNitroCooldown = nitroCooldownTime;
+
+                // Apply darker color VFX immediately to indicate it's on cooldown
+                Color cooldownColor = new Color(0.4f, 0.4f, 0.4f, 1f); // Dark Grey color look
+                if (nitroButtonIcon != null)
+                {
+                    nitroButtonIcon.color = cooldownColor; 
+                }
+                if (hypeNitroFillImage != null)
+                {
+                    hypeNitroFillImage.color = cooldownColor;
+                }
+            }
         }
     }
 
     public void AddCoins(int amount)
     {
         totalCoins += amount;
-        totalCoinsThisRun += amount; // Track coins earned SPECIFICALLY this run!
+        totalCoinsThisRun += amount; 
         UpdateCoinUI();
     }
 
-    // --- NEW METHOD ---
     public void AddGems(int amount)
     {
         totalGems += amount;
@@ -390,31 +505,27 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // UPDATED: Now accepts the reason for dying!
     public void GameOver(string deathReason)
     {
         if (isGameOver) return;
         isGameOver = true;
 
-        PlayerPrefs.SetInt("SavedCoins", totalCoins);
-        PlayerPrefs.SetInt("SavedGems", totalGems); // --- NEW: Save the gems! ---
-        PlayerPrefs.SetInt("HighestDistance_Map_" + currentMapIndex, highestDistance);
-        PlayerPrefs.Save();
+        SaveGameData(); 
 
-        // Check if we have the new cinematic manager!
         if (GameOverManager.instance != null)
         {
             GameOverManager.instance.StartSequence(deathReason);
         }
         else if (gameOverPanel != null) 
         {
-            // Fallback to old behavior if you haven't set up the new script yet
-            gameOverPanel.SetActive(true);
+            gameOverPanel.SetActive(false);
         }
     }
     
     public void ReturnToMenu()
     {
+        SaveGameData(); 
+
         Time.timeScale = 1f; 
         Application.targetFrameRate = 60; 
         
@@ -426,6 +537,8 @@ public class GameManager : MonoBehaviour
 
     public void ReturnToMainMenu()
     {
+        SaveGameData(); 
+
         Time.timeScale = 1f; 
         Application.targetFrameRate = 60; 
         

@@ -4992,11 +4992,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicWater2D
   nodeCount: 100
-  foamColor: {r: 1, g: 1, b: 1, a: 0.9}
+  foamColor: {r: 0.7075472, g: 0.6079962, b: 0.4305358, a: 1}
   surfaceColor: {r: 0.9056604, g: 0.8165529, b: 0.6536134, a: 1}
   depthColor: {r: 0.7264151, g: 0.66668844, b: 0.5242524, a: 1}
   baseFoamThickness: 0.03
-  maxFoamThickness: 0.25
+  maxFoamThickness: 0.1
   foamGenerationMultiplier: 0.01
   foamDecayRate: 1
   springConstant: 0.02

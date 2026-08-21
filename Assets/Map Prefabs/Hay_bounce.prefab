@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3966351010355339842}
   m_Layer: 0
   m_Name: Hay_bounce
-  m_TagString: Water
+  m_TagString: Wood
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

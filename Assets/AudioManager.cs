@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Video;
 
 public class AudioManager : MonoBehaviour
 {
@@ -28,6 +29,10 @@ public class AudioManager : MonoBehaviour
     [Tooltip("Buzzer for when you don't have enough coins")]
     public AudioClip errorSound;
 
+    // Delegate and event for external scripts (e.g. Car Engine/Nitro audio) to respond to mute toggles
+    public delegate void AudioSettingsChangedHandler(bool isMusicMuted, bool isSFXMuted);
+    public static event AudioSettingsChangedHandler OnAudioSettingsChanged;
+
     void Awake()
     {
         // --- SINGLETON PATTERN ---
@@ -44,6 +49,22 @@ public class AudioManager : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    void Start()
+    {
+        // Apply saved mute preferences when AudioManager boots
+        ApplyAudioSettings();
+    }
+
+    void Update()
+    {
+        // --- CONTINUOUS SAFETY GUARD FOR DYNAMICALLY SPAWNED SOUNDS ---
+        // Catches newly instantiated AudioSources (Coins, Gems, Engine, Nitros, Explosions, PlayClipAtPoint)
+        if (IsSFXMuted())
+        {
+            MuteAllSceneSFX();
+        }
+    }
+
     void OnDestroy()
     {
         // --- SAFETY FIX: Only unregister if THIS is the real, surviving manager! ---
@@ -55,7 +76,10 @@ public class AudioManager : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Reset the volume in case it was lowered by a Game Over Screen
+        // Re-apply audio settings on scene load
+        ApplyAudioSettings();
+
+        // Reset the music volume in case it was lowered by a Game Over Screen
         if (musicSource != null) musicSource.volume = 1f;
 
         // Scene 0 = Main Menu, Scene 1 = Garage
@@ -92,8 +116,129 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    // --- GLOBAL MODIFIERS ---
-    
+    /// <summary>
+    /// Reads saved preferences and applies mute states independently to Music and SFX.
+    /// Mutes all scene AudioSources and VideoPlayers under the SFX channel.
+    /// </summary>
+    public void ApplyAudioSettings()
+    {
+        bool musicMuted = IsMusicMuted();
+        bool sfxMuted = IsSFXMuted();
+
+        if (musicSource != null)
+        {
+            musicSource.mute = musicMuted;
+        }
+
+        if (sfxSource != null)
+        {
+            sfxSource.mute = sfxMuted;
+        }
+
+        if (sfxMuted)
+        {
+            MuteAllSceneSFX();
+        }
+        else
+        {
+            UnmuteAllSceneSFX();
+        }
+
+        // Notify external scripts about state changes
+        OnAudioSettingsChanged?.Invoke(musicMuted, sfxMuted);
+    }
+
+    /// <summary>
+    /// Force mutes all non-music AudioSources and VideoPlayers currently in the active scene.
+    /// Includes inactive objects so components that activate later remain muted.
+    /// </summary>
+    private void MuteAllSceneSFX()
+    {
+        // Find all AudioSources including inactive prefabs/objects
+        AudioSource[] allSources = FindObjectsOfType<AudioSource>(true);
+        foreach (AudioSource src in allSources)
+        {
+            if (src != musicSource)
+            {
+                src.mute = true;
+            }
+        }
+
+        // Mute VideoPlayer audio (e.g., MemeManager videos)
+        VideoPlayer[] allVideoPlayers = FindObjectsOfType<VideoPlayer>(true);
+        foreach (VideoPlayer vp in allVideoPlayers)
+        {
+            for (ushort i = 0; i < vp.controlledAudioTrackCount; i++)
+            {
+                vp.SetDirectAudioMute(i, true);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Unmutes non-music AudioSources and VideoPlayers when SFX is enabled.
+    /// </summary>
+    private void UnmuteAllSceneSFX()
+    {
+        AudioSource[] allSources = FindObjectsOfType<AudioSource>(true);
+        foreach (AudioSource src in allSources)
+        {
+            if (src != musicSource)
+            {
+                src.mute = false;
+            }
+        }
+
+        VideoPlayer[] allVideoPlayers = FindObjectsOfType<VideoPlayer>(true);
+        foreach (VideoPlayer vp in allVideoPlayers)
+        {
+            for (ushort i = 0; i < vp.controlledAudioTrackCount; i++)
+            {
+                vp.SetDirectAudioMute(i, false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Toggles Background Music mute state and saves to PlayerPrefs.
+    /// </summary>
+    public void ToggleMusic()
+    {
+        SetMusicMuted(!IsMusicMuted());
+    }
+
+    /// <summary>
+    /// Toggles Sound Effects (SFX) mute state and saves to PlayerPrefs.
+    /// </summary>
+    public void ToggleSFX()
+    {
+        SetSFXMuted(!IsSFXMuted());
+    }
+
+    public void SetMusicMuted(bool mute)
+    {
+        PlayerPrefs.SetInt("IsMusicMuted", mute ? 1 : 0);
+        PlayerPrefs.Save();
+        ApplyAudioSettings();
+    }
+
+    public void SetSFXMuted(bool mute)
+    {
+        PlayerPrefs.SetInt("IsSFXMuted", mute ? 1 : 0);
+        PlayerPrefs.Save();
+        ApplyAudioSettings();
+    }
+
+    public bool IsMusicMuted()
+    {
+        return PlayerPrefs.GetInt("IsMusicMuted", 0) == 1;
+    }
+
+    public bool IsSFXMuted()
+    {
+        return PlayerPrefs.GetInt("IsSFXMuted", 0) == 1;
+    }
+
     // Called by GameManager when the player dies
     public void ReduceMusicVolumeOnDeath()
     {
@@ -110,6 +255,8 @@ public class AudioManager : MonoBehaviour
     // --- GLOBAL SFX HELPER ---
     public void PlaySFX(AudioClip clip, float volume = 1f)
     {
+        if (IsSFXMuted()) return;
+
         if (clip != null && sfxSource != null)
         {
             sfxSource.PlayOneShot(clip, volume);

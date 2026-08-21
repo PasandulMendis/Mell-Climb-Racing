@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections.Generic; // Required for using Lists
+using System.Collections.Generic;
 
 [System.Serializable]
 public class CarWheel
@@ -17,7 +17,6 @@ public class CarWheel
     [Tooltip("Dirt particle system assigned to this specific wheel")]
     public ParticleSystem dirtParticle;
 
-    // Internal states managed by the script
     [HideInInspector] public WheelContact contactScript;
     [HideInInspector] public bool isGrounded = false;
     [HideInInspector] public bool isPopped = false;
@@ -213,6 +212,7 @@ public class CarController : MonoBehaviour
         if (GameManager.instance != null && GameManager.instance.isGameOver)
         {
             movementInput = 0f;
+            isNitroActive = false; // Prevents nitro from staying active if player dies mid-boost
             HandleAudioAndEffects();
             HandleDirtParticles();
             return;
@@ -258,13 +258,10 @@ public class CarController : MonoBehaviour
             if (w.isGrounded) isAnyWheelGrounded = true;
         }
 
+        // DECOUPLED: Nitro no longer affects the engine's RPM target. It only responds to fuel and movement.
         if (hasFuel)
         {
-            if (isNitroActive)
-            {
-                targetRPM = 1.0f * rpmCap;
-            }
-            else if (movementInput > 0)
+            if (movementInput > 0)
             {
                 if (!isAnyWheelGrounded)
                 {
@@ -290,6 +287,7 @@ public class CarController : MonoBehaviour
 
         if (engineAudioSource != null)
         {
+            // DECOUPLED: Engine audio pitch relies ONLY on engine RPM and Fuel, not Nitro state.
             if (hasFuel && (GameManager.instance == null || !GameManager.instance.isGameOver))
             {
                 float targetPitch = Mathf.Lerp(minPitch, maxPitch, currentRPM);
@@ -313,6 +311,8 @@ public class CarController : MonoBehaviour
         if (exhaustParticleSystem != null)
         {
             var emission = exhaustParticleSystem.emission;
+            
+            // DECOUPLED: Engine exhaust relies ONLY on fuel and movement input, isolated from Nitro.
             if (hasFuel && (GameManager.instance == null || !GameManager.instance.isGameOver))
             {
                 if (movementInput > 0) emission.rateOverTime = 300f; 
@@ -355,6 +355,8 @@ public class CarController : MonoBehaviour
 
     public void TryActivateNitro()
     {
+        if (GameManager.instance != null && GameManager.instance.isGameOver) return; 
+
         if (isNitroActive) return;
 
         if (hasFreeNitro)
@@ -440,8 +442,7 @@ public class CarController : MonoBehaviour
             if (w.isGrounded) isAirborne = false; 
         }
 
-        // FIX: The vehicle can ONLY apply torque for aerial flips when ALL wheels are completely off the ground (isAirborne is true).
-        // If any wheel is touching the ground, canRotate remains false, preventing accidental pitching on gas/brake.
+        // The vehicle can ONLY apply torque for aerial flips when ALL wheels are completely off the ground (isAirborne is true).
         bool canRotate = isAirborne;
 
         if (GameManager.instance != null && GameManager.instance.isGameOver)
@@ -498,7 +499,8 @@ public class CarController : MonoBehaviour
             carRigidbody.AddTorque(flipTorque, ForceMode2D.Force);
         }
 
-        if (isNitroActive && hasFuel)
+        // Nitro remains purely physical here
+        if (isNitroActive)
         {
             if (nitroThrusterPoint != null) carRigidbody.AddForceAtPosition(transform.right * nitroBoostForce, nitroThrusterPoint.position, ForceMode2D.Force);
             else carRigidbody.AddRelativeForce(Vector2.right * nitroBoostForce, ForceMode2D.Force);

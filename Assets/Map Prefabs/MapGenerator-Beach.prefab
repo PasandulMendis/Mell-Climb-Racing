@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68e7df0ee941b48638fe19ebae4ab672, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeachMap
-  seed: 2211
+  seed: 7653
   chunksToSpawnAhead: 3
   chunksToSpawnBehindAtStart: 3
   chunkWidth: 20
