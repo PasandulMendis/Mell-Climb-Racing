@@ -6284,9 +6284,9 @@ MonoBehaviour:
   hasFuel: 1
   engineAudioSource: {fileID: -5327865585866080723}
   exhaustParticleSystem: {fileID: 6520549613286971545}
-  minPitch: 0.8
-  maxPitch: 3
-  pitchMultiplier: 0.05
+  minPitch: 0.7
+  maxPitch: 2
+  pitchMultiplier: 0.03
   revLimiterThreshold: 0.92
   revLimiterPitchDrop: 1
   revLimiterBounceSpeed: 25
@@ -6326,7 +6326,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 6044b188ccb54402d812a66a34570cb9, type: 3}
+  m_Resource: {fileID: 8300000, guid: b01cfa74cf34c46d996ffea5b4109452, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
