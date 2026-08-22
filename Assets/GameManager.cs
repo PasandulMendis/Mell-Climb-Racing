@@ -494,7 +494,7 @@ public class GameManager : MonoBehaviour
 
     public void UpdateNitroUI(int count)
     {
-        if (nitroCountText != null) nitroCountText.text = "Nitro: " + count.ToString();
+        if (nitroCountText != null) nitroCountText.text = "" + count.ToString();
     }
 
     public void UpdateHypeUI(float fillPercent)
