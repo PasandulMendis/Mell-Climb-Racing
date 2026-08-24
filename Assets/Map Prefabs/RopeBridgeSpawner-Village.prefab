@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &683564989602214392
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6650067415650003076}
+  - component: {fileID: 6283634307349983987}
+  m_Layer: 0
+  m_Name: RopeBridgeSpawner-Village
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6650067415650003076
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 683564989602214392}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.39953, y: -0.49959, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6283634307349983987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 683564989602214392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fde9f8bacc1d948549f5b6bea108ac24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RopeBridge
+  plankPrefab: {fileID: 3472687259671340913, guid: 043ab1ab6a7824564ad12ca0c9f98be3, type: 3}
+  plankCount: 20
+  plankMass: 1
+  linearDamping: 1
+  angularDamping: 1
+  enableSupportCables: 1
+  tensionStiffness: 1
+  cableSkipInterval: 1
+  boostPhysicsIterations: 0
+  solverVelocityIterations: 25
+  solverPositionIterations: 25
+  startPostPrefab: {fileID: 3132608844725078792, guid: 7a53d5170024949cfab08cc2a2c5206d, type: 3}
+  endPostPrefab: {fileID: 3132608844725078792, guid: 7a53d5170024949cfab08cc2a2c5206d, type: 3}
+  postOffset: {x: 0, y: 0.5}

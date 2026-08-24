@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6650067415650003076}
   - component: {fileID: 6283634307349983987}
   m_Layer: 0
-  m_Name: RopeBridgeSpawner
+  m_Name: RopeBridgeSpawner-Forest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,5 +44,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde9f8bacc1d948549f5b6bea108ac24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RopeBridge
-  plankPrefab: {fileID: 3472687259671340913, guid: 043ab1ab6a7824564ad12ca0c9f98be3, type: 3}
-  plankCount: 5
+  plankPrefab: {fileID: 3472687259671340913, guid: 84377cb2af4c944a79404052f5babcdd, type: 3}
+  plankCount: 30
+  plankMass: 2
+  linearDamping: 1
+  angularDamping: 1
+  enableSupportCables: 1
+  tensionStiffness: 1
+  cableSkipInterval: 2
+  boostPhysicsIterations: 0
+  solverVelocityIterations: 25
+  solverPositionIterations: 25
+  startPostPrefab: {fileID: 3132608844725078792, guid: c8f38c48fd6304d1089aa41eb8c6500f, type: 3}
+  endPostPrefab: {fileID: 3132608844725078792, guid: c8f38c48fd6304d1089aa41eb8c6500f, type: 3}
+  postOffset: {x: 0, y: 0.5}

@@ -108,7 +108,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Beehive
   beePrefab: {fileID: 5411079658443949526, guid: 9fcb542b966f7411286aa04d20635c91, type: 3}
-  beeCount: 8
+  beeCount: 10
   smashSound: {fileID: 0}
   smashParticles: {fileID: 2081549362633250459}
 --- !u!61 &549009944635406291

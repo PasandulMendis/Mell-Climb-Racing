@@ -216,9 +216,9 @@ MonoBehaviour:
   generateBridges: 1
   ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
   minBridgeGapWidth: 4
-  maxBridgeGapWidth: 8
+  maxBridgeGapWidth: 10
   gorgeDepth: 10
-  expectedPlankWidth: 1
+  expectedPlankWidth: 0.28
   bridgeYOffset: -0.1
   generateWaterPools: 1
   waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}

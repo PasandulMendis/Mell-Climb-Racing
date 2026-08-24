@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0cb8bc1814c604da9a4b4e0d7684c2b7
+guid: 7b2553653e5e3496da6df395585aad35
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4420199814514905591
-    second: c10_0
+      213: 7224099203708408497
+    second: Bridge-Anchor_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 120
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: c10_0
+      name: Bridge-Anchor_0
       rect:
         serializedVersion: 2
-        x: 5
-        y: 16
-        width: 141
-        height: 220
+        x: 29
+        y: 18
+        width: 39
+        height: 141
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 90e679b10bb48a2c0800000000000000
-      internalID: -4420199814514905591
+      spriteID: 1b2d83b63f7214460800000000000000
+      internalID: 7224099203708408497
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      c10_0: -4420199814514905591
+      Bridge-Anchor_0: 7224099203708408497
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -195,7 +195,7 @@ MonoBehaviour:
   - {fileID: 1215196087837981991, guid: 8c57011d6bca3493e8c6cd3a38bf821d, type: 3}
   - {fileID: 1215196087837981991, guid: 5c3f947f36f874a7c8a873acb3ff0aef, type: 3}
   propCheckInterval: 4
-  propSpawnProbability: 0.4
+  propSpawnProbability: 0.6
   propYOffset: -0.1
   propTerrainAlignment: 0.7
   enableStaticTime: 1
@@ -218,15 +218,15 @@ MonoBehaviour:
     skyColor: {r: 0.1, g: 0.1, b: 0.2, a: 1}
     propTint: {r: 0.3, g: 0.3, b: 0.5, a: 1}
   generateBridges: 1
-  ropeBridgePrefab: {fileID: 683564989602214392, guid: d6a128287a9a54f888c05675d8c3b36c, type: 3}
-  minBridgeGapWidth: 8
+  ropeBridgePrefab: {fileID: 683564989602214392, guid: d2996b7e6c3194b64a97345d00a97426, type: 3}
+  minBridgeGapWidth: 2
   maxBridgeGapWidth: 12
   gorgeDepth: 10
-  expectedPlankWidth: 1
+  expectedPlankWidth: 0.7
   bridgeYOffset: -0.1
   generateWaterPools: 1
-  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
-  mudPoolPrefab: {fileID: 8163008081576812170, guid: b5d6163c8a5c34a62bc9de8326a29289, type: 3}
+  waterPoolPrefab: {fileID: 8163008081576812170, guid: 8414ca46808be4bd0972e6d41c155bf5, type: 3}
+  mudPoolPrefab: {fileID: 8163008081576812170, guid: a20b464efd5a7497786f169294316415, type: 3}
   mudProbability: 0.3
   minWaterWidth: 16
   maxWaterWidth: 30

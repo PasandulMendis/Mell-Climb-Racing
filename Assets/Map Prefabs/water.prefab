@@ -5000,9 +5000,9 @@ MonoBehaviour:
   foamGenerationMultiplier: 0.02
   foamDecayRate: 2
   springConstant: 0.012
-  damping: 0.035
+  damping: 0.04
   spread: 0.045
-  collisionForceMultiplier: 0.045
+  collisionForceMultiplier: 0.03
   useComplexAmbient: 1
   wave1Speed: 1.5
   wave1Freq: 2
