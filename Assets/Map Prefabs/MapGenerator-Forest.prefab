@@ -233,7 +233,7 @@ MonoBehaviour:
   waterDepth: 0.5
   waterMeshDepth: 5
   waterLevelOffset: 0
-  waterSortingOrder: 4
+  waterSortingOrder: 5
   requireFlatOrValleyTerrain: 1
   maxWaterEdgeHeightDiff: 1
   maxWaterTerrainSlope: 5

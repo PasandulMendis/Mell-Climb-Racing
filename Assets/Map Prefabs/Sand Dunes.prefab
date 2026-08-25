@@ -227,7 +227,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.99607843, g: 0.7882353, b: 0.62352943, a: 0.59607846}
+      maxColor: {r: 0.990566, g: 0.90975666, b: 0.8457191, a: 0.59607846}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5003,7 +5003,7 @@ MonoBehaviour:
   damping: 0.09
   spread: 0.01
   collisionForceMultiplier: 0.01
-  useComplexAmbient: 0
+  useComplexAmbient: 1
   wave1Speed: 1.5
   wave1Freq: 2
   wave1Amp: 0.06
@@ -5014,7 +5014,7 @@ MonoBehaviour:
   wave3Freq: 1.5
   wave3Amp: 0.04
   buoyancyStrength: 0
-  hydrodynamicDrag: 2.5
+  hydrodynamicDrag: 70
   rotationalFriction: 40
   enableContinuousSplash: 1
   minSpeedForSplash: 1

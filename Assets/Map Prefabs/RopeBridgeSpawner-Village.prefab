@@ -55,6 +55,13 @@ MonoBehaviour:
   boostPhysicsIterations: 0
   solverVelocityIterations: 25
   solverPositionIterations: 25
-  startPostPrefab: {fileID: 3132608844725078792, guid: 7a53d5170024949cfab08cc2a2c5206d, type: 3}
-  endPostPrefab: {fileID: 3132608844725078792, guid: 7a53d5170024949cfab08cc2a2c5206d, type: 3}
+  startPostPrefab: {fileID: 3132608844725078792, guid: 7d8bcf31bb29a469b976cc8d26d488c0, type: 3}
+  endPostPrefab: {fileID: 3132608844725078792, guid: 7d8bcf31bb29a469b976cc8d26d488c0, type: 3}
   postOffset: {x: 0, y: 0.5}
+  enableVisualRope: 1
+  ropeSprite: {fileID: 21300000, guid: f6e470ac5603d4a2299f01ebe6589f76, type: 3}
+  ropeWidth: 0.1
+  ropeSag: 0.4
+  ropeSegments: 20
+  startPostRopeOffset: {x: 0, y: 0.5}
+  endPostRopeOffset: {x: 0, y: 0.5}

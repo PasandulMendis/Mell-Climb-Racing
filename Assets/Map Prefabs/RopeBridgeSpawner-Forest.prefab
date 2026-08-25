@@ -58,3 +58,16 @@ MonoBehaviour:
   startPostPrefab: {fileID: 3132608844725078792, guid: c8f38c48fd6304d1089aa41eb8c6500f, type: 3}
   endPostPrefab: {fileID: 3132608844725078792, guid: c8f38c48fd6304d1089aa41eb8c6500f, type: 3}
   postOffset: {x: 0, y: 0.5}
+  flexiblePosts: 1
+  postBendLimit: 15
+  enableVisualRope: 0
+  ropeSprite: {fileID: 0}
+  ropeWidth: 0.12
+  ropeSag: 0.4
+  ropeSegments: 20
+  startPostRopeOffset: {x: 0, y: 1.2}
+  endPostRopeOffset: {x: 0, y: 1.2}
+  physicalTopRope: 0
+  ropeMass: 0.5
+  ropeLinearDamping: 1
+  ropeAngularDamping: 1

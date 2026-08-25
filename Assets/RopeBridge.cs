@@ -1,8 +1,7 @@
 using UnityEngine;
-
 public class RopeBridge : MonoBehaviour
 {
-    [Header("Bridge Settings")]
+    [Header("Bridge Physics Settings")]
     [Tooltip("The prefab for a single wooden plank.")]
     public GameObject plankPrefab;
 
@@ -45,6 +44,33 @@ public class RopeBridge : MonoBehaviour
     [Tooltip("Offset post position relative to the bridge anchor point (e.g., Y offset to sit on ground).")]
     public Vector2 postOffset = new Vector2(0f, 0.5f);
 
+    [Header("Top Rope Settings")]
+    [Tooltip("Enable top rope rendering.")]
+    public bool enableVisualRope = true;
+
+    [Tooltip("Assign your rope Sprite texture here. Will automatically tile along the cable.")]
+    public Sprite ropeSprite;
+
+    [Tooltip("Thickness of the rope cable.")]
+    public float ropeWidth = 0.12f;
+
+    [Tooltip("How much the rope sags down in the middle between top posts (0 = straight line, 0.5 = slight curve).")]
+    public float ropeSag = 0.4f;
+
+    [Tooltip("Smoothness curve resolution for the sag.")]
+    public int ropeSegments = 20;
+
+    [Tooltip("Local offset on Start Post top where the rope attaches (e.g., Y = 1.2).")]
+    public Vector2 startPostRopeOffset = new Vector2(0f, 1.2f);
+
+    [Tooltip("Local offset on End Post top where the rope attaches (e.g., Y = 1.2).")]
+    public Vector2 endPostRopeOffset = new Vector2(0f, 1.2f);
+
+    private Transform startPostTransform;
+    private Transform endPostTransform;
+    private LineRenderer ropeLineRenderer;
+    private SpriteRenderer dummyColorReceiver;
+
     public void BuildBridge(Vector2 startPos, Vector2 endPos)
     {
         if (boostPhysicsIterations)
@@ -56,24 +82,24 @@ public class RopeBridge : MonoBehaviour
         Vector2 bridgeVector = endPos - startPos;
         float totalDistance = bridgeVector.magnitude;
         Vector2 direction = bridgeVector.normalized;
-        
         float plankLength = totalDistance / plankCount;
-        
+
         Rigidbody2D[] plankBodies = new Rigidbody2D[plankCount];
 
         Rigidbody2D startRb = CreateAnchorPost(startPos, true);
+        startPostTransform = startRb.transform;
         Rigidbody2D previousRb = startRb;
-        
+
         for (int i = 0; i < plankCount; i++)
         {
             Vector2 pos = startPos + direction * (plankLength * i + plankLength / 2f);
-            
+
             GameObject plank = Instantiate(plankPrefab, pos, Quaternion.identity, transform);
             plank.name = $"Plank_{i}";
-            
+
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             plank.transform.rotation = Quaternion.Euler(0, 0, angle);
-            
+
             Rigidbody2D plankRb = plank.GetComponent<Rigidbody2D>();
             if (plankRb == null)
             {
@@ -88,9 +114,8 @@ public class RopeBridge : MonoBehaviour
             HingeJoint2D hinge = plank.AddComponent<HingeJoint2D>();
             hinge.enableCollision = false;
             hinge.autoConfigureConnectedAnchor = false;
-
             hinge.anchor = new Vector2(-plankLength / 2f, 0f);
-            
+
             if (i == 0)
             {
                 hinge.connectedBody = startRb;
@@ -105,9 +130,10 @@ public class RopeBridge : MonoBehaviour
             previousRb = plankRb;
             plankBodies[i] = plankRb;
         }
-        
+
         Rigidbody2D endRb = CreateAnchorPost(endPos, false);
-        
+        endPostTransform = endRb.transform;
+
         HingeJoint2D finalHinge = previousRb.gameObject.AddComponent<HingeJoint2D>();
         finalHinge.enableCollision = false;
         finalHinge.autoConfigureConnectedAnchor = false;
@@ -143,7 +169,7 @@ public class RopeBridge : MonoBehaviour
 
                     cableJoint.anchor = Vector2.zero;
                     cableJoint.connectedAnchor = Vector2.zero;
-                    
+
                     float spanDistance = plankLength * cableSkipInterval * tensionStiffness;
                     cableJoint.distance = spanDistance;
                     cableJoint.maxDistanceOnly = true;
@@ -158,6 +184,70 @@ public class RopeBridge : MonoBehaviour
             {
                 Physics2D.IgnoreCollision(allColliders[i], allColliders[j]);
             }
+        }
+
+        if (enableVisualRope)
+        {
+            SetupRopeRenderer();
+        }
+    }
+
+    private void SetupRopeRenderer()
+    {
+        GameObject ropeObject = new GameObject("TopRope_LineRenderer");
+        ropeObject.transform.SetParent(transform, false);
+
+        ropeLineRenderer = ropeObject.AddComponent<LineRenderer>();
+        
+        dummyColorReceiver = ropeObject.AddComponent<SpriteRenderer>();
+
+        Material spriteMat = new Material(Shader.Find("Sprites/Default"));
+        if (ropeSprite != null)
+        {
+            spriteMat.mainTexture = ropeSprite.texture;
+        }
+        ropeLineRenderer.material = spriteMat;
+        ropeLineRenderer.textureMode = LineTextureMode.Tile;
+
+        ropeLineRenderer.startWidth = ropeWidth;
+        ropeLineRenderer.endWidth = ropeWidth;
+        ropeLineRenderer.useWorldSpace = true;
+        ropeLineRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        ropeLineRenderer.receiveShadows = false;
+        ropeLineRenderer.sortingOrder = 5;
+
+        ropeLineRenderer.positionCount = ropeSegments + 1;
+
+        UpdateRopePositions();
+    }
+
+    private void LateUpdate()
+    {
+        if (!enableVisualRope || ropeLineRenderer == null || startPostTransform == null || endPostTransform == null) return;
+
+        if (dummyColorReceiver != null)
+        {
+            ropeLineRenderer.startColor = dummyColorReceiver.color;
+            ropeLineRenderer.endColor = dummyColorReceiver.color;
+        }
+
+        UpdateRopePositions();
+    }
+
+    private void UpdateRopePositions()
+    {
+        Vector3 startPoint = startPostTransform.TransformPoint(startPostRopeOffset);
+        Vector3 endPoint = endPostTransform.TransformPoint(endPostRopeOffset);
+
+        for (int i = 0; i <= ropeSegments; i++)
+        {
+            float t = (float)i / ropeSegments;
+            Vector3 point = Vector3.Lerp(startPoint, endPoint, t);
+
+            float sagOffset = 4f * t * (1f - t) * ropeSag;
+            point.y -= sagOffset;
+
+            ropeLineRenderer.SetPosition(i, point);
         }
     }
 

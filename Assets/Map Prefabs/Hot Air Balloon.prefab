@@ -193,7 +193,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HotAirBalloon
   floatUpSpeed: 10
-  crashDownSpeed: 15
+  crashDownSpeed: 10
   bobAmount: 1
   bobSpeed: 2
 --- !u!50 &5108633937221569020

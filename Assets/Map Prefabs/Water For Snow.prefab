@@ -5014,7 +5014,7 @@ MonoBehaviour:
   wave3Freq: 1.5
   wave3Amp: 0.04
   buoyancyStrength: 1.5
-  hydrodynamicDrag: 10
+  hydrodynamicDrag: 25
   rotationalFriction: 10
   enableContinuousSplash: 1
   minSpeedForSplash: 1

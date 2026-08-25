@@ -211,7 +211,7 @@ MonoBehaviour:
   lakeDepth: 1.6
   waterMeshDepth: 5
   waterLevelOffset: 0
-  waterSortingOrder: 4
+  waterSortingOrder: 5
   requireFlatOrValleyTerrain: 1
   maxFluidEdgeHeightDiff: 1
   maxFluidTerrainSlope: 5

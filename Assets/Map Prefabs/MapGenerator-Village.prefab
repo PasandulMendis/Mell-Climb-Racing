@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1416aab1668aa48e9a30878b1ef64c6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VillageMap
-  seed: 7653
+  seed: 12345
   chunksToSpawnAhead: 3
   chunksToSpawnBehindAtStart: 3
   chunkWidth: 20
@@ -164,7 +164,7 @@ MonoBehaviour:
   fuelPrefab: {fileID: 1082723113585169690, guid: 5677499108bfe4d5aa47ffaf8809426a, type: 3}
   gemPrefab: {fileID: 8692838261110679811, guid: 851d75133791d4189a76d7be025f92c9, type: 3}
   minGemDistance: 100
-  maxGemDistance: 200
+  maxGemDistance: 500
   gemHeightOffset: 1
   generateProps: 1
   propPrefabs:
@@ -229,7 +229,7 @@ MonoBehaviour:
   waterDepth: 0.6
   waterMeshDepth: 5
   waterLevelOffset: 0
-  waterSortingOrder: 4
+  waterSortingOrder: 5
   requireFlatOrValleyTerrain: 1
   maxWaterEdgeHeightDiff: 1
   maxWaterTerrainSlope: 5
@@ -242,9 +242,9 @@ MonoBehaviour:
   generateBouncyHazards: 1
   bouncyHazardPrefab: {fileID: 1748256950286759179, guid: bf842dee253734a609bc93740337085b, type: 3}
   minBounceDistance: 100
-  maxBounceDistance: 200
+  maxBounceDistance: 300
   bouncyYOffset: 0
-  generateJellyObstacles: 1
+  generateJellyObstacles: 0
   jellyObstaclePrefabs:
   - {fileID: 1215196087837981991, guid: dc746bdc8e6da4604b88c820a50fad1a, type: 3}
   - {fileID: 1215196087837981991, guid: b3c0ccbcb12e74926ac44fdc25b7dd48, type: 3}

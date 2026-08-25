@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// AAA 2D Water System with Continuous Wheel Splashes
+// AAA 2D Water System with Continuous Wheel Splashes & Realistic Wave Inertia
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
 [RequireComponent(typeof(BoxCollider2D))]
@@ -17,16 +17,18 @@ public class DynamicWater2D : MonoBehaviour
     public Color depthColor = new Color(0.02f, 0.15f, 0.5f, 0.95f);
     
     [Header("Procedural Kinetic Foam")]
-    [Tooltip("Foam expands when water is violently disturbed and shrinks when calm.")]
     public float baseFoamThickness = 0.05f;
     public float maxFoamThickness = 0.4f;
     public float foamGenerationMultiplier = 0.02f;
     public float foamDecayRate = 2.0f;
 
     [Header("Reactive Spring Physics")]
+    [Tooltip("Stiffness of water restoring force.")]
     public float springConstant = 0.025f;
-    public float damping = 0.035f;
-    public float spread = 0.06f;
+    [Tooltip("Reduced damping allowing waves to oscillate naturally after object leaves.")]
+    public float damping = 0.015f; 
+    [Tooltip("How fast waves propagate across neighboring nodes.")]
+    public float spread = 0.05f;
     public float collisionForceMultiplier = 0.08f;
 
     [Header("Complex Ocean Waves (Gerstner-esque)")]
@@ -36,23 +38,15 @@ public class DynamicWater2D : MonoBehaviour
     public float wave3Speed = 3.5f; public float wave3Freq = 1.5f; public float wave3Amp = 0.04f;
 
     [Header("Advanced Fluid Dynamics")]
-    [Tooltip("Buoyancy force multiplier")]
     public float buoyancyStrength = 18f;
-    [Tooltip("Applies realistic velocity-squared drag")]
     public float hydrodynamicDrag = 2.5f;
-    [Tooltip("Rotational stability - higher values make floating objects fight to stay upright")]
     public float rotationalFriction = 3f;
 
     [Header("Continuous Wheel Movement Splashes")]
-    [Tooltip("Enable continuous tire splash particles while driving through water")]
     public bool enableContinuousSplash = true;
-    [Tooltip("Minimum vehicle speed to trigger continuous tire splashes")]
     public float minSpeedForSplash = 1.0f;
-    [Tooltip("Time interval (seconds) between tire splash particle emissions per wheel")]
     public float continuousSplashInterval = 0.08f;
-    [Tooltip("Scale modifier for continuous movement splash particles relative to entry impacts")]
     public float continuousSplashScale = 0.5f;
-    [Tooltip("Tire inset percentage from collider bounds (0.12 = 12% in from edges) for realistic wheel placement")]
     [Range(0f, 0.45f)]
     public float wheelInsetRatio = 0.12f;
 
@@ -65,7 +59,7 @@ public class DynamicWater2D : MonoBehaviour
     private float[] yPositions;
     private float[] velocities;
     private float[] accelerations;
-    private float[] dynamicFoamThickness; // Tracks kinetic foam per node
+    private float[] dynamicFoamThickness;
 
     // Mesh Data
     private Mesh mesh;
@@ -79,6 +73,8 @@ public class DynamicWater2D : MonoBehaviour
     private BoxCollider2D col2D;
     private AudioSource audioSource;
     private ParticleSystem[] bubbleSystems;
+
+    private ParticleSystem.Particle[] cachedParticleBuffer = new ParticleSystem.Particle[256];
 
     // Cooldown trackers for front/rear wheel splashes per object
     private Dictionary<Collider2D, float> lastSplashTimeRear = new Dictionary<Collider2D, float>();
@@ -115,12 +111,9 @@ public class DynamicWater2D : MonoBehaviour
         accelerations = new float[nodeCount];
         dynamicFoamThickness = new float[nodeCount];
 
-        // 3 Tiers of Vertices: Foam Top, Water Top, Water Bottom
         vertices = new Vector3[nodeCount * 3];
         colors = new Color[nodeCount * 3];
         uvs = new Vector2[nodeCount * 3];
-
-        // 2 Rows of Quads (Foam Row + Water Row) -> 2 * 6 points per column
         triangles = new int[(nodeCount - 1) * 12]; 
 
         float leftEdge = -waterWidth / 2f;
@@ -140,12 +133,12 @@ public class DynamicWater2D : MonoBehaviour
             colors[i] = foamColor;
             uvs[i] = new Vector2((float)i / (nodeCount - 1), 1f);
 
-            // Tier 1: Water Surface (Bottom of Foam)
+            // Tier 1: Water Surface
             vertices[i + nodeCount] = new Vector3(xPositions[i], yPositions[i], 0f);
             colors[i + nodeCount] = surfaceColor;
             uvs[i + nodeCount] = new Vector2((float)i / (nodeCount - 1), 0.8f);
 
-            // Tier 2: Deep Water (Floor)
+            // Tier 2: Deep Water
             vertices[i + nodeCount * 2] = new Vector3(xPositions[i], bottomEdge, 0f);
             colors[i + nodeCount * 2] = depthColor;
             uvs[i + nodeCount * 2] = new Vector2((float)i / (nodeCount - 1), 0f);
@@ -182,7 +175,7 @@ public class DynamicWater2D : MonoBehaviour
         float baseHeight = waterHeight / 2f;
         float time = Time.time;
 
-        // 1. Hooke's Law & Complex Ambient Waves
+        // 1. Hooke's Law & Ambient Waves
         for (int i = 0; i < nodeCount; i++)
         {
             if (i == 0 || i == nodeCount - 1)
@@ -194,7 +187,6 @@ public class DynamicWater2D : MonoBehaviour
             float targetHeight = baseHeight;
             if (useComplexAmbient)
             {
-                // Multi-frequency wave generation (simulates chaotic ocean surface)
                 targetHeight += Mathf.Sin(xPositions[i] * wave1Freq + time * wave1Speed) * wave1Amp;
                 targetHeight += Mathf.Sin(xPositions[i] * wave2Freq + time * wave2Speed) * wave2Amp;
                 targetHeight += Mathf.Cos(xPositions[i] * wave3Freq + time * wave3Speed) * wave3Amp;
@@ -205,22 +197,20 @@ public class DynamicWater2D : MonoBehaviour
             velocities[i] += accelerations[i];
             yPositions[i] += velocities[i];
 
-            // Kinetic Foam Logic: Fast moving nodes generate thicker foam
             float velocityMagnitude = Mathf.Abs(velocities[i]);
             if (velocityMagnitude > 0.05f)
             {
                 dynamicFoamThickness[i] += velocityMagnitude * foamGenerationMultiplier;
                 dynamicFoamThickness[i] = Mathf.Min(dynamicFoamThickness[i], maxFoamThickness);
             }
-            // Decay foam slowly back to baseline
             dynamicFoamThickness[i] = Mathf.Lerp(dynamicFoamThickness[i], baseFoamThickness, Time.fixedDeltaTime * foamDecayRate);
         }
 
-        // 2. Wave Propagation
+        // 2. Smooth Wave Propagation Loop
         float[] leftDeltas = new float[nodeCount];
         float[] rightDeltas = new float[nodeCount];
 
-        for (int j = 0; j < 8; j++) 
+        for (int j = 0; j < 4; j++) // Reduced iterations to preserve momentum long enough to ripple
         {
             for (int i = 0; i < nodeCount; i++)
             {
@@ -235,7 +225,7 @@ public class DynamicWater2D : MonoBehaviour
                     velocities[i + 1] += rightDeltas[i];
                 }
             }
-            for (int i = 1; i < nodeCount - 1; i++) // Skip edges
+            for (int i = 1; i < nodeCount - 1; i++)
             {
                 yPositions[i - 1] += leftDeltas[i];
                 yPositions[i + 1] += rightDeltas[i];
@@ -244,9 +234,8 @@ public class DynamicWater2D : MonoBehaviour
 
         for (int i = 0; i < nodeCount; i++)
         {
-            vertices[i].y = yPositions[i] + dynamicFoamThickness[i]; // Tier 0 (Foam Top)
-            vertices[i + nodeCount].y = yPositions[i]; // Tier 1 (Water Top)
-            // Tier 2 (Floor) remains static
+            vertices[i].y = yPositions[i] + dynamicFoamThickness[i];
+            vertices[i + nodeCount].y = yPositions[i];
         }
         UpdateMesh();
         
@@ -256,21 +245,30 @@ public class DynamicWater2D : MonoBehaviour
     void HandleBubblePop()
     {
         if (bubbleSystems == null) return;
+        
         foreach (ParticleSystem ps in bubbleSystems)
         {
             if (ps == null || !ps.isPlaying) continue;
 
-            ParticleSystem.Particle[] particles = new ParticleSystem.Particle[ps.main.maxParticles];
-            int aliveCount = ps.GetParticles(particles);
+            int maxParticles = ps.main.maxParticles;
+            if (cachedParticleBuffer.Length < maxParticles)
+            {
+                cachedParticleBuffer = new ParticleSystem.Particle[maxParticles];
+            }
+
+            int aliveCount = ps.GetParticles(cachedParticleBuffer);
 
             for (int i = 0; i < aliveCount; i++)
             {
-                Vector3 worldPos = ps.transform.TransformPoint(particles[i].position);
+                Vector3 worldPos = ps.transform.TransformPoint(cachedParticleBuffer[i].position);
                 float surfaceY = GetWaterHeightAtPosition(worldPos.x);
 
-                if (worldPos.y >= surfaceY) particles[i].remainingLifetime = -1f; 
+                if (worldPos.y >= surfaceY) 
+                {
+                    cachedParticleBuffer[i].remainingLifetime = -1f; 
+                }
             }
-            ps.SetParticles(particles, aliveCount);
+            ps.SetParticles(cachedParticleBuffer, aliveCount);
         }
     }
 
@@ -293,7 +291,6 @@ public class DynamicWater2D : MonoBehaviour
         float impact = Mathf.Clamp(velocity, -250f, 250f);
         velocities[nearestNode] += impact * collisionForceMultiplier;
         
-        // Instant foam burst at impact site
         dynamicFoamThickness[nearestNode] = maxFoamThickness;
         if (nearestNode > 0) dynamicFoamThickness[nearestNode - 1] += maxFoamThickness * 0.5f;
         if (nearestNode < nodeCount - 1) dynamicFoamThickness[nearestNode + 1] += maxFoamThickness * 0.5f;
@@ -301,19 +298,16 @@ public class DynamicWater2D : MonoBehaviour
         if (splashPrefab != null)
         {
             Vector3 splashPos = new Vector3(worldXPosition, transform.position.y + yPositions[nearestNode], 0);
-            Instantiate(splashPrefab, splashPos, Quaternion.identity);
+            SpawnSplashEffect(splashPos, 1.0f);
         }
 
         if (audioSource != null && splashSound != null)
         {
             audioSource.pitch = Random.Range(0.85f, 1.15f);
-            audioSource.PlayOneShot(splashSound, Mathf.Abs(velocity) * 0.01f); // Velocity scales volume
+            audioSource.PlayOneShot(splashSound, Mathf.Abs(velocity) * 0.01f);
         }
     }
 
-    /// <summary>
-    /// Spawns a movement-based splash particle at a specific wheel location along the water surface.
-    /// </summary>
     public void TriggerWheelSplash(float worldX, float surfaceY, Vector2 velocity, float scale = 1.0f)
     {
         if (xPositions == null) return;
@@ -321,29 +315,31 @@ public class DynamicWater2D : MonoBehaviour
         float localX = worldX - transform.position.x;
         int nearestNode = GetNearestNodeIndex(localX);
 
-        // Agitate local water surface node
-        float splashForce = velocity.magnitude * 0.015f;
+        float splashForce = velocity.magnitude * 0.02f;
         velocities[nearestNode] += (velocity.y < 0 ? -splashForce : splashForce) * collisionForceMultiplier;
-
-        // Boost kinetic foam under tire
         dynamicFoamThickness[nearestNode] = Mathf.Min(maxFoamThickness, dynamicFoamThickness[nearestNode] + 0.12f * scale);
 
-        // Spawn scaled splash particle prefab at water line
         if (splashPrefab != null)
         {
             Vector3 spawnPos = new Vector3(worldX, surfaceY, 0f);
-            GameObject splashInstance = Instantiate(splashPrefab, spawnPos, Quaternion.identity);
-            
-            // Scale continuous splash slightly smaller than massive impact splash
-            splashInstance.transform.localScale *= scale;
+            SpawnSplashEffect(spawnPos, scale);
         }
 
-        // Subdued sound for continuous tire churning
         if (audioSource != null && splashSound != null && !audioSource.isPlaying)
         {
             audioSource.pitch = Random.Range(1.1f, 1.4f);
             audioSource.PlayOneShot(splashSound, Mathf.Clamp01(velocity.magnitude * 0.005f));
         }
+    }
+
+    private void SpawnSplashEffect(Vector3 position, float scale)
+    {
+        GameObject splashInstance = Instantiate(splashPrefab, position, Quaternion.identity);
+        splashInstance.transform.localScale *= scale;
+
+        ParticleSystem ps = splashInstance.GetComponent<ParticleSystem>();
+        float destroyTime = ps != null ? ps.main.duration + ps.main.startLifetime.constantMax : 2.0f;
+        Destroy(splashInstance, destroyTime);
     }
 
     void OnTriggerEnter2D(Collider2D col)
@@ -360,12 +356,10 @@ public class DynamicWater2D : MonoBehaviour
         Rigidbody2D rb = col.attachedRigidbody;
         if (rb == null) return;
 
-        // MULTI-POINT BUOYANCY: Sample left (rear) and right (front) sides of the object separately
         float boundsMinX = col.bounds.min.x;
         float boundsMaxX = col.bounds.max.x;
         float bottomWorldY = col.bounds.min.y;
 
-        // Determine exact Front & Rear Wheel positions using inset ratio
         float rearWheelX = Mathf.Lerp(boundsMinX, boundsMaxX, wheelInsetRatio);
         float frontWheelX = Mathf.Lerp(boundsMaxX, boundsMinX, wheelInsetRatio);
 
@@ -378,7 +372,6 @@ public class DynamicWater2D : MonoBehaviour
         ApplyBuoyancyAtPoint(rb, new Vector2(rearWheelX, bottomWorldY), leftDepth);
         ApplyBuoyancyAtPoint(rb, new Vector2(frontWheelX, bottomWorldY), rightDepth);
 
-        // Hydrodynamic Drag & Velocity check
         Vector2 currentVelocity = rb.linearVelocity;
         float speed = currentVelocity.magnitude;
 
@@ -386,24 +379,21 @@ public class DynamicWater2D : MonoBehaviour
         {
             Vector2 dragForce = -currentVelocity.normalized * (currentVelocity.sqrMagnitude * hydrodynamicDrag);
             rb.AddForce(dragForce * Time.fixedDeltaTime, ForceMode2D.Force);
-            
-            // Rotational damping to stop infinite spinning in water
             rb.angularVelocity = Mathf.Lerp(rb.angularVelocity, 0, rotationalFriction * Time.fixedDeltaTime);
             
-            // Create continuous waves while moving through water
+            // Generate continuous surface disturbances based on horizontal & vertical velocity
             if (speed > 0.5f)
             {
                 int node = GetNearestNodeIndex(col.bounds.center.x - transform.position.x);
-                velocities[node] += (currentVelocity.y * 0.005f) * rb.mass;
+                float displacementImpulse = (currentVelocity.x * 0.008f + currentVelocity.y * 0.01f) * rb.mass;
+                velocities[node] += displacementImpulse * Time.fixedDeltaTime;
             }
         }
 
-        // CONTINUOUS DUAL-WHEEL SPLASH LOGIC
         if (enableContinuousSplash && speed >= minSpeedForSplash)
         {
             float currentTime = Time.time;
 
-            // Check & Trigger Rear Wheel Splash
             if (leftDepth > 0)
             {
                 if (!lastSplashTimeRear.TryGetValue(col, out float lastTime) || (currentTime - lastTime) >= continuousSplashInterval)
@@ -413,7 +403,6 @@ public class DynamicWater2D : MonoBehaviour
                 }
             }
 
-            // Check & Trigger Front Wheel Splash
             if (rightDepth > 0)
             {
                 if (!lastSplashTimeFront.TryGetValue(col, out float lastTime) || (currentTime - lastTime) >= continuousSplashInterval)
@@ -427,16 +416,33 @@ public class DynamicWater2D : MonoBehaviour
 
     void OnTriggerExit2D(Collider2D col)
     {
-        // Clean dictionary on exit to avoid unused memory references
-        if (lastSplashTimeRear.ContainsKey(col)) lastSplashTimeRear.Remove(col);
-        if (lastSplashTimeFront.ContainsKey(col)) lastSplashTimeFront.Remove(col);
+        Rigidbody2D rb = col.attachedRigidbody;
+        if (rb != null)
+        {
+            // Exit impulse: Transfer remaining vehicle momentum into the water surface upon leaving
+            float exitX = col.bounds.center.x;
+            float exitVelocityY = rb.linearVelocity.y;
+            float exitVelocityX = rb.linearVelocity.x;
+
+            int exitNode = GetNearestNodeIndex(exitX - transform.position.x);
+            float impulseForce = (Mathf.Abs(exitVelocityX) * 0.02f + exitVelocityY * 0.05f) * rb.mass;
+
+            // Push the exit node and adjacent nodes to keep wave ripples propagating outward
+            velocities[exitNode] += impulseForce * collisionForceMultiplier;
+            if (exitNode > 0) velocities[exitNode - 1] += impulseForce * 0.5f * collisionForceMultiplier;
+            if (exitNode < nodeCount - 1) velocities[exitNode + 1] += impulseForce * 0.5f * collisionForceMultiplier;
+
+            dynamicFoamThickness[exitNode] = Mathf.Min(maxFoamThickness, dynamicFoamThickness[exitNode] + 0.15f);
+        }
+
+        lastSplashTimeRear.Remove(col);
+        lastSplashTimeFront.Remove(col);
     }
 
     void ApplyBuoyancyAtPoint(Rigidbody2D rb, Vector2 worldPoint, float depth)
     {
         if (depth > 0)
         {
-            // Archimedes Principle: Upward force is proportional to volume displaced (approximated by depth here)
             float upwardForce = depth * buoyancyStrength * rb.mass;
             rb.AddForceAtPosition(Vector2.up * upwardForce, worldPoint, ForceMode2D.Force);
         }
@@ -447,8 +453,6 @@ public class DynamicWater2D : MonoBehaviour
         if (xPositions == null || xPositions.Length == 0) return transform.position.y + (waterHeight / 2f);
         
         float localX = worldX - transform.position.x;
-        
-        // Clamp to prevent out of bounds
         float halfWidth = waterWidth / 2f;
         localX = Mathf.Clamp(localX, -halfWidth, halfWidth);
 
@@ -467,10 +471,10 @@ public class DynamicWater2D : MonoBehaviour
     int GetNearestNodeIndex(float localX)
     {
         if (xPositions == null) return 0;
-        int nearest = 1; // Default to 1 to avoid edge locking issues
+        int nearest = 1;
         float shortest = float.MaxValue;
         
-        for (int i = 1; i < nodeCount - 1; i++) // Ignore edges
+        for (int i = 1; i < nodeCount - 1; i++)
         {
             float dist = Mathf.Abs(xPositions[i] - localX);
             if (dist < shortest)
