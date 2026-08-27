@@ -234,7 +234,7 @@ MonoBehaviour:
   maxWaterEdgeHeightDiff: 1
   maxWaterTerrainSlope: 5
   maxPeakBulgeTolerance: 0.05
-  generateScatterObstacles: 0
+  generateScatterObstacles: 1
   scatterPrefabs:
   - {fileID: 3231483075502289221, guid: aeccc45e5a6c84e56a9f23495e119cac, type: 3}
   minScatterDistance: 100

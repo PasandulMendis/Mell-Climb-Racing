@@ -129,7 +129,6 @@ GameObject:
   m_Component:
   - component: {fileID: 50063213}
   - component: {fileID: 50063212}
-  - component: {fileID: 50063215}
   m_Layer: 0
   m_Name: MemeManager
   m_TagString: Untagged
@@ -149,32 +148,377 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e3c214659af84c6fac446c38bd9ed44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemeManager
-  streamerPlayer: {fileID: 1792975626}
-  driverPlayer: {fileID: 50063215}
-  streamerIdle: []
-  streamerHappy: []
-  streamerAngry: []
-  streamerScared: []
-  driverIdle:
-  - {fileID: 32900000, guid: 096ab8cffedca4301addbb86ab36cc7b, type: 3}
-  - {fileID: 32900000, guid: 32e45ef7f970d406eab2cf455e5539af, type: 3}
-  - {fileID: 32900000, guid: 474ab2b5f019c45169dc4abfd485d85a, type: 3}
-  - {fileID: 32900000, guid: 32305aac2de944f6e8afe6c99bd4e9e6, type: 3}
-  driverHappy:
-  - {fileID: 32900000, guid: 4bab09e7f6848436fa250bd498eccb80, type: 3}
-  - {fileID: 32900000, guid: 0dba23da0cf4f407390660800ca0cacc, type: 3}
-  - {fileID: 32900000, guid: 3c86dd6d6d9b64ff18ddfad5d09a0706, type: 3}
-  - {fileID: 32900000, guid: ed51c2d03d94742669110d2070216c42, type: 3}
-  driverAngry:
-  - {fileID: 32900000, guid: 728202ce104a64501a207e3ebda67f2e, type: 3}
-  - {fileID: 32900000, guid: b85ac191670f24a14b988930b86ed31e, type: 3}
-  - {fileID: 32900000, guid: 3a50a3223ad2e4b7ea6377df510a7f89, type: 3}
-  - {fileID: 32900000, guid: 14909c3211a4148efaf973d2f3071766, type: 3}
-  - {fileID: 32900000, guid: 7b9d70ebd09b64673be7f4b11b09e45f, type: 3}
-  driverScared:
-  - {fileID: 32900000, guid: 94f87b83fb6b04ee7967312236e695d6, type: 3}
-  - {fileID: 32900000, guid: 1cee2d1f7e12e47489f5d58b3ec4145f, type: 3}
-  - {fileID: 32900000, guid: f7002859038ce4eef9a62638fab64179, type: 3}
+  idleCategoryName: Idle
+  categories:
+  - categoryName: Start
+    priorityTier: 1
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 4bab09e7f6848436fa250bd498eccb80, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 3c86dd6d6d9b64ff18ddfad5d09a0706, type: 3}
+  - categoryName: Idle
+    priorityTier: 0
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 474ab2b5f019c45169dc4abfd485d85a, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 096ab8cffedca4301addbb86ab36cc7b, type: 3}
+    - {fileID: 32900000, guid: 32e45ef7f970d406eab2cf455e5539af, type: 3}
+    - {fileID: 32900000, guid: 32305aac2de944f6e8afe6c99bd4e9e6, type: 3}
+  - categoryName: UFO_Chase
+    priorityTier: 5
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: aab4f01ceae314ed2a9b0e1fc41cec0d, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: b4837b5c4c7754e3eb5c7e18d252de95, type: 3}
+  - categoryName: UFO_Levitate
+    priorityTier: 6
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: b85ac191670f24a14b988930b86ed31e, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 06a86ea7c44694772bf202d23fe83745, type: 3}
+  - categoryName: UFO_Release
+    priorityTier: 7
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: d3082506f375e4662b933998b5c81224, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 2a97f30fa935546b88303ee9330a16c1, type: 3}
+  - categoryName: Start_To_End_Teleport
+    priorityTier: 5
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 60d7b1e1ddbe0414a9a01213e1005653, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 4bab09e7f6848436fa250bd498eccb80, type: 3}
+  - categoryName: End_To_Start_Teleport
+    priorityTier: 5
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 3a50a3223ad2e4b7ea6377df510a7f89, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: b85ac191670f24a14b988930b86ed31e, type: 3}
+  - categoryName: Meteorite_Appear
+    priorityTier: 6
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+    - {fileID: 32900000, guid: aab4f01ceae314ed2a9b0e1fc41cec0d, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+    - {fileID: 32900000, guid: aab4f01ceae314ed2a9b0e1fc41cec0d, type: 3}
+  - categoryName: Meteorite_Explode
+    priorityTier: 7
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: d1951add7a4b34151b51af9264c89d2f, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: f7002859038ce4eef9a62638fab64179, type: 3}
+  - categoryName: MoonRock_Hit
+    priorityTier: 5
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 7b9d70ebd09b64673be7f4b11b09e45f, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+  - categoryName: Frozen_Lake_Break
+    priorityTier: 6
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 3a50a3223ad2e4b7ea6377df510a7f89, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: b85ac191670f24a14b988930b86ed31e, type: 3}
+  - categoryName: Underwater
+    priorityTier: 5
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: b4837b5c4c7754e3eb5c7e18d252de95, type: 3}
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+    - {fileID: 32900000, guid: b4837b5c4c7754e3eb5c7e18d252de95, type: 3}
+  - categoryName: Out_Of_Water
+    priorityTier: 6
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 7ab62a3e0e14e4fddbe43d4b701a8431, type: 3}
+    - {fileID: 32900000, guid: 7f4fa31c452ea43d3b6d74be1f08ae43, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 07f4a14b9f1d8403da6eaead9bc6ef68, type: 3}
+  - categoryName: Tunnel_Start
+    priorityTier: 4
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+  - categoryName: Icicles_Hit
+    priorityTier: 5
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: f7002859038ce4eef9a62638fab64179, type: 3}
+    - {fileID: 32900000, guid: aab4f01ceae314ed2a9b0e1fc41cec0d, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: d1951add7a4b34151b51af9264c89d2f, type: 3}
+    - {fileID: 32900000, guid: cbb101830243a49f7a008e4f02d3fedb, type: 3}
+  - categoryName: Giant_Snow_Ball_Hit_Front
+    priorityTier: 5
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: cbb101830243a49f7a008e4f02d3fedb, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+  - categoryName: Giant_Snow_Ball_Hit_Back
+    priorityTier: 6
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: b4837b5c4c7754e3eb5c7e18d252de95, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 2a97f30fa935546b88303ee9330a16c1, type: 3}
+  - categoryName: Tire_Pops
+    priorityTier: 4
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 7b9d70ebd09b64673be7f4b11b09e45f, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 3a50a3223ad2e4b7ea6377df510a7f89, type: 3}
+  - categoryName: Bee_Attack
+    priorityTier: 6
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: b4837b5c4c7754e3eb5c7e18d252de95, type: 3}
+    - {fileID: 32900000, guid: d3082506f375e4662b933998b5c81224, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 3c06c9eeb27604db7af03ea77fb460e6, type: 3}
+  - categoryName: Escape_From_Bees
+    priorityTier: 7
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 3c86dd6d6d9b64ff18ddfad5d09a0706, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 3cebb9baa6fd044c6b326de20aff6476, type: 3}
+  - categoryName: Boost_Success
+    priorityTier: 5
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 4bab09e7f6848436fa250bd498eccb80, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 60d7b1e1ddbe0414a9a01213e1005653, type: 3}
+  - categoryName: Boost_Fail
+    priorityTier: 5
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: b37ece04702f4443ab0fcb22b056d85e, type: 3}
+    - {fileID: 32900000, guid: d1571190ee62d4d3682f6cba9c2300f9, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 25c10565e712c41dd87ebc66a6e460cc, type: 3}
+    - {fileID: 32900000, guid: d1571190ee62d4d3682f6cba9c2300f9, type: 3}
+  - categoryName: Car_Bounce
+    priorityTier: 6
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 728202ce104a64501a207e3ebda67f2e, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 7b9d70ebd09b64673be7f4b11b09e45f, type: 3}
+  - categoryName: Beach_Ball_Hit_Front
+    priorityTier: 5
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: cbb101830243a49f7a008e4f02d3fedb, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+  - categoryName: Beach_Ball_Hit_Back
+    priorityTier: 6
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: b4837b5c4c7754e3eb5c7e18d252de95, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 2a97f30fa935546b88303ee9330a16c1, type: 3}
+  - categoryName: Seagull_Spawn
+    priorityTier: 5
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+    - {fileID: 32900000, guid: aab4f01ceae314ed2a9b0e1fc41cec0d, type: 3}
+    - {fileID: 32900000, guid: 0e3076ee510b24c119d6b25532a35556, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 25c10565e712c41dd87ebc66a6e460cc, type: 3}
+    - {fileID: 32900000, guid: d1571190ee62d4d3682f6cba9c2300f9, type: 3}
+    - {fileID: 32900000, guid: 16356d1e6ecda472fb0d67371cef06fb, type: 3}
+  - categoryName: Seagull_Steal
+    priorityTier: 6
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 728202ce104a64501a207e3ebda67f2e, type: 3}
+    - {fileID: 32900000, guid: b85ac191670f24a14b988930b86ed31e, type: 3}
+    - {fileID: 32900000, guid: a1e89c0669ce1495eae6708a7a40bc21, type: 3}
+    - {fileID: 32900000, guid: 508f1aad6c8d84a5eaeab88ce52277f8, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 2a97f30fa935546b88303ee9330a16c1, type: 3}
+    - {fileID: 32900000, guid: 42c874f796c5143b3bc64166368404e1, type: 3}
+    - {fileID: 32900000, guid: a1e89c0669ce1495eae6708a7a40bc21, type: 3}
+    - {fileID: 32900000, guid: a1e89c0669ce1495eae6708a7a40bc21, type: 3}
+  - categoryName: Seagull_Finish
+    priorityTier: 8
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: a451a0a8176664a07bcaa0435d3f2bef, type: 3}
+    - {fileID: 32900000, guid: 728202ce104a64501a207e3ebda67f2e, type: 3}
+    - {fileID: 32900000, guid: a5c3bf85f1e8943ff9e1cfa0723e8da5, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 7b9d70ebd09b64673be7f4b11b09e45f, type: 3}
+    - {fileID: 32900000, guid: abebda5840f754e8eba30cce872b9f1c, type: 3}
+    - {fileID: 32900000, guid: a5c3bf85f1e8943ff9e1cfa0723e8da5, type: 3}
+  - categoryName: Live_Stock_Hit_Front
+    priorityTier: 5
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: cbb101830243a49f7a008e4f02d3fedb, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: a67320d7a669a4e70bb3b0c66516cff0, type: 3}
+  - categoryName: Live_Stock_Hit_Back
+    priorityTier: 6
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: c7b080b6184ac488ba92a1400185e808, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 2a97f30fa935546b88303ee9330a16c1, type: 3}
+  - categoryName: Scarecrow_Hat_Blow
+    priorityTier: 3
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 16356d1e6ecda472fb0d67371cef06fb, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: b4837b5c4c7754e3eb5c7e18d252de95, type: 3}
+  - categoryName: Obstacle_Hit
+    priorityTier: 5
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 7b9d70ebd09b64673be7f4b11b09e45f, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+  - categoryName: Air_Balloon_Hit
+    priorityTier: 5
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 3c86dd6d6d9b64ff18ddfad5d09a0706, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 3c86dd6d6d9b64ff18ddfad5d09a0706, type: 3}
+  - categoryName: Blade_Hit_Front
+    priorityTier: 6
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: cbb101830243a49f7a008e4f02d3fedb, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: a67320d7a669a4e70bb3b0c66516cff0, type: 3}
+    - {fileID: 32900000, guid: 42c874f796c5143b3bc64166368404e1, type: 3}
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+  - categoryName: Blade_Hit_Back
+    priorityTier: 7
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: c7b080b6184ac488ba92a1400185e808, type: 3}
+    - {fileID: 32900000, guid: 3cebb9baa6fd044c6b326de20aff6476, type: 3}
+    - {fileID: 32900000, guid: b4837b5c4c7754e3eb5c7e18d252de95, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 2a97f30fa935546b88303ee9330a16c1, type: 3}
+    - {fileID: 32900000, guid: b4837b5c4c7754e3eb5c7e18d252de95, type: 3}
+  - categoryName: Fuel_Empty
+    priorityTier: 8
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: d1571190ee62d4d3682f6cba9c2300f9, type: 3}
+    - {fileID: 32900000, guid: a5c3bf85f1e8943ff9e1cfa0723e8da5, type: 3}
+    - {fileID: 32900000, guid: b37ece04702f4443ab0fcb22b056d85e, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 16356d1e6ecda472fb0d67371cef06fb, type: 3}
+    - {fileID: 32900000, guid: c1f3ced8d4b2f408fa1735bfd94c710f, type: 3}
+  - categoryName: Clutch_Refuel
+    priorityTier: 9
+    forceFullPlaytime: 1
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 60d7b1e1ddbe0414a9a01213e1005653, type: 3}
+    - {fileID: 32900000, guid: c7b080b6184ac488ba92a1400185e808, type: 3}
+    - {fileID: 32900000, guid: aab4f01ceae314ed2a9b0e1fc41cec0d, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: aab4f01ceae314ed2a9b0e1fc41cec0d, type: 3}
+    - {fileID: 32900000, guid: 7b9d70ebd09b64673be7f4b11b09e45f, type: 3}
+  - categoryName: Fuel_Refill_Standard
+    priorityTier: 3
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: 4bab09e7f6848436fa250bd498eccb80, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: 3c86dd6d6d9b64ff18ddfad5d09a0706, type: 3}
+  - categoryName: Game_Over_Fuel
+    priorityTier: 10
+    forceFullPlaytime: 0
+    loopsInfinitely: 1
+    driverClips:
+    - {fileID: 32900000, guid: 3a50a3223ad2e4b7ea6377df510a7f89, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: abebda5840f754e8eba30cce872b9f1c, type: 3}
+    - {fileID: 32900000, guid: 6bbd8142816d94a40a10774024d4e193, type: 3}
+  - categoryName: Game_Over_Neck
+    priorityTier: 11
+    forceFullPlaytime: 0
+    loopsInfinitely: 1
+    driverClips:
+    - {fileID: 32900000, guid: 14909c3211a4148efaf973d2f3071766, type: 3}
+    - {fileID: 32900000, guid: 3a50a3223ad2e4b7ea6377df510a7f89, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: a451a0a8176664a07bcaa0435d3f2bef, type: 3}
+    - {fileID: 32900000, guid: 7b9d70ebd09b64673be7f4b11b09e45f, type: 3}
+  - categoryName: Btr_Fire
+    priorityTier: 6
+    forceFullPlaytime: 0
+    loopsInfinitely: 0
+    driverClips:
+    - {fileID: 32900000, guid: a1e89c0669ce1495eae6708a7a40bc21, type: 3}
+    - {fileID: 32900000, guid: b4837b5c4c7754e3eb5c7e18d252de95, type: 3}
+    passengerClips:
+    - {fileID: 32900000, guid: cbb101830243a49f7a008e4f02d3fedb, type: 3}
 --- !u!4 &50063213
 Transform:
   m_ObjectHideFlags: 0
@@ -190,42 +534,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!328 &50063215
-VideoPlayer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 50063211}
-  m_Enabled: 1
-  m_VideoClip: {fileID: 0}
-  m_TargetCameraAlpha: 1
-  m_TargetCamera3DLayout: 0
-  m_TargetCamera: {fileID: 0}
-  m_TargetTexture: {fileID: 8400000, guid: 0f48550506c3140bdad890ee675a6f8d, type: 2}
-  m_TimeReference: 0
-  m_TargetMaterialRenderer: {fileID: 0}
-  m_TargetMaterialProperty: <noninit>
-  m_RenderMode: 2
-  m_AspectRatio: 2
-  m_DataSource: 0
-  m_TimeUpdateMode: 2
-  m_PlaybackSpeed: 1
-  m_AudioOutputMode: 2
-  m_TargetAudioSources:
-  - {fileID: 0}
-  m_DirectAudioVolumes:
-  - 1
-  m_Url: 
-  m_EnabledAudioTracks: 01
-  m_DirectAudioMutes: 00
-  m_ControlledAudioTrackCount: 1
-  m_PlayOnAwake: 0
-  m_SkipOnDrop: 1
-  m_Looping: 0
-  m_WaitForFirstFrame: 1
-  m_FrameReadyEventEnabled: 0
-  m_VideoShaders: []
 --- !u!1 &66473499
 GameObject:
   m_ObjectHideFlags: 0
@@ -1595,7 +1903,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 875421131}
-  - {fileID: 1792975623}
   - {fileID: 1210946786}
   - {fileID: 825174081}
   - {fileID: 1842530537}
@@ -6122,115 +6429,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1753284103}
   m_CullTransparentMesh: 1
---- !u!1 &1792975622
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1792975623}
-  - component: {fileID: 1792975625}
-  - component: {fileID: 1792975624}
-  - component: {fileID: 1792975626}
-  m_Layer: 5
-  m_Name: StreamerCam
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!224 &1792975623
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1792975622}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 474763903}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -292, y: -231.99994}
-  m_SizeDelta: {x: 320, y: 180}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1792975624
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1792975622}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Texture: {fileID: 8400000, guid: 36cf6a93f57e94bc9a54e3684f780680, type: 2}
-  m_UVRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
---- !u!222 &1792975625
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1792975622}
-  m_CullTransparentMesh: 1
---- !u!328 &1792975626
-VideoPlayer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1792975622}
-  m_Enabled: 1
-  m_VideoClip: {fileID: 0}
-  m_TargetCameraAlpha: 1
-  m_TargetCamera3DLayout: 0
-  m_TargetCamera: {fileID: 0}
-  m_TargetTexture: {fileID: 8400000, guid: 36cf6a93f57e94bc9a54e3684f780680, type: 2}
-  m_TimeReference: 0
-  m_TargetMaterialRenderer: {fileID: 0}
-  m_TargetMaterialProperty: <noninit>
-  m_RenderMode: 2
-  m_AspectRatio: 2
-  m_DataSource: 0
-  m_TimeUpdateMode: 2
-  m_PlaybackSpeed: 1
-  m_AudioOutputMode: 2
-  m_TargetAudioSources:
-  - {fileID: 0}
-  m_DirectAudioVolumes:
-  - 1
-  m_Url: 
-  m_EnabledAudioTracks: 01
-  m_DirectAudioMutes: 00
-  m_ControlledAudioTrackCount: 1
-  m_PlayOnAwake: 0
-  m_SkipOnDrop: 1
-  m_Looping: 0
-  m_WaitForFirstFrame: 1
-  m_FrameReadyEventEnabled: 0
-  m_VideoShaders: []
 --- !u!1 &1835146121
 GameObject:
   m_ObjectHideFlags: 0

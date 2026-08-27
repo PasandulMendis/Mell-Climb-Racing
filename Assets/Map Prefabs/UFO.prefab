@@ -117,9 +117,12 @@ MonoBehaviour:
   heavyWeightThreshold: 7
   lightCarLiftSpeed: 3
   heavyCarLiftSpeed: 0.5
-  lightCarLiftDuration: 3
-  heavyCarLiftDuration: 3
+  lightCarLiftDuration: 3.8
+  heavyCarLiftDuration: 3.8
   fleeSpeed: 2
+  memeCategoryChasing: UFO_Chase
+  memeCategoryLevitating: UFO_Levitate
+  memeCategoryReleased: UFO_Release
 --- !u!60 &-2518025516819201093
 PolygonCollider2D:
   m_ObjectHideFlags: 0

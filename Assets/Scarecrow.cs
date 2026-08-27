@@ -19,6 +19,10 @@ public class Scarecrow : MonoBehaviour
     [Tooltip("How fast the hat sways")]
     public float windSwaySpeed = 2f;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Played when the car drives fast enough to blow the hat off")]
+    public string memeCategoryHatBlow = "Scarecrow_Hat_Blow";
+
     private bool isHatBlownOff = false;
     private Transform playerCar;
     private Rigidbody2D carRb;
@@ -93,7 +97,10 @@ public class Scarecrow : MonoBehaviour
             Destroy(hatTransform.gameObject, 10f);
         }
         
-        // Optional: Trigger a happy meme for doing something cool!
-        if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
+        // --- NEW: Custom Meme Integration ---
+        if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryHatBlow))
+        {
+            MemeManager.instance.TriggerReaction(memeCategoryHatBlow);
+        }
     }
 }

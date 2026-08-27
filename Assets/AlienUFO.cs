@@ -37,6 +37,14 @@ public class AlienUFO : MonoBehaviour
     [Tooltip("How fast the UFO vanishes into the sky")]
     public float fleeSpeed = 50f;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Triggered when the UFO gets within 10 meters of the car")]
+    public string memeCategoryChasing = "UFO_Chase";
+    [Tooltip("Triggered the moment the car is grabbed")]
+    public string memeCategoryLevitating = "UFO_Levitate";
+    [Tooltip("Triggered when the car is dropped (via timeout or Nitro)")]
+    public string memeCategoryReleased = "UFO_Release";
+
     private enum UFOState { Chasing, Levitating, Fleeing }
     private UFOState currentState = UFOState.Chasing;
 
@@ -53,6 +61,7 @@ public class AlienUFO : MonoBehaviour
     // Track the calculated speeds for this specific grab
     private float currentLiftSpeed;
     private float currentLiftDuration;
+    private bool hasTriggeredChaseMeme = false;
 
     void Start()
     {
@@ -91,6 +100,16 @@ public class AlienUFO : MonoBehaviour
         switch (currentState)
         {
             case UFOState.Chasing:
+                // --- NEW: 10-METER PROXIMITY MEME TRIGGER ---
+                if (!hasTriggeredChaseMeme && Vector2.Distance(transform.position, playerCar.position) <= 10f)
+                {
+                    hasTriggeredChaseMeme = true;
+                    if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryChasing))
+                    {
+                        MemeManager.instance.TriggerReaction(memeCategoryChasing);
+                    }
+                }
+
                 // Target a point directly above the car
                 Vector3 targetPos = playerCar.position + new Vector3(0, hoverHeight, 0);
                 transform.position = Vector3.MoveTowards(transform.position, targetPos, chaseSpeed * Time.deltaTime);
@@ -161,8 +180,11 @@ public class AlienUFO : MonoBehaviour
             ufoSpotlight.color = Color.red; // RED = Danger/Grabbing
         }
 
-        // Trigger Scared meme!
-        if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared, true, false);
+        // --- CUSTOM MEME INTEGRATION: ABDUCTION ---
+        if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryLevitating))
+        {
+            MemeManager.instance.TriggerReaction(memeCategoryLevitating);
+        }
     }
 
     void ReleaseCar()
@@ -175,6 +197,12 @@ public class AlienUFO : MonoBehaviour
         if (ufoSpotlight != null)
         {
             ufoSpotlight.color = Color.yellow; // YELLOW = Fleeing/Passive
+        }
+
+        // --- CUSTOM MEME INTEGRATION: ESCAPE / RELEASE ---
+        if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryReleased))
+        {
+            MemeManager.instance.TriggerReaction(memeCategoryReleased);
         }
 
         Destroy(gameObject, 3f); // Delete object once it flies off screen

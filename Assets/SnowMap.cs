@@ -94,6 +94,10 @@ public class SnowMap : MapGenerator
     [Tooltip("Offsets the icicle downwards so it doesn't get stuck in the ceiling collider")]
     public float icicleYOffset = -1.5f;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Played when the car enters the 100m flat zone before a tunnel")]
+    public string tunnelStartMemeCategory = "Tunnel_Start";
+
     [Header("3. Giant Snowballs")]
     public bool generateGiantSnowballs = true;
     public GameObject giantSnowballPrefab;
@@ -401,6 +405,23 @@ public class SnowMap : MapGenerator
 
             float smallHills = 0f;
             bool isActuallyInsideTunnel = globalX >= nextTunnelX && globalX <= tunnelEndX;
+
+            // --- NEW: SPAWN INVISIBLE MEME TRIPWIRE ---
+            if (!string.IsNullOrEmpty(tunnelStartMemeCategory))
+            {
+                GameObject triggerObj = new GameObject("TunnelMemeTrigger");
+                // Place it exactly at the start of the 100m flat zone, reaching high up
+                triggerObj.transform.position = new Vector3(globalX, tunnelStartY + 20f, 0f);
+                triggerObj.transform.SetParent(chunkParent);
+
+                BoxCollider2D triggerCol = triggerObj.AddComponent<BoxCollider2D>();
+                triggerCol.isTrigger = true;
+                triggerCol.size = new Vector2(10f, 100f); // 10m wide, 100m tall to easily catch the car
+
+                TunnelMemeTrigger triggerScript = triggerObj.AddComponent<TunnelMemeTrigger>();
+                triggerScript.memeCategory = tunnelStartMemeCategory;
+            }
+
             
             if (isActuallyInsideTunnel) 
             {
@@ -714,5 +735,30 @@ public class SnowMap : MapGenerator
         col.SetPoints(ceilingPhysicsPoints);
         
         tempCeilingPoints.Clear();
+    }
+}
+
+// --- NEW: INVISIBLE TRIPWIRE CLASS ---
+// This listens for the car to drive through it, plays the meme, and then disables itself!
+public class TunnelMemeTrigger : MonoBehaviour
+{
+    public string memeCategory;
+    private bool hasTriggered = false;
+
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (hasTriggered) return;
+        
+        // Ensure it's the car that hit the tripwire
+        if (col.GetComponentInParent<CarController>() != null)
+        {
+            hasTriggered = true;
+            if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategory))
+            {
+                MemeManager.instance.TriggerReaction(memeCategory);
+            }
+            // --- BUG FIX: Completely delete the tripwire so it can NEVER fire twice! ---
+            Destroy(gameObject);
+        }
     }
 }

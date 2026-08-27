@@ -25,6 +25,10 @@ public class BouncyHazard : MonoBehaviour
     [Tooltip("How fast it springs back to normal shape")]
     public float squishSpeed = 15f;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Played when the car actually gets launched into the air")]
+    public string memeCategoryBounce = "Car_Bounce";
+
     private AudioSource audioSource;
     private Vector3 originalScale;
     private bool isSquishing = false;
@@ -73,6 +77,12 @@ public class BouncyHazard : MonoBehaviour
                 // We use ForceMode2D.Impulse for an instant, explosive launch!
                 // We multiply by rb.mass so heavy trucks and light bikes bounce equally well!
                 rb.AddForce(finalForce * rb.mass, ForceMode2D.Impulse);
+
+                // --- NEW: Trigger Contextual Meme for the bounce! ---
+                if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryBounce))
+                {
+                    MemeManager.instance.TriggerReaction(memeCategoryBounce);
+                }
 
                 // 3. Play the AAA Visuals and Audio
                 if (bounceParticles != null) bounceParticles.Play();

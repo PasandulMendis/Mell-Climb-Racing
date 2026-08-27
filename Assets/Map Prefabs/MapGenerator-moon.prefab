@@ -53,6 +53,7 @@ MonoBehaviour:
   terrainDepth: 1
   blankChunkPrefab: {fileID: 2503069242505576877, guid: 22ba11f7b7f4f400e9de6444d888a568, type: 3}
   maxReverseDistance: 50
+  invisibleWallLayerName: InvisibleWall
   pointSpacing: 0.5
   baseAmplitude: 5
   maxAmplitude: 25
@@ -151,7 +152,6 @@ MonoBehaviour:
   - {fileID: 848011379362665022, guid: ff2117c36c3ac46a7803cd7e6c46c6c0, type: 3}
   - {fileID: 6479156471797134338, guid: d28625afd36684a37baaee21d78af3a0, type: 3}
   - {fileID: 6050914194016306467, guid: 93f942909be564e0bbc92fe9bad887ed, type: 3}
-  - {fileID: 322988053794530871, guid: 0df1b162c55f349f1ad8058a881e2afb, type: 3}
   - {fileID: 7066886975802339770, guid: a4026e46d604c471aa303fd024289abb, type: 3}
   - {fileID: 3318568293875906925, guid: 590e1850f6c8d4eab98568f935949d21, type: 3}
   - {fileID: 5345245473895494083, guid: 215647bbf67414acea30771c62073f10, type: 3}
@@ -168,8 +168,8 @@ MonoBehaviour:
   minZoneLength: 100
   maxZoneLength: 300
   debrisFlockDistance: 100
-  minDebrisPerFlock: 30
-  maxDebrisPerFlock: 50
+  minDebrisPerFlock: 10
+  maxDebrisPerFlock: 25
 --- !u!1 &8776969117805153211
 GameObject:
   m_ObjectHideFlags: 0

@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68e7df0ee941b48638fe19ebae4ab672, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeachMap
-  seed: 7653
+  seed: 1524
   chunksToSpawnAhead: 3
   chunksToSpawnBehindAtStart: 3
   chunkWidth: 20
@@ -123,9 +123,9 @@ MonoBehaviour:
     skyColor: {r: 0.1, g: 0.1, b: 0.2, a: 1}
     propTint: {r: 0.3, g: 0.3, b: 0.5, a: 1}
   generateFluids: 1
-  waterPoolPrefab: {fileID: 8163008081576812170, guid: 2d41332bf783743a6a5881728609aff5, type: 3}
+  waterPoolPrefab: {fileID: 8163008081576812170, guid: 995f5d23ea5714a598cc8319b5a678d5, type: 3}
   sandDunePrefab: {fileID: 8163008081576812170, guid: 9291c836748eb4306a0a145cf9e1778c, type: 3}
-  sandDuneChance: 0.5
+  sandDuneChance: 0
   minWaterWidth: 8
   maxWaterWidth: 20
   waterDepth: 0.8
@@ -145,13 +145,13 @@ MonoBehaviour:
   bouncyYOffset: 0.15
   generateBeachBalls: 1
   beachBallPrefab: {fileID: 8469514753024041681, guid: e64d03e92b0364158841145a9bfba552, type: 3}
-  minBallDistance: 300
-  maxBallDistance: 600
+  minBallDistance: 200
+  maxBallDistance: 400
   maxBallScale: 1.5
   generateSeagulls: 1
   seagullPrefab: {fileID: 2135442089159442557, guid: 62872b4e236bd401daf490dd992b0366, type: 3}
   minGullDistance: 300
-  maxGullDistance: 700
+  maxGullDistance: 400
   minGullHeight: 10
   maxGullHeight: 15
   generateCoconuts: 1

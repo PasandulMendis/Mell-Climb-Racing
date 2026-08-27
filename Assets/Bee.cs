@@ -15,6 +15,13 @@ public class Bee : MonoBehaviour
     [Tooltip("How much fuel this SINGLE bee drains per second (Multiply by 5 for the whole swarm!)")]
     public float fuelDrainPerSecond = 2f;
     
+    [Tooltip("Played when bees are touching the car (< 1 meter)")]
+    public string memeCategoryAttack = "Bee_Attack";
+
+    [Tooltip("Played when the bees give up and vanish")]
+    public string memeCategoryEscape = "Escape_From_Bees";
+
+
     private Transform playerCar;
     private FuelSystem fuelSystem;
     
@@ -25,6 +32,9 @@ public class Bee : MonoBehaviour
     // Gives each bee a unique flight pattern so they don't clump together
     private float randomBuzzOffset;
     private Vector3 targetHoverOffset;
+    
+    private int lastMemeState = 0; // 0 = far, 2 = attacking
+    private bool hasTriggeredEscape = false;
 
     void Start()
     {
@@ -34,8 +44,8 @@ public class Bee : MonoBehaviour
         hivePosition = transform.position; 
         originalScale = transform.localScale;
         
-        // Pick a random spot around the car to hover (some high, some low, some behind)
-        targetHoverOffset = new Vector3(Random.Range(-3f, 1f), Random.Range(0f, 3f), 0f);
+        // TWEAKED: Made the hover tighter so they actually touch the car (allowing distance to drop <= 1)
+        targetHoverOffset = new Vector3(Random.Range(-1f, 1f), Random.Range(0f, 1.5f), 0f);
 
         if (GameManager.instance != null && GameManager.instance.playerCar != null)
         {
@@ -72,17 +82,43 @@ public class Bee : MonoBehaviour
                 transform.localScale = new Vector3(-Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
             }
 
-            // 4. Drain the Fuel!
-            if (fuelSystem != null && !fuelSystem.isOutOfFuel)
+            // --- NEW: Distance-based Logic (Meme + Fuel Drain) ---
+            float distToCar = Vector2.Distance(transform.position, playerCar.position);
+
+            if (distToCar <= 1f)
             {
-                // We directly subtract the fuel. FuelSystem.cs already clamps it at 0 so it won't break!
-                fuelSystem.currentFuel -= fuelDrainPerSecond * Time.deltaTime;
+                // ATTACK PHASE: Touching the car!
+                if (lastMemeState != 2)
+                {
+                    lastMemeState = 2;
+                    if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryAttack))
+                        MemeManager.instance.TriggerReaction(memeCategoryAttack);
+                }
+
+                // 4. Drain the Fuel ONLY when actually touching the car!
+                if (fuelSystem != null && !fuelSystem.isOutOfFuel)
+                {
+                    fuelSystem.currentFuel -= fuelDrainPerSecond * Time.deltaTime;
+                }
+            }
+            else
+            {
+                lastMemeState = 0; // Reset state so it can trigger again if they catch up
             }
 
             // 5. --- FIX: Check Distance from Hive instead of Time ---
             if (Vector2.Distance(playerCar.position, hivePosition) >= maxChaseDistance)
             {
-                isVanishing = true;
+                isVanishing = true;         
+                // 6. Trigger Escape Meme exactly once per bee
+                if (!hasTriggeredEscape)
+                {
+                    hasTriggeredEscape = true;
+                    if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryEscape))
+                    {
+                        MemeManager.instance.TriggerReaction(memeCategoryEscape);
+                    }
+                }
             }
         }
         else

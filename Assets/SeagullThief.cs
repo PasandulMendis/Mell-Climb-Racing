@@ -36,6 +36,11 @@ using UnityEngine;
         [Tooltip("Drag your Floating Text prefab here")]
         public GameObject floatingTextPrefab;
 
+        [Header("Custom Meme Integration")]
+        public string memeCategorySpawn = "Seagull_Spawn";
+        public string memeCategorySteal = "Seagull_Steal";
+        public string memeCategoryFinish = "Seagull_Finish";
+
         private Transform playerCar;
         private Rigidbody2D rb;
         private bool isAwake = false;
@@ -79,6 +84,10 @@ using UnityEngine;
                 if (Vector2.Distance(transform.position, playerCar.position) < wakeUpDistance)
                 {
                     isAwake = true;
+                }
+                if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategorySpawn))
+                {
+                    MemeManager.instance.TriggerReaction(memeCategorySpawn);
                 }
                 return;
             }
@@ -166,6 +175,11 @@ using UnityEngine;
             // Disable colliders so it doesn't bump the car while hovering
             Collider2D[] cols = GetComponentsInChildren<Collider2D>();
             foreach (Collider2D col in cols) col.enabled = false;
+
+            if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategorySteal))
+            {
+                MemeManager.instance.TriggerReaction(memeCategorySteal);
+            }
         }
 
         void PerformStealTick()
@@ -173,7 +187,6 @@ using UnityEngine;
             if (GameManager.instance != null && GameManager.instance.totalCoins >= coinsPerStealTick)
             {
                 GameManager.instance.AddCoins(-coinsPerStealTick);
-                
                 if (floatingTextPrefab != null)
                 {
                     // Spawn the text slightly higher so it doesn't overlap the bird
@@ -181,8 +194,6 @@ using UnityEngine;
                     FloatingText ft = textObj.GetComponent<FloatingText>();
                     if (ft != null) ft.Setup("-" + coinsPerStealTick.ToString(), Color.red);
                 }
-
-                if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry, true, false);
             }
         }
 
@@ -190,7 +201,10 @@ using UnityEngine;
         {
             isFleeing = true;
             isStealing = false;
-
+            if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryFinish))
+            {
+                MemeManager.instance.TriggerReaction(memeCategoryFinish);
+            }
             // Fly straight up into the sky incredibly fast!
             rb.gravityScale = 0f;
             rb.linearVelocity = new Vector2(0f, fleeSpeed); 

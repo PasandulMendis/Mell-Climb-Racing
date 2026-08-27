@@ -14,6 +14,16 @@ public class WindmillBlade : MonoBehaviour
     [Tooltip("Play a heavy wood crunch sound on hit")]
     public AudioClip swatSound;
 
+    [Header("Custom Meme Integration")]
+    public string memeCategoryFront = "Blade_Hit_Front";
+    public string memeCategoryBack = "Blade_Hit_Back";
+    [Tooltip("The exact name of the invisible front collider on your car")]
+    public string frontColliderName = "FrontBumper";
+    [Tooltip("The exact name of the invisible back collider on your car")]
+    public string backColliderName = "BackBumper";
+    
+    private float lastMemeTime = 0f; // Prevents spamming if the blade scrapes across the car
+
     private AudioSource audioSource;
     private Rigidbody2D rb;
     private Collider2D myCollider;
@@ -85,11 +95,25 @@ public class WindmillBlade : MonoBehaviour
                     audioSource.PlayOneShot(swatSound, 0.8f);
                 }
             }
+        }
+    }
 
-            // If the car slams into the blade at super high speeds, trigger the Scared meme!
-            if (impactForce > 15f && MemeManager.instance != null)
+    // --- NEW: Trigger Event for the Invisible Ghost Bumpers! ---
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        CarController car = col.GetComponentInParent<CarController>();
+        if (car != null && Time.time > lastMemeTime + 1f)
+        {
+            lastMemeTime = Time.time;
+            string hitColliderName = col.gameObject.name;
+            string categoryToPlay = "";
+            
+            if (hitColliderName.Contains(frontColliderName)) categoryToPlay = memeCategoryFront;
+            else if (hitColliderName.Contains(backColliderName)) categoryToPlay = memeCategoryBack;
+
+            if (MemeManager.instance != null && !string.IsNullOrEmpty(categoryToPlay))
             {
-                MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared, true, false);
+                MemeManager.instance.TriggerReaction(categoryToPlay);
             }
         }
     }

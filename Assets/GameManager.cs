@@ -327,8 +327,6 @@ public class GameManager : MonoBehaviour
             AudioManager.instance.PlaySFX(milestoneSound, 1f);
         }
 
-        if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
-
         nextMilestoneDistance = GetMilestoneDistance(maxMilestoneLevel + 1);
         if (nextMilestoneText != null) nextMilestoneText.text = nextMilestoneDistance.ToString() + "m";
     }

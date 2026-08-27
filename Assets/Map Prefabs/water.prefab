@@ -5013,7 +5013,7 @@ MonoBehaviour:
   wave3Speed: 3.5
   wave3Freq: 1.5
   wave3Amp: 0.04
-  buoyancyStrength: 5
+  buoyancyStrength: 3
   hydrodynamicDrag: 20
   rotationalFriction: 3
   enableContinuousSplash: 1
@@ -5023,3 +5023,6 @@ MonoBehaviour:
   wheelInsetRatio: 0.12
   splashPrefab: {fileID: 2460645453133522218}
   splashSound: {fileID: 8300000, guid: 1a4c7d1f377614aefa9b3c802a3c4ed4, type: 3}
+  underwaterMemeCategory: Underwater
+  underwaterDepthThreshold: 1
+  outOfWaterMemeCategory: Out_Of_Water

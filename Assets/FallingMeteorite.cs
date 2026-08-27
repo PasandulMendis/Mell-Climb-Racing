@@ -25,6 +25,12 @@ public class FallingMeteorite : MonoBehaviour
     public ParticleSystem explosionParticles;
     public AudioClip explosionSound;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Triggered when the meteorite spots the car and starts falling")]
+    public string memeCategoryAppear = "Meteorite_Appear";
+    [Tooltip("Triggered when the meteorite hits the ground or the car")]
+    public string memeCategoryExplode = "Meteorite_Explode";
+
     [Header("Optimization")]
     [Tooltip("How far behind the car before the unexploded meteorite auto-deletes")]
     public float deleteDistance = 200f;
@@ -111,6 +117,11 @@ public class FallingMeteorite : MonoBehaviour
                 camControl.eventZoomActive = true;
             }
         }
+        // --- NEW: Trigger the Appearance Meme! ---
+        if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryAppear))
+        {
+            MemeManager.instance.TriggerReaction(memeCategoryAppear);
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -167,8 +178,11 @@ public class FallingMeteorite : MonoBehaviour
             Destroy(soundObj, 3f);
         }
 
-        // 4. Trigger the Meme!
-        if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared, true, false);
+        // 4. Trigger the Custom Meme! (Replaced the old static Scared enum)
+        if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryExplode))
+        {
+            MemeManager.instance.TriggerReaction(memeCategoryExplode);
+        }
 
         // 5. Destroy the big shell
         Destroy(gameObject);

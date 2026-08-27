@@ -75,8 +75,8 @@ public class CarController : MonoBehaviour
     public float revLimiterPitchDrop = 0.4f;
     public float revLimiterBounceSpeed = 25f;
 
-    [Header("Meme Settings")]
-    public float scaredHeightTrigger = 6f; 
+    [Header("Custom Meme Integration")]
+    public string memeCategoryStart = "Start";
 
     [Header("Coin Magnetism")]
     public float magnetRadius = 6f;
@@ -109,9 +109,16 @@ public class CarController : MonoBehaviour
 
     private float hypeProgress = 0f;
     private bool hasFreeNitro = false;
+    private bool hasTriggeredStartMeme = false;
 
     void Start()
     {
+        hasTriggeredStartMeme = true;
+        if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryStart))
+        {
+            MemeManager.instance.TriggerReaction(memeCategoryStart);
+        }
+
         // Auto-assign wheels if the list is completely empty
         if (wheels.Count == 0)
         {
@@ -507,7 +514,6 @@ public class CarController : MonoBehaviour
         }
 
         HandleStunts(isAirborne);
-        CheckAltitudeForMeme();
     }
 
     void HandleStunts(bool isAirborne)
@@ -543,7 +549,6 @@ public class CarController : MonoBehaviour
                 else 
                 {
                     if (GameManager.instance != null) GameManager.instance.AddCoins(flipCoinBonus);
-                    if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
                 }
 
                 totalAirRotation -= Mathf.Sign(totalAirRotation) * 300f;
@@ -567,22 +572,6 @@ public class CarController : MonoBehaviour
         wasAirborneLastFrame = isAirborne;
     }
 
-    void CheckAltitudeForMeme()
-    {
-        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, Vector2.down, scaredHeightTrigger);
-        bool hitGround = false;
-
-        foreach (var hit in hits)
-        {
-            if (!hit.collider.isTrigger && !hit.collider.CompareTag("Player") && !hit.collider.transform.IsChildOf(this.transform))
-            {
-                hitGround = true; 
-                break;
-            }
-        }
-
-        if (!hitGround && MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared);
-    }
 
     public bool PopTire(GameObject tireObject)
     {
@@ -604,13 +593,6 @@ public class CarController : MonoBehaviour
                 }
             }
         }
-
-        if (poppedThisFrame)
-        {
-            if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry, true, false);
-            return true;
-        }
-
         return false;
     }
 

@@ -15,7 +15,12 @@ public class FloatingMoonRock : MonoBehaviour
     [Tooltip("Max absolute distance to prevent memory leaks if it flies into deep space")]
     public float maxSafeDistance = 250f;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Triggered when the car bumps into the floating rock")]
+    public string memeCategoryHit = "MoonRock_Hit";
     private Transform playerCar;
+    private bool hasTriggeredMeme = false; // Prevents spamming the meme if it bounces rapidly
+
 
     void Start()
     {
@@ -59,6 +64,23 @@ public class FloatingMoonRock : MonoBehaviour
         else if (Vector2.Distance(playerCar.position, transform.position) > maxSafeDistance)
         {
             Destroy(gameObject);
+        }
+    }
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (hasTriggeredMeme) return;
+
+        // Check if whatever we just hit belongs to the car!
+        // We look for the CarController script, but we don't need to modify it to do this.
+        if (collision.gameObject.GetComponentInParent<CarController>() != null)
+        {
+            hasTriggeredMeme = true;
+
+            // Trigger the custom meme!
+            if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryHit))
+            {
+                MemeManager.instance.TriggerReaction(memeCategoryHit);
+            }
         }
     }
 }

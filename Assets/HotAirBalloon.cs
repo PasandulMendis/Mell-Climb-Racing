@@ -10,6 +10,10 @@ public class HotAirBalloon : MonoBehaviour
     public float bobAmount = 1f;
     public float bobSpeed = 2f;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Triggered when the car hits any part of the hot air balloon")]
+    public string memeCategoryHit = "Air_Balloon_Hit";
+
     private bool isHit = false;
     private int hitState = 0; // 0 = Idle, 1 = Floating Up, 2 = Crashing Down
     private float startY;
@@ -48,12 +52,17 @@ public class HotAirBalloon : MonoBehaviour
         {
             isHit = true;
 
+            // --- NEW: Custom Meme Integration ---
+            if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryHit))
+            {
+                MemeManager.instance.TriggerReaction(memeCategoryHit);
+            }
+
             // Check the specific name of the collider we just hit!
             if (collision.otherCollider.gameObject.name.Contains("Basket"))
             {
                 // We hit the basket!
                 hitState = 1;
-                if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
             }
             else 
             {
@@ -67,9 +76,6 @@ public class HotAirBalloon : MonoBehaviour
                 // Force it into the extreme background so it passes behind the dirt
                 SpriteRenderer[] allSprites = GetComponentsInChildren<SpriteRenderer>();
                 foreach (SpriteRenderer sr in allSprites) sr.sortingOrder = -20;
-
-                // Scared meme because we just destroyed a hot air balloon!
-                if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared, true, false);
             }
             
             // Clean up the object eventually so it doesn't fall/float forever

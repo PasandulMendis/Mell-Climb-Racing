@@ -12,6 +12,10 @@ public class Icicle : MonoBehaviour
     [Tooltip("How fast gravity pulls it down (Make it heavy so it falls fast!)")]
     public float dropGravityScale = 4f;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Played when the icicle bounces off the car")]
+    public string memeCategoryHit = "Icicles_Hit";
+
     [Header("Effects")]
     public ParticleSystem shatterParticles;
     public AudioClip shatterSound;
@@ -101,14 +105,12 @@ public class Icicle : MonoBehaviour
         if (hitCar != null)
         {
             PlayShatterEffects();
-
-            // Meme Integration
-            if (MemeManager.instance != null)
+            // --- NEW: Custom Meme Integration ---
+            if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryHit))
             {
-                MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry, true, false);
+                MemeManager.instance.TriggerReaction(memeCategoryHit);
+
             }
-            
-            // NOTICE: We do NOT destroy the icicle here anymore! It will bounce off the car naturally.
         }
     }
 

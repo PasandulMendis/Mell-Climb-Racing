@@ -23,6 +23,14 @@ public class BlackHolePortal : MonoBehaviour
     [Header("Effects")]
     public AudioClip teleportSound;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Triggered when going forward (Start Portal to End Portal)")]
+    public string forwardTeleportCategory = "Start_To_End_Teleport";
+    [Tooltip("Triggered when going backward (End Portal to Start Portal)")]
+    public string backwardTeleportCategory = "End_To_Start_Teleport";
+
+
+
     private AudioSource audioSource;
     private Collider2D col;
     private bool isActivelyTeleporting = false; // Prevents double-triggers
@@ -116,8 +124,17 @@ public class BlackHolePortal : MonoBehaviour
         if (camController != null) camController.isCutsceneActive = false;
         foreach (Rigidbody2D rb in allRbs) rb.simulated = true;
 
-        // 7. Trigger the Meme!
-        if (MemeManager.instance != null) MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared, true, false);
+        // 7. Trigger the Contextual Meme!
+        if (MemeManager.instance != null) 
+        {
+            // If our X position is less than the linked portal's X position, we are going Forward!
+            string categoryToPlay = (transform.position.x < linkedPortal.transform.position.x) ? forwardTeleportCategory : backwardTeleportCategory;
+            
+            if (!string.IsNullOrEmpty(categoryToPlay))
+            {
+                MemeManager.instance.TriggerReaction(categoryToPlay);
+            }
+        }
 
         // 8. Start the cooldowns so they don't bounce back instantly
         this.lastTeleportTime = Time.time;

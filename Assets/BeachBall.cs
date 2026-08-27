@@ -9,11 +9,22 @@ public class BeachBall : MonoBehaviour
     
     [Header("Audio")]
     public AudioClip bounceSound; 
+
+    [Header("Custom Meme Integration")]
+    [Tooltip("Played when the car hits the beach ball from the front")]
+    public string memeCategoryHitFront = "Beach_Ball_Hit_Front";
+    [Tooltip("Played when the beach ball hits the car from behind")]
+    public string memeCategoryHitBack = "Beach_Ball_Hit_Back";
+    [Tooltip("The exact name of the invisible front collider on your car")]
+    public string frontColliderName = "FrontBumper";
+    [Tooltip("The exact name of the invisible back collider on your car")]
+    public string backColliderName = "BackBumper";
     
     private Rigidbody2D rb;
     private Transform playerCar;
     private bool isAwake = false;
     private AudioSource audioSource;
+    private bool hasTriggeredMeme = false;
 
     void Start()
     {
@@ -64,6 +75,29 @@ public class BeachBall : MonoBehaviour
         {
             audioSource.pitch = Random.Range(0.8f, 1.3f);
             audioSource.PlayOneShot(bounceSound, 0.6f);
+        }
+    }
+
+    // --- NEW: Trigger Event for the Invisible Ghost Bumpers! ---
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (!hasTriggeredMeme)
+        {
+            CarController hitCar = col.GetComponentInParent<CarController>();
+            if (hitCar != null)
+            {
+                hasTriggeredMeme = true; 
+                string hitColliderName = col.gameObject.name;
+                string categoryToPlay = "";
+
+                if (hitColliderName.Contains(frontColliderName)) categoryToPlay = memeCategoryHitFront;
+                else if (hitColliderName.Contains(backColliderName)) categoryToPlay = memeCategoryHitBack;
+                
+                if (MemeManager.instance != null && !string.IsNullOrEmpty(categoryToPlay))
+                {
+                    MemeManager.instance.TriggerReaction(categoryToPlay);
+                }
+            }
         }
     }
 }

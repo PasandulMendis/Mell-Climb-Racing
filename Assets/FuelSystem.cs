@@ -10,6 +10,16 @@ public class FuelSystem : MonoBehaviour
     [Header("Audio")]
     public AudioClip refuelSound;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Played when the fuel hits 0 and you start coasting")]
+    public string memeCategoryEmpty = "Fuel_Empty";
+    [Tooltip("Played if you manage to grab a fuel can WHILE coasting on empty!")]
+    public string memeCategoryClutchRefuel = "Clutch_Refuel";
+    [Tooltip("Played on a normal fuel refill")]
+    public string memeCategoryStandardRefuel = "Fuel_Refill_Standard";
+    [Tooltip("Played when the car finally stops rolling and the game ends")]
+    public string memeCategoryGameOver = "Game_Over_Fuel";
+
     [HideInInspector] public bool isOutOfFuel = false;
 
     private CarController carController;
@@ -76,18 +86,30 @@ public class FuelSystem : MonoBehaviour
             carController.hasFuel = true; // Wake the engine back up!
         }
         
+        // --- NEW: CLUTCH REFUEL LOGIC ---
+        if (isOutOfFuel)
+        {
+            // We were completely empty and coasting, but we made it!
+            if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryClutchRefuel))
+            {
+                MemeManager.instance.TriggerReaction(memeCategoryClutchRefuel);
+            }
+        }
+        else
+        {
+            // Just a normal top-up
+            if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryStandardRefuel))
+            {
+                MemeManager.instance.TriggerReaction(memeCategoryStandardRefuel);
+            }
+        }
+
         isOutOfFuel = false;
-        Debug.Log("Fuel Refilled!");
 
         // Play the satisfying glug-glug refuel sound!
         if (AudioManager.instance != null && refuelSound != null)
         {
             AudioManager.instance.PlaySFX(refuelSound, 1f);
-        }
-
-        if (MemeManager.instance != null)
-        {
-            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Happy);
         }
     }
 
@@ -103,23 +125,29 @@ public class FuelSystem : MonoBehaviour
         {
             carController.hasFuel = false;
         }
+
+        // --- NEW: START PANICKING! ---
+        if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryEmpty))
+        {
+            MemeManager.instance.TriggerReaction(memeCategoryEmpty);
+        }
     }
 
     void OutOfFuelDeath()
     {
         if (GameManager.instance != null && GameManager.instance.isGameOver) return;
-        
-        Debug.Log("Game Over: Out of Fuel and Stopped!");
-        
-        if (MemeManager.instance != null) 
+
+        // --- NEW: GAME OVER MEME ---
+        if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryGameOver))
         {
-            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry);
+            // Pass 'true' to signify this is a permanent game over state!
+            MemeManager.instance.TriggerReaction(memeCategoryGameOver, true);
         }
 
         if (GameManager.instance != null)
         {
             // NEW: Pass the reason!
-            GameManager.instance.GameOver("OUT OF GAS!");
+            GameManager.instance.GameOver("OUT OF FUEL!");
         }
     }
 }

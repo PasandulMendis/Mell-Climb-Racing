@@ -21,11 +21,22 @@ public class GiantSnowball : MonoBehaviour
     public AudioClip crunchSound;
     private AudioSource audioSource;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("Played when the car crashes into the giant snowball from the front")]
+    public string memeCategoryHitFront = "Giant_Snow_Ball_Hit_Front";
+    [Tooltip("Played when the snowball crushes the car from behind")]
+    public string memeCategoryHitBack = "Giant_Snow_Ball_Hit_Back";
+    [Tooltip("The exact name of the invisible front collider on your car")]
+    public string frontColliderName = "FrontBumper";
+    [Tooltip("The exact name of the invisible back collider on your car")]
+    public string backColliderName = "BackBumper";
+
     private Rigidbody2D rb;
     private Transform playerCar;
     private bool isAwake = false;
     private Vector3 startingScale;
     private float startingMass;
+    private bool hasTriggeredMeme = false;
 
     void Start()
     {
@@ -90,6 +101,29 @@ public class GiantSnowball : MonoBehaviour
             float pitchOffset = Mathf.InverseLerp(startingScale.x, maxScale, transform.localScale.x);
             audioSource.pitch = Mathf.Lerp(1.2f, 0.6f, pitchOffset);
             audioSource.PlayOneShot(crunchSound, 0.7f);
+        }
+    }
+
+    // --- NEW: Trigger Event for the Invisible Ghost Bumpers! ---
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (!hasTriggeredMeme)
+        {
+            CarController hitCar = col.GetComponentInParent<CarController>();
+            if (hitCar != null)
+            {
+                hasTriggeredMeme = true; 
+                string hitColliderName = col.gameObject.name;
+                string categoryToPlay = "";
+
+                if (hitColliderName.Contains(frontColliderName)) categoryToPlay = memeCategoryHitFront;
+                else if (hitColliderName.Contains(backColliderName)) categoryToPlay = memeCategoryHitBack;
+                
+                if (MemeManager.instance != null && !string.IsNullOrEmpty(categoryToPlay))
+                {
+                    MemeManager.instance.TriggerReaction(categoryToPlay);
+                }
+            }
         }
     }
 }

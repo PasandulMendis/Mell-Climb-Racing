@@ -225,12 +225,13 @@ MonoBehaviour:
   maxTunnelLength: 150
   minTunnelHeight: 6
   maxTunnelHeight: 6
-  icicleSpawnChance: 0.3
+  icicleSpawnChance: 0.421
   icicleYOffset: -1
+  tunnelStartMemeCategory: Tunnel_Start
   generateGiantSnowballs: 1
   giantSnowballPrefab: {fileID: 3147441054659126348, guid: c6bfe5dadda984fc58e296b52ab02489, type: 3}
-  minSnowballDistance: 300
-  maxSnowballDistance: 600
+  minSnowballDistance: 200
+  maxSnowballDistance: 400
   snowballYOffset: 3
   generateSnowmen: 1
   snowmanPrefab: {fileID: 9141305696767876709, guid: 378a7443332294fb0b20fb9da29f5ef7, type: 3}

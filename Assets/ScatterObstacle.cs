@@ -23,9 +23,9 @@ public class ScatterObstacle : MonoBehaviour
     [Tooltip("Particle system for physical debris chunks (e.g. broken log pieces)")]
     public ParticleSystem debrisParticles;
 
-    [Header("Meme Integration")]
-    [Tooltip("If the car hits this very hard, should we trigger the Scared meme?")]
-    public bool triggerScaredMemeOnImpact = true;
+    [Header("Custom Meme Integration")]
+    [Tooltip("Played when the car hits the obstacle hard enough to scatter/break it")]
+    public string memeCategoryHit = "Obstacle_Hit";
 
     private Rigidbody2D rb;
     private AudioSource audioSource;
@@ -68,9 +68,10 @@ public class ScatterObstacle : MonoBehaviour
                 {
                     hasBeenHitHard = true; // Only trigger the big reaction once per obstacle
 
-                    if (triggerScaredMemeOnImpact && MemeManager.instance != null)
+                    // --- NEW: Trigger Contextual Meme ---
+                    if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryHit))
                     {
-                        MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Scared, true, false);
+                        MemeManager.instance.TriggerReaction(memeCategoryHit);
                     }
 
                     if (destroyOnHeavyImpact)

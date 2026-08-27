@@ -24,6 +24,10 @@ public class FrozenLake : MonoBehaviour
     public AudioClip shatterSound;
     public AudioClip creakSound;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("The exact name of the Meme Category to play when the ice breaks. Leave empty to disable.")]
+    public string customMemeCategory = "Frozen_Lake_Break";
+
     private BoxCollider2D col;
     private AudioSource audioSource;
     private bool isShattered = false;
@@ -144,12 +148,15 @@ public class FrozenLake : MonoBehaviour
             Destroy(soundObj, 3f);
         }
 
+        if (MemeManager.instance != null && !string.IsNullOrEmpty(customMemeCategory))
+        {
+            MemeManager.instance.TriggerReaction(customMemeCategory);
+        }
         // NEW: Turn the dynamic water back on so the car falls in with a splash!
         if (hiddenWaterPool != null)
         {
             hiddenWaterPool.SetActive(true);
         }
-
         Destroy(gameObject);
     }
 }

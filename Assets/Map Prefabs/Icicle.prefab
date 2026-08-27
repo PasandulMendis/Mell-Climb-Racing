@@ -106,9 +106,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8038645c814d4b7ab93c0342ca247c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Icicle
-  triggerDistance: 5
+  triggerDistance: 4
   dropChance: 0.1
   dropGravityScale: 4
+  memeCategoryHit: Icicles_Hit
   shatterParticles: {fileID: 0}
   shatterSound: {fileID: 0}
 --- !u!50 &8440979013884775251

@@ -54,6 +54,15 @@ public class DynamicWater2D : MonoBehaviour
     public GameObject splashPrefab;
     public AudioClip splashSound;
 
+    [Header("Custom Meme Integration")]
+    [Tooltip("The exact name of the Meme Category to play while submerged. Leave empty to disable.")]
+    public string underwaterMemeCategory = "Underwater";
+    [Tooltip("How deep the car's center must be to trigger the underwater meme (1.0 = fully submerged)")]
+    public float underwaterDepthThreshold = 1.0f;
+    [Tooltip("Played when the car completely exits the water")]
+    public string outOfWaterMemeCategory = "Out_Of_Water";
+
+
     // Node Physics
     private float[] xPositions;
     private float[] yPositions;
@@ -73,6 +82,8 @@ public class DynamicWater2D : MonoBehaviour
     private BoxCollider2D col2D;
     private AudioSource audioSource;
     private ParticleSystem[] bubbleSystems;
+    private float lastOutMemeTime = 0f; // NEW: Prevents multi-collider spam when exiting
+    private bool carWasUnderwater = false; // NEW: Tracks if they actually went deep!
 
     private ParticleSystem.Particle[] cachedParticleBuffer = new ParticleSystem.Particle[256];
 
@@ -412,10 +423,37 @@ public class DynamicWater2D : MonoBehaviour
                 }
             }
         }
+
+        // Trigger the underwater meme only for the car when its center is submerged.
+        float centerSurfaceY = GetWaterHeightAtPosition(col.bounds.center.x);
+        float centerDepth = centerSurfaceY - col.bounds.center.y;
+        if (centerDepth >= underwaterDepthThreshold &&
+            col.GetComponentInParent<CarController>() != null &&
+            MemeManager.instance != null &&
+            !string.IsNullOrEmpty(underwaterMemeCategory))
+        {
+            MemeManager.instance.TriggerReaction(underwaterMemeCategory);
+        }
     }
 
     void OnTriggerExit2D(Collider2D col)
     {
+        CarController car = col.GetComponentInParent<CarController>();
+        if (car != null)
+        {
+            // A car has multiple colliders (chassis, wheels). This 1-second cooldown 
+            // guarantees the meme only triggers exactly once when the car leaves the pool!
+            if (carWasUnderwater && Time.time > lastOutMemeTime + 1.0f)
+            {   
+                lastOutMemeTime = Time.time;
+                carWasUnderwater = false; // Reset it so the next tiny puddle doesn't trigger it
+                if (MemeManager.instance != null && !string.IsNullOrEmpty(outOfWaterMemeCategory))
+                {
+                    MemeManager.instance.TriggerReaction(outOfWaterMemeCategory);
+                }
+            }
+        }
+
         Rigidbody2D rb = col.attachedRigidbody;
         if (rb != null)
         {
@@ -485,4 +523,5 @@ public class DynamicWater2D : MonoBehaviour
         }
         return nearest;
     }
+
 }

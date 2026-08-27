@@ -135,14 +135,17 @@ MonoBehaviour:
   minFlySpeed: 14
   maxFlySpeed: 18
   turnSpeed: 3
-  wakeUpDistance: 20
+  wakeUpDistance: 30
   stealRadius: 1
   pathWobbleAmount: 0
   pathWobbleSpeed: 0
   seagullCry: {fileID: 0}
-  coinsPerStealTick: 10
-  stealDuration: 2
+  coinsPerStealTick: 20
+  stealDuration: 3
   timeBetweenSteals: 0.6
   stealHoverHeight: 0.3
   fleeSpeed: 20
   floatingTextPrefab: {fileID: 5232470966911724870, guid: cd67204eb214d45ea8a9e72df7def7bc, type: 3}
+  memeCategorySpawn: Seagull_Spawn
+  memeCategorySteal: Seagull_Steal
+  memeCategoryFinish: Seagull_Finish

@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class CarHealth : MonoBehaviour
 {
+    [Header("Custom Meme Integration")]
+    public string memeCategoryGameOverNeck = "Game_Over_Neck";
     private bool isDead = false;
 
     // We will attach this script to a tiny collider on the ROOF of the car
@@ -26,10 +28,9 @@ public class CarHealth : MonoBehaviour
 
         Debug.Log("Game Over: " + reason);
 
-        // TRIGGER ANGRY/SAD MEME (Stays forever until restart)
-        if (MemeManager.instance != null)
+        if (MemeManager.instance != null && !string.IsNullOrEmpty(memeCategoryGameOverNeck))
         {
-            MemeManager.instance.TriggerMeme(MemeManager.MemeEvent.Angry, true, true);
+            MemeManager.instance.TriggerReaction(memeCategoryGameOverNeck, true);
         }
 
         // Tell the Game Manager the game is over and pass the reason!
